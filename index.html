@@ -373,7 +373,7 @@ body.loaded .stats{opacity:1}
 
 /* ---------- contact ---------- */
 .contact h2{font-size:clamp(2.4rem,6.4vw,4.6rem)}
-.contact-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(30px,5vw,70px);margin-top:clamp(34px,5vh,50px)}
+.contact-grid{max-width:680px;margin-top:clamp(34px,5vh,50px)}
 .c-links{display:flex;flex-direction:column;gap:4px}
 .c-link{
   display:flex;justify-content:space-between;align-items:center;padding:20px 4px;border-bottom:1px solid var(--line);
@@ -384,16 +384,6 @@ body.loaded .stats{opacity:1}
 .c-link small{font-family:var(--font-m);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--sub)}
 .c-link .arr{color:var(--accent-ink);transition:transform .35s var(--ease)}
 .c-link:hover .arr{transform:translate(4px,-4px)}
-.field{margin-bottom:16px}
-.field label{display:block;font-family:var(--font-m);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--sub);margin-bottom:8px}
-.field input,.field textarea{
-  width:100%;padding:14px 16px;border-radius:var(--r-md);font:inherit;font-size:.95rem;color:var(--ink);
-  background:var(--glass);border:1px solid var(--glass-border);outline:none;resize:vertical;
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  transition:border-color .25s ease,box-shadow .25s ease;
-}
-.field input:focus,.field textarea:focus{border-color:var(--accent-ink);box-shadow:0 0 0 4px color-mix(in srgb,var(--peach) 30%,transparent)}
-.form-note{font-size:.8rem;color:var(--sub);margin-top:12px}
 
 /* ---------- footer ---------- */
 footer{position:relative;z-index:5;border-top:1px solid var(--line);padding:30px 0 36px}
@@ -413,7 +403,6 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);padding:30px
 @media (max-width:760px){
   .nav-links{display:none}
   .menu-btn{display:grid}
-  .contact-grid{grid-template-columns:1fr}
   .stat{flex:1 1 46%;border-right:none;border-bottom:1px solid var(--line);padding:16px 0 12px}
   .stats{border-top:none}
 }
@@ -720,13 +709,6 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);padding:30px
         </a>
       </div>
 
-      <div data-reveal>
-        <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" autocomplete="name" placeholder="Jane Doe"></div>
-        <div class="field"><label for="f-mail">Your email</label><input id="f-mail" type="email" autocomplete="email" placeholder="jane@company.com"></div>
-        <div class="field"><label for="f-msg">Message</label><textarea id="f-msg" rows="4" placeholder="What are we building?"></textarea></div>
-        <button class="btn btn-primary magnetic" id="sendBtn" data-hover>Send message <span class="arr">→</span></button>
-        <p class="form-note">Opens a pre-filled draft in your mail app — no data leaves this page.</p>
-      </div>
     </div>
   </section>
 </main>
@@ -940,16 +922,6 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);padding:30px
     strip.addEventListener("click", function (e) { if (moved) e.preventDefault(); }, true);
   }
 
-  /* ---------- contact form -> mail draft ---------- */
-  var sendBtn = document.getElementById("sendBtn");
-  if (sendBtn) sendBtn.addEventListener("click", function () {
-    var name = (document.getElementById("f-name").value || "").trim();
-    var mail = (document.getElementById("f-mail").value || "").trim();
-    var msg = (document.getElementById("f-msg").value || "").trim();
-    var subject = encodeURIComponent(name ? "Hello from " + name : "Hello Binayak");
-    var body = encodeURIComponent((msg || "Hi Binayak,") + (mail ? "\n\n— " + name + " (" + mail + ")" : name ? "\n\n— " + name : ""));
-    window.location.href = "mailto:sarmabinayak@gmail.com?subject=" + subject + "&body=" + body;
-  });
 })();
 </script>
 </body>
