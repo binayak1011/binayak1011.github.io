@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ages of War</title>
+<style>
+  /* ============================================================
+     DESIGN TOKENS — "Age of War" wooden / cartoon HUD
+     Wood planks, brass studs, gold coin + text, lobed-foliage palette.
+     (Compat aliases for old --brass/--display refs kept so inline styles work.)
+     ============================================================ */
+  :root{
+    --wood:#bd8542; --wood-d:#9a6630; --wood-dd:#5e3c19; --wood-l:#dba75b;
+    --gold:#ffd24a; --gold-2:#f0b52f; --gold-d:#9a6f1f; --gold-edge:#6e4a14;
+    --ink:#3a230f; --ink-soft:#6b4a26; --cream:#fff4dc;
+    --melee:#2f6fd0; --ranged:#2f9e4e; --heavy:#cf4030;
+    --ok:#3fbf6f; --bad:#d9534f;
+    /* compatibility aliases */
+    --brass:var(--gold); --brass-dim:#b9851f; --parch:var(--cream);
+    --steel:var(--wood-dd); --steel-2:#7e5526; --muted:var(--ink-soft);
+    --void:#0b0a08; --slate:var(--wood-d);
+    --display:'Arial Narrow','Roboto Condensed','Helvetica Neue',sans-serif;
+    --mono:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;
+    --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:#0b0a08; color:var(--cream);
+    font-family:var(--body); -webkit-font-smoothing:antialiased; }
+  body{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:14px;
+    background:radial-gradient(1100px 520px at 50% -8%, #2a2014 0%, #0b0a08 62%), #0b0a08; }
+  #wrap{ width:100%; max-width:1000px; }
+
+  /* ---------- TOP BAR : wooden plank with resources + age track ---------- */
+  #topbar{
+    background:
+      radial-gradient(circle 3.5px at 10px 10px,#4a300f,transparent 4px),
+      radial-gradient(circle 3.5px at calc(100% - 10px) 10px,#4a300f,transparent 4px),
+      repeating-linear-gradient(0deg, rgba(255,240,210,.05) 0px, rgba(255,240,210,.05) 1px, transparent 1px, transparent 13px),
+      repeating-linear-gradient(0deg, transparent 0px, transparent 12px, rgba(60,34,12,.26) 12px, rgba(60,34,12,.26) 14px),
+      linear-gradient(180deg, var(--wood-l), var(--wood) 30%, var(--wood-d));
+    border:2px solid var(--wood-dd); border-bottom:none; border-radius:9px 9px 0 0; padding:10px 14px;
+    display:grid; grid-template-columns:auto 1fr auto; gap:14px; align-items:center;
+    box-shadow:inset 0 2px 0 rgba(255,240,210,.25);
+  }
+  .res{ display:flex; gap:18px; align-items:center; }
+  .stat{ display:flex; flex-direction:column; line-height:1; }
+  .stat .k{ font-family:var(--display); text-transform:uppercase; letter-spacing:.12em;
+    font-size:10px; color:var(--ink); opacity:.82; margin-bottom:4px; text-shadow:0 1px 0 rgba(255,240,210,.3); }
+  .stat .v{ font-family:var(--mono); font-size:20px; font-weight:700; color:var(--cream); text-shadow:0 1px 1px rgba(40,20,5,.6); }
+  #goldVal{ color:#ffe07a; text-shadow:0 1px 0 var(--gold-edge),0 2px 2px rgba(40,20,5,.5); }
+  #xpVal{ color:#fff2cf; }
+  #ageName{ color:#ffe07a !important; text-shadow:0 1px 0 var(--gold-edge),0 2px 2px rgba(40,20,5,.4); }
+  .coin{ width:17px;height:17px;border-radius:50%; display:inline-block; margin-right:6px; vertical-align:-3px;
+    background:radial-gradient(circle at 35% 30%,#fff0b0,#ffd24a 45%,#b9851f 80%,#8a5f15);
+    border:1.5px solid #6e4a14; box-shadow:0 1px 2px rgba(0,0,0,.4), inset 0 1px 1px rgba(255,255,255,.5); }
+
+  /* age track (pips on a groove) + xp meter */
+  .timeline{ display:flex; align-items:center; gap:0; margin-bottom:2px; }
+  .era{ position:relative; flex:1; text-align:center; }
+  .era .dot{ width:14px;height:14px;border-radius:50%; margin:0 auto 5px;
+    background:radial-gradient(circle at 35% 30%,#7e5a2a,#4a300f); border:2px solid #3a2510; transition:.25s;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.5); }
+  .era .nm{ font-family:var(--display); text-transform:uppercase; letter-spacing:.06em;
+    font-size:9.5px; color:var(--ink); opacity:.7; white-space:nowrap; }
+  .era::before{ content:''; position:absolute; top:6px; left:-50%; width:100%; height:3px;
+    background:#5e3c19; z-index:-1; border-radius:2px; }
+  .era:first-child::before{ display:none; }
+  .era.done .dot{ background:radial-gradient(circle at 35% 30%,#ffe07a,#f0b52f 60%,#9a6f1f); border-color:#6e4a14; }
+  .era.done .nm{ color:#5e3c1c; opacity:1; }
+  .era.done::before{ background:#caa044; }
+  .era.active .dot{ background:radial-gradient(circle at 35% 30%,#fff3c0,#ffd24a); border-color:#fff0b0;
+    box-shadow:0 0 0 4px rgba(255,210,74,.25),0 0 12px rgba(255,210,74,.6); }
+  .era.active .nm{ color:#7a4f12; opacity:1; font-weight:700; }
+  .xpmeter{ margin-top:7px; height:9px; background:#4a300f; border:2px solid #3a2510;
+    border-radius:6px; overflow:hidden; position:relative; box-shadow:inset 0 2px 3px rgba(0,0,0,.5); }
+  #xpMeterFill{ height:100%; width:0%; background:linear-gradient(90deg,#7fd24a,#aef06a); transition:width .2s;
+    box-shadow:0 0 8px rgba(160,240,100,.5); }
+  #xpMeterLabel{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:9px; color:#fff4dc; text-shadow:0 1px 1px rgba(0,0,0,.7); }
+
+  /* ---------- CANVAS ---------- */
+  #cv{ display:block; width:100%; height:auto; aspect-ratio:1000/450; background:#7fc6ec;
+    border-left:3px solid var(--wood-dd); border-right:3px solid var(--wood-dd); image-rendering:auto; }
+  #stage{ position:relative; }
+
+  /* ---------- CONTROL PANEL (plank) ---------- */
+  #panel{
+    background:
+      radial-gradient(circle 3.5px at 10px calc(100% - 10px),#4a300f,transparent 4px),
+      radial-gradient(circle 3.5px at calc(100% - 10px) calc(100% - 10px),#4a300f,transparent 4px),
+      repeating-linear-gradient(0deg, rgba(255,240,210,.05) 0px, rgba(255,240,210,.05) 1px, transparent 1px, transparent 13px),
+      repeating-linear-gradient(0deg, transparent 0px, transparent 12px, rgba(60,34,12,.26) 12px, rgba(60,34,12,.26) 14px),
+      linear-gradient(180deg, var(--wood), var(--wood-d));
+    border:2px solid var(--wood-dd); border-top:none; border-radius:0 0 9px 9px; padding:12px;
+    display:flex; gap:10px; flex-wrap:wrap; align-items:stretch;
+    box-shadow:inset 0 -3px 8px rgba(60,30,8,.4), 0 6px 14px rgba(0,0,0,.45);
+  }
+  .group{ background:linear-gradient(180deg,var(--wood-d),#7e5526); border:2px solid var(--wood-dd);
+    border-radius:7px; padding:9px; display:flex; flex-direction:column; gap:7px;
+    box-shadow:inset 0 3px 7px rgba(40,20,5,.5), inset 0 1px 0 rgba(255,235,200,.12); }
+  .group .gh{ font-family:var(--display); text-transform:uppercase; letter-spacing:.1em;
+    font-size:10px; color:#fff0cf; display:flex; justify-content:space-between; align-items:center; text-shadow:0 1px 1px rgba(40,20,5,.7); }
+  .gh .cnt{ font-family:var(--mono); color:#ffe6a0; font-size:10px; }
+  .gh .cnt.full{ color:#ffb0a0; }
+  .row{ display:flex; gap:7px; }
+  #unitGroup{ flex:1.4; min-width:300px; } #unitGroup .row{ flex:1; }
+  #actionGroup{ flex:1; min-width:230px; } #actionGroup .row{ flex:1; } #actionGroup .ctl{ flex:1; }
+
+  /* wooden tile buttons */
+  button{ font-family:var(--body); color:var(--cream); cursor:pointer; border:2px solid var(--wood-dd); border-radius:7px;
+    background:linear-gradient(180deg,var(--wood-l),var(--wood-d)); }
+  .ubtn, .ctl{ background:linear-gradient(180deg,#d6a25c,#a9722f); border:2px solid var(--wood-dd);
+    box-shadow:inset 0 2px 0 rgba(255,240,210,.35), inset 0 -3px 6px rgba(60,30,8,.35), 0 3px 0 #5e3c19, 0 5px 9px rgba(0,0,0,.35);
+    transition:transform .08s, filter .12s; }
+  .ubtn:hover:not(:disabled), .ctl:hover:not(:disabled){ filter:brightness(1.07); transform:translateY(-1px); }
+  .ubtn:active:not(:disabled), .ctl:active:not(:disabled){ transform:translateY(2px);
+    box-shadow:inset 0 2px 4px rgba(60,30,8,.5), 0 1px 0 #5e3c19; }
+
+  .ubtn{ flex:1; min-width:0; padding:8px 7px 7px; text-align:left; position:relative;
+    border-left-width:4px; border-left-color:var(--accent,#2f6fd0); }
+  .ubtn .u-type{ font-family:var(--display); text-transform:uppercase; letter-spacing:.09em;
+    font-size:8.5px; color:var(--accent,#2f6fd0); font-weight:700; text-shadow:0 1px 0 rgba(255,240,210,.4); }
+  .ubtn .u-name{ display:block; font-weight:800; font-size:12.5px; line-height:1.15; margin:2px 0 4px;
+    color:var(--ink); text-shadow:0 1px 0 rgba(255,240,210,.35); }
+  .ubtn .u-cost{ font-family:var(--mono); font-size:11px; color:#7a4f12; font-weight:700; }
+  .ubtn .u-cost::before{ content:''; display:inline-block; width:10px;height:10px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff0b0,#ffd24a 55%,#b9851f); border:1px solid #6e4a14; margin-right:4px; vertical-align:-1px; }
+  #btnMelee{ --accent:var(--melee); } #btnRanged{ --accent:var(--ranged); } #btnHeavy{ --accent:var(--heavy); }
+
+  .ctl{ padding:8px 11px; font-size:12px; font-weight:700; line-height:1.2; color:var(--ink); text-shadow:0 1px 0 rgba(255,240,210,.35); }
+  .ctl small{ display:block; font-family:var(--mono); font-weight:600; font-size:10px; color:#6b4a26; margin-top:2px; }
+  .ctl .cost{ color:#7a4f12; }
+  #btnEvolve.ready{ border-color:#fff0b0; color:#3a230f; background:linear-gradient(180deg,#ffe79a,#f0b52f);
+    animation:pulse 1.1s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ box-shadow:inset 0 2px 0 rgba(255,240,210,.35),0 3px 0 #5e3c19,0 0 0 0 rgba(255,210,74,0);}
+    50%{ box-shadow:inset 0 2px 0 rgba(255,240,210,.35),0 3px 0 #5e3c19,0 0 16px 2px rgba(255,210,74,.7);} }
+
+  /* special tab + cooldown overlay */
+  #btnSpecial{ position:relative; overflow:hidden; background:linear-gradient(180deg,#caa86a,#8a6a2a); }
+  #btnSpecial .slabel{ position:relative; z-index:2; color:var(--ink); text-shadow:0 1px 0 rgba(255,240,210,.35); }
+  #btnSpecial .slabel small{ color:#5e3c1c; }
+  #specialOverlay{ position:absolute; left:0; bottom:0; width:100%; height:0%; background:rgba(30,18,6,.6);
+    z-index:3; pointer-events:none; transition:height .15s linear; }
+  #specialCd{ position:absolute; inset:0; z-index:4; display:none; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:16px; font-weight:700; color:#fff; text-shadow:0 1px 2px #000; }
+
+  button:disabled{ filter:grayscale(.55) brightness(.82); opacity:.6; cursor:not-allowed; transform:none !important; }
+
+  .hint{ margin-top:9px; text-align:center; font-size:10.5px; color:#caa46a; font-family:var(--mono); letter-spacing:.02em; }
+  .hint b{ color:#ffe6a0; font-weight:700; }
+  .screen .hint{ color:#5e3c1c; } .screen .hint b{ color:#7a4f12; }
+
+  /* ---------- OVERLAY SCREENS (frosted panel over the bright scene) ---------- */
+  .screen{ position:absolute; inset:0; z-index:20; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; padding:24px; background:transparent; }
+  .screen.hidden{ display:none; }
+  .screen::before{ content:''; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:min(640px,88%); height:min(82%,470px);
+    background:linear-gradient(180deg, rgba(180,222,245,.42), rgba(150,205,235,.30));
+    border:2px solid rgba(255,255,255,.55); border-radius:20px;
+    box-shadow:0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.6);
+    -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); z-index:-1; }
+  .screen > *{ position:relative; z-index:1; }
+  .screen .kicker{ font-family:var(--display); text-transform:uppercase; letter-spacing:.35em;
+    font-size:12px; color:#7a4f12; margin-bottom:10px; text-shadow:0 1px 0 rgba(255,255,255,.5); }
+  .screen h1{ font-family:var(--display); font-weight:800; text-transform:uppercase; letter-spacing:.05em;
+    font-size:clamp(40px,8vw,76px); margin:0 0 6px; line-height:.95; color:#fff;
+    text-shadow:0 2px 0 #b9851f,0 4px 0 #8a5f15,0 6px 10px rgba(0,0,0,.4); }
+  #startScreen h1, #endScreen h1{ background:linear-gradient(180deg,#fff7da,#ffd24a 55%,#b9851f);
+    -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent;
+    filter:drop-shadow(0 3px 0 rgba(110,74,20,.6)) drop-shadow(0 5px 6px rgba(0,0,0,.4)); }
+  .screen p{ max-width:520px; color:#3a230f; font-size:14px; line-height:1.5; margin:6px 0 22px; text-shadow:0 1px 0 rgba(255,255,255,.4); }
+  .screen p b{ color:#7a4f12; } .screen .big{ font-size:16px; }
+  #endStats{ display:flex; gap:30px; margin:0 0 24px; }
+  #endStats .s{ display:flex; flex-direction:column; gap:3px; }
+  #endStats .s .k{ font-family:var(--display); text-transform:uppercase; letter-spacing:.12em; font-size:10px; color:#6b4a26; }
+  #endStats .s .v{ font-family:var(--mono); font-size:22px; font-weight:700; color:#3a230f; }
+  .playbtn{ font-family:var(--display); text-transform:uppercase; letter-spacing:.12em; font-size:18px; font-weight:800;
+    color:#3a230f; padding:14px 40px; border-radius:10px; border:2px solid #6e4a14;
+    background:linear-gradient(180deg,#ffe79a,#ffd24a 50%,#b9851f);
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 5px 0 #6e4a14, 0 9px 18px rgba(0,0,0,.5); transition:.1s; }
+  .playbtn:hover{ transform:translateY(-2px); box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 7px 0 #6e4a14,0 11px 22px rgba(0,0,0,.55); }
+  .playbtn:active{ transform:translateY(3px); box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 2px 0 #6e4a14,0 5px 12px rgba(0,0,0,.5); }
+  #endTitle.win{ color:#8fe3a6; -webkit-text-fill-color:#8fe3a6; background:none; filter:drop-shadow(0 2px 0 rgba(0,0,0,.4)); }
+  #endTitle.lose{ color:#e88c8c; -webkit-text-fill-color:#e88c8c; background:none; filter:drop-shadow(0 2px 0 rgba(0,0,0,.4)); }
+
+  @media (max-width:680px){ .era .nm{ font-size:8px; } #unitGroup{ min-width:100%; } .stat .v{ font-size:16px; } }
+  /* ===== modern-art enhancements: button portraits, contrast, hierarchy, affordability ===== */
+  .ubtn{ display:flex; align-items:center; gap:8px; text-align:left; padding:7px 8px; }
+  .ubtn .ico{ width:42px; height:42px; flex:none; border-radius:7px; background:rgba(30,18,6,.18);
+    box-shadow:inset 0 0 0 1px rgba(40,20,5,.35), inset 0 2px 4px rgba(40,20,5,.25); }
+  .ubtn .txt{ display:flex; flex-direction:column; min-width:0; }
+  .ubtn .u-type{ color:var(--accent,#2f6fd0); text-shadow:0 1px 2px rgba(15,8,2,.9); }
+  .ubtn .u-name{ color:#fff7e4; text-shadow:0 1px 2px rgba(15,8,2,.92),0 0 1px rgba(0,0,0,.6); }
+  .ubtn .u-cost{ color:#ffe07a; text-shadow:0 1px 2px rgba(15,8,2,.85); }
+  #unitGroup{ min-width:336px; }
+
+  .ctl{ display:flex; align-items:center; gap:8px; text-align:left; color:#fff7e4; text-shadow:0 1px 2px rgba(15,8,2,.9); }
+  .ctl .ico{ width:34px; height:34px; flex:none; border-radius:7px; background:rgba(30,18,6,.18);
+    box-shadow:inset 0 0 0 1px rgba(40,20,5,.35), inset 0 2px 4px rgba(40,20,5,.25); }
+  .ctl .txt{ display:flex; flex-direction:column; min-width:0; }
+  .ctl small{ color:#f1ddb8; } .ctl .cost{ color:#ffe07a; }
+  #btnSpecial .ico{ position:relative; z-index:2; }
+  #btnSpecial .slabel{ color:#fff7e4; }
+
+  /* enlarged, higher-contrast resource readouts (clearer top-left hierarchy) */
+  .res .stat .k{ font-size:11px; opacity:.9; }
+  .res .stat .v{ font-size:28px; }
+  .res .coin{ width:22px; height:22px; vertical-align:-4px; margin-right:8px; }
+  #goldVal{ text-shadow:0 1px 0 var(--gold-edge),0 2px 3px rgba(20,10,2,.6); }
+
+  /* affordability glow — fires the moment a unit/upgrade becomes usable */
+  .ubtn.afford, .ctl.afford{ border-color:#ffe08a;
+    box-shadow:inset 0 2px 0 rgba(255,240,210,.4), 0 3px 0 #5e3c19, 0 0 12px 1px rgba(255,210,74,.55);
+    animation:affglow 1.6s ease-in-out infinite; }
+  @keyframes affglow{ 0%,100%{ box-shadow:inset 0 2px 0 rgba(255,240,210,.4),0 3px 0 #5e3c19,0 0 8px 0 rgba(255,210,74,.35); }
+    50%{ box-shadow:inset 0 2px 0 rgba(255,240,210,.4),0 3px 0 #5e3c19,0 0 16px 2px rgba(255,210,74,.75); } }
+</style>
+</head>
+<body>
+<div id="wrap">
+
+  <!-- ============ TOP BAR ============ -->
+  <div id="topbar">
+    <div class="res">
+      <div class="stat"><span class="k">Treasury</span><span class="v"><span class="coin"></span><span id="goldVal">0</span></span></div>
+      <div class="stat"><span class="k">Experience</span><span class="v" id="xpVal">0</span></div>
+    </div>
+    <div>
+      <div class="timeline" id="timeline">
+        <div class="era" data-age="1"><div class="dot"></div><div class="nm">Stone</div></div>
+        <div class="era" data-age="2"><div class="dot"></div><div class="nm">Castle</div></div>
+        <div class="era" data-age="3"><div class="dot"></div><div class="nm">Renaissance</div></div>
+        <div class="era" data-age="4"><div class="dot"></div><div class="nm">Modern</div></div>
+        <div class="era" data-age="5"><div class="dot"></div><div class="nm">Future</div></div>
+      </div>
+      <div class="xpmeter"><div id="xpMeterFill"></div><div id="xpMeterLabel">0 / 4000</div></div>
+    </div>
+    <div class="stat" style="text-align:right"><span class="k">Current Era</span><span class="v" id="ageName" style="font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--brass)">Stone Age</span></div>
+  </div>
+
+  <!-- ============ BATTLEFIELD ============ -->
+  <div id="stage">
+    <canvas id="cv" width="1000" height="450"></canvas>
+
+    <!-- START SCREEN -->
+    <div class="screen" id="startScreen">
+      <div class="kicker">Stone Age → The Future</div>
+      <h1>Ages of War</h1>
+      <p class="big">Command an army across five eras of warfare. Earn gold, spend experience to <b>evolve</b>, hold the line with turrets and ultimates — then march right and raze the enemy base before they raze yours.</p>
+      <button class="playbtn" id="btnStart">Start Battle</button>
+      <div class="hint" style="margin-top:18px"><b>1 2 3</b> deploy units &nbsp;·&nbsp; <b>E</b> evolve &nbsp;·&nbsp; <b>Q</b> ultimate &nbsp;·&nbsp; <b>T</b> turret &nbsp;·&nbsp; <b>R</b> slot</div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div class="screen hidden" id="endScreen">
+      <div class="kicker" id="endKicker">Battle Over</div>
+      <h1 id="endTitle">Victory</h1>
+      <p id="endMsg">The enemy base lies in ruins.</p>
+      <div id="endStats">
+        <div class="s"><span class="k">Era Reached</span><span class="v" id="statAge">—</span></div>
+        <div class="s"><span class="k">Time</span><span class="v" id="statTime">—</span></div>
+        <div class="s"><span class="k">XP Earned</span><span class="v" id="statXp">—</span></div>
+      </div>
+      <button class="playbtn" id="btnPlayAgain">Fight Again</button>
+    </div>
+  </div>
+
+  <!-- ============ CONTROL PANEL ============ -->
+  <div id="panel">
+    <div class="group" id="unitGroup">
+      <div class="gh"><span>Deploy Units</span><span class="cnt" id="capLabel">0 / 15</span></div>
+      <div class="row">
+        <button class="ubtn" id="btnMelee"><canvas class="ico" id="icoMelee" width="84" height="84"></canvas><span class="txt"><span class="u-type">Melee</span><span class="u-name">Clubman</span><span class="u-cost">15g</span></span></button>
+        <button class="ubtn" id="btnRanged"><canvas class="ico" id="icoRanged" width="84" height="84"></canvas><span class="txt"><span class="u-type">Ranged</span><span class="u-name">Rock Thrower</span><span class="u-cost">25g</span></span></button>
+        <button class="ubtn" id="btnHeavy"><canvas class="ico" id="icoHeavy" width="84" height="84"></canvas><span class="txt"><span class="u-type">Heavy</span><span class="u-name">Dino Rider</span><span class="u-cost">100g</span></span></button>
+      </div>
+    </div>
+
+    <div class="group" id="turretGroup">
+      <div class="gh"><span>Defenses</span><span class="cnt" id="turretCount">0 / 1</span></div>
+      <div class="row">
+        <button class="ctl" id="btnSlot"><canvas class="ico" id="icoSlot" width="72" height="72"></canvas><span class="txt">Buy Slot<small id="slotLabel" class="cost">#2 (1000g)</small></span></button>
+        <button class="ctl" id="btnTurret"><canvas class="ico" id="icoTurret" width="72" height="72"></canvas><span class="txt">Build<small id="turretLabel">Slingshot Tower</small></span></button>
+      </div>
+    </div>
+
+    <div class="group" id="actionGroup">
+      <div class="gh"><span>Command</span><span class="cnt">&nbsp;</span></div>
+      <div class="row">
+        <button class="ctl" id="btnEvolve"><canvas class="ico" id="icoEvolve" width="72" height="72"></canvas><span class="txt">Evolve<small id="evolveLabel">→ Castle Age</small></span></button>
+        <button class="ctl" id="btnSpecial"><canvas class="ico" id="icoSpecial" width="72" height="72"></canvas><span class="slabel">Ultimate<small id="specialLabel">Meteor Shower</small></span><div id="specialOverlay"></div><div id="specialCd">60s</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint"><b>1 2 3</b> deploy &nbsp;·&nbsp; <b>E</b> evolve &nbsp;·&nbsp; <b>Q</b> ultimate &nbsp;·&nbsp; <b>T</b> build turret &nbsp;·&nbsp; <b>R</b> buy slot</div>
+</div>
+
+<script>
+"use strict";
+/* ============================================================================
+   AGES OF WAR  —  single-file HTML5 Canvas strategy game
+   All balance lives in CONFIG. Sections:
+     0. CONFIG            8. Effects / particles / floaters
+     1. Math helpers      9. Special abilities (ultimates)
+     2. Global state     10. Enemy AI
+     3. Unit class       11. Game flow (init / evolve / spawn / buy)
+     4. Projectile       12. Update loop (math)
+     5. Turret           13. Render (drawing)
+     6. Base             14. UI sync + events + main loop
+     7. Combat helpers
+   ========================================================================== */
+
+/* ============================ 0. CONFIG ================================== */
+const CONFIG = {
+  canvas:{ w:1000, h:450 },
+  groundY:380,                       // units stand on this line
+  base:{ w:100, topY:250, maxHp:4000 },
+
+  economy:{
+    playerPassive:5,                 // gold / second (player baseline)
+    enemyPassiveBase:6,              // gold / second for enemy at Age 1  ← difficulty knob
+    enemyGoldAgeMult:1.2,            // enemy passive ×1.2 compounding per age ← difficulty knob
+    startGoldPlayer:200,
+    startGoldEnemy:120,
+  },
+
+  unitCap:15,                        // max ALIVE units per side
+  special:{ cooldown:60000 },        // shared ultimate cooldown (ms)
+  splashRadius:45,                   // px radius for splash damage
+  projectileSpeed:9,                 // px/frame@60 for normal ranged shots
+
+  ageXp:{ 1:0, 2:4000, 3:14000, 4:45000, 5:120000 },   // cumulative XP to REACH each age
+  ageNames:{ 1:'Stone Age', 2:'Castle Age', 3:'Renaissance', 4:'Modern Age', 5:'The Future' },
+  turretSlotCosts:{ 2:1000, 3:5000 },// cost to unlock slot #2 and #3
+
+  // AI behaviour  ← difficulty knobs
+  ai:{
+    spawnIntervalStart:3500,         // ms between enemy spawns at start
+    spawnIntervalEnd:1200,           // ms between spawns once fully ramped
+    rampTime:240,                    // seconds to interpolate start→end interval
+    varietyChance:0.30,              // chance AI picks a random affordable unit (else highest-cost)
+    specialCooldown:60000,
+    buyTurrets:true,
+    turretCheckInterval:8000,        // ms between AI turret-purchase checks
+    maxTurrets:2,
+    turretGoldReserve:1.6,           // AI buys turret only if gold > cost × this
+  },
+
+  // Unit rosters per age: [melee, ranged, heavy]
+  // stats: cost(gold) hp dmg speed(px/frame@60) range(px) cd(ms) gold(bounty) xp(reward)
+  units:{
+    1:{
+      melee:  {name:'Clubman',      type:'melee',  cost:15,  hp:30,    dmg:8,    speed:1.5, range:5,   cd:800,  gold:12,   xp:15},
+      ranged: {name:'Rock Thrower', type:'ranged', cost:25,  hp:15,    dmg:12,   speed:1.2, range:150, cd:1200, gold:20,   xp:25},
+      heavy:  {name:'Dino Rider',   type:'heavy',  cost:100, hp:150,   dmg:25,   speed:0.8, range:10,  cd:1500, gold:80,   xp:100, splash:true},
+    },
+    2:{
+      melee:  {name:'Swordsman',    type:'melee',  cost:50,  hp:80,    dmg:18,   speed:1.5, range:5,   cd:800,  gold:40,   xp:50},
+      ranged: {name:'Archer',       type:'ranged', cost:75,  hp:40,    dmg:25,   speed:1.2, range:180, cd:1000, gold:60,   xp:75},
+      heavy:  {name:'Knight',       type:'heavy',  cost:250, hp:300,   dmg:45,   speed:2.0, range:15,  cd:1200, gold:200,  xp:250},
+    },
+    3:{
+      melee:  {name:'Duellist',     type:'melee',  cost:200, hp:200,   dmg:40,   speed:1.6, range:5,   cd:600,  gold:160,  xp:200},
+      ranged: {name:'Musketeer',    type:'ranged', cost:300, hp:100,   dmg:80,   speed:1.0, range:220, cd:1800, gold:240,  xp:300},
+      heavy:  {name:'Cannon',       type:'heavy',  cost:800, hp:500,   dmg:150,  speed:0.6, range:250, cd:2500, gold:600,  xp:800, splash:true},
+    },
+    4:{
+      melee:  {name:'Infantry',     type:'melee',  cost:1000,  hp:800,   dmg:120,  speed:1.8, range:50,  cd:700,  gold:700,   xp:1000},
+      ranged: {name:'Sniper',       type:'ranged', cost:1500,  hp:400,   dmg:300,  speed:1.0, range:400, cd:2000, gold:1100,  xp:1500},
+      heavy:  {name:'Battle Tank',  type:'heavy',  cost:4000,  hp:3000,  dmg:400,  speed:1.2, range:200, cd:2200, gold:3000,  xp:4000, splash:true},
+    },
+    5:{
+      melee:  {name:'Mecha-Blade',  type:'melee',  cost:5000,  hp:4000,  dmg:600,  speed:2.0, range:10,  cd:600,  gold:3500,  xp:5000},
+      ranged: {name:'Laser Trooper',type:'ranged', cost:7500,  hp:2000,  dmg:1000, speed:1.5, range:350, cd:1500, gold:5500,  xp:7500, pierce:true},
+      heavy:  {name:'Hover Tank',   type:'heavy',  cost:20000, hp:15000, dmg:2500, speed:1.0, range:300, cd:2500, gold:15000, xp:20000, splash:true},
+    },
+  },
+
+  turrets:{
+    1:{name:'Slingshot Tower',  dmg:15,   range:200, cd:1000, cost:50},
+    2:{name:'Ballista',         dmg:40,   range:250, cd:1200, cost:250},
+    3:{name:'Wall Cannon',      dmg:120,  range:300, cd:2000, cost:800,  splash:true},
+    4:{name:'Machine Gun Nest', dmg:60,   range:350, cd:200,  cost:2000},
+    5:{name:'Plasma Railgun',   dmg:1500, range:450, cd:2500, cost:10000},
+  },
+
+  specials:{ 1:{name:'Meteor Shower'}, 2:{name:'Arrow Rain'}, 3:{name:'Artillery Strike'},
+             4:{name:'B-2 Bomber Raid'}, 5:{name:'Orbital Ion Cannon'} },
+
+  colors:{
+    melee:'#3b74d6', ranged:'#37a85a', heavy:'#cc3b34',
+    ageAccent:{ 1:'#9c6b3f', 2:'#9aa2ad', 3:'#d8af43', 4:'#5f7042', 5:'#36d6e0' },
+    playerOutline:'#eaf4ff', enemyOutline:'#ffd2bd',
+  },
+};
+
+/* ============================ 1. MATH HELPERS =========================== */
+const TAU = Math.PI*2;
+const STAGGER = [0,-5,4,-3,5,-2,2,-4,3,-1];   // small y-offsets so stacked units read as a crowd
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function map(v,a,b,c,d){ if(v<=a)return c; if(v>=b)return d; return c+(d-c)*((v-a)/(b-a)); }
+function rand(a,b){ return a+Math.random()*(b-a); }
+function hexToRgb(h){ h=h.replace('#',''); if(h.length===3)h=h.split('').map(c=>c+c).join('');
+  const n=parseInt(h,16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}; }
+function rgbToHex(r,g,b){ const f=x=>('0'+Math.round(clamp(x,0,255)).toString(16)).slice(-2); return '#'+f(r)+f(g)+f(b); }
+function mix(a,b,t){ const A=hexToRgb(a),B=hexToRgb(b); return rgbToHex(A.r+(B.r-A.r)*t,A.g+(B.g-A.g)*t,A.b+(B.b-A.b)*t); }
+function shade(a,pct){ const A=hexToRgb(a),t=Math.abs(pct)/100,tgt=pct<0?0:255;
+  return rgbToHex(A.r+(tgt-A.r)*t,A.g+(tgt-A.g)*t,A.b+(tgt-A.b)*t); }
+function roundRect(ctx,x,y,w,h,r){ r=Math.min(r,w/2,h/2); ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function drawBar(ctx,x,y,w,h,frac,color){ frac=clamp(frac,0,1);
+  ctx.fillStyle='rgba(0,0,0,.4)'; ctx.fillRect(x-1,y-1,w+2,h+2);
+  ctx.fillStyle='#1c2330'; ctx.fillRect(x,y,w,h);
+  ctx.fillStyle=color; ctx.fillRect(x,y,w*frac,h); }
+
+/* ============================ 2. GLOBAL STATE =========================== */
+const cv = document.getElementById('cv');
+const CTX = cv.getContext('2d');
+const W = CONFIG.canvas.w, H = CONFIG.canvas.h;
+
+let units, projectiles, particles, floaters, effects, turrets;
+let playerBase, enemyBase, gameState, aiState, UID;
+let CLOCK = 0;   // seconds, advanced every frame — drives walk cycles / idle bob / parallax
+let shakeAmt = 0;   // camera-shake magnitude in px (decays each frame)
+let hitStop = 0;    // seconds of micro-pause after impactful hits (game-feel "juice")
+function addShake(mag){ shakeAmt = Math.min(16, Math.max(shakeAmt, mag)); }
+function addHitStop(sec){ hitStop = Math.max(hitStop, sec); }
+
+/* ============================ 3. UNIT CLASS ============================= */
+class Unit{
+  constructor(owner, spec, age){
+    this.id = UID++;
+    this.owner = owner;
+    this.age = age;
+    this.type = spec.type;
+    this.name = spec.name;
+    this.maxHp = spec.hp; this.hp = spec.hp;
+    this.dmg = spec.dmg;
+    this.speed = spec.speed;          // px/frame@60
+    this.range = spec.range;
+    this.cd = spec.cd;                // ms between attacks
+    this.gold = spec.gold;            // bounty on death
+    this.xp = spec.xp;                // xp reward on death
+    this.splash = !!spec.splash;
+    this.pierce = !!spec.pierce;
+    this.isMelee = spec.range <= 50;  // ≤50 → instant melee, else projectile/beam
+    this.color = CONFIG.colors[this.type];
+
+    // size scales with HP for readability
+    const s = clamp(map(spec.hp, 30, 15000, 20, 48), 20, 48);
+    this.w = Math.round(s * (this.type==='heavy'?1.25:1));
+    this.h = Math.round(s);
+
+    if(owner==='player'){ this.x = CONFIG.base.w + 2; this.dir = 1; }   // move right
+    else { this.x = W - CONFIG.base.w - this.w - 2; this.dir = -1; }    // move left
+
+    this.yOff = STAGGER[this.id % STAGGER.length];
+    this.state = 'walk';              // WALK → ATTACK → DEAD
+    this.atkTimer = 0;                // ms until next attack ready
+    this.target = null;
+    this.dead = false;
+    this.hitFlash = 0;                // ms of white flash after being hit
+    this.lunge = 0;                   // px lunge offset (attack animation)
+    this.walkPhase = Math.random()*TAU; // desync stride between units
+    this.attackAnim = 0;              // 0..1, set to 1 on attack, decays (drives weapon motion)
+  }
+  get cx(){ return this.x + this.w/2; }
+  get feetY(){ return CONFIG.groundY + this.yOff; }
+  get topY(){ return this.feetY - this.h; }
+
+  update(dt){
+    if(this.dead) return;
+    if(this.hitFlash>0) this.hitFlash -= dt*1000;
+    if(this.lunge>0)    this.lunge = Math.max(0,this.lunge-dt*1000*0.06);
+    if(this.attackAnim>0) this.attackAnim = Math.max(0, this.attackAnim - dt*4); // ~0.25s swing
+    if(this.atkTimer>0) this.atkTimer -= dt*1000;
+
+    const {target, gap} = findTarget(this);
+    this.target = target;
+
+    if(target && gap <= this.range){          // in range → ATTACK
+      this.state = 'attack';
+      if(this.atkTimer <= 0){
+        this.performAttack(target);
+        this.atkTimer = this.cd;
+        this.lunge = 6; this.attackAnim = 1;
+      }
+    } else {                                  // nothing in range → WALK forward
+      this.state = 'walk';
+      this.x += this.dir * this.speed * (dt*60);
+      this.walkPhase += dt * (4 + this.speed*2.2); // stride speed tracks move speed
+      this.dustT = (this.dustT||0) - dt;          // localized dust kicks behind the feet
+      if(this.dustT<=0){ this.dustT = 0.18 + Math.random()*0.08; spawnDust(this.cx - this.dir*this.w*0.3, this.feetY); }
+    }
+  }
+
+  performAttack(target){
+    const mx = this.dir>0 ? this.x+this.w : this.x;   // muzzle / fist position
+    const my = this.topY + this.h*0.45;
+    if(this.isMelee){
+      applyHit(this.owner, target, this.dmg, this.splash, mx, my);
+      spawnPuff(mx + this.dir*5, my, '#ffffff', 3);
+    } else if(this.pierce){
+      fireBeam(this, mx, my);                          // instant piercing beam
+    } else {
+      projectiles.push(new Projectile(this.owner, mx, my, target, this.dmg,
+        {splash:this.splash, kind:this.type, art:projArt(this.age, this.type)}));
+      spawnPuff(mx, my, '#fff2b0', 2);
+    }
+  }
+
+  takeDamage(amt, attackerOwner){
+    if(this.dead) return;
+    this.hp -= amt;
+    this.hitFlash = 90;
+    spawnFloater(Math.round(amt), this.cx, this.topY-4, this.owner);
+    spawnPuff(this.cx, this.topY+this.h*0.4, '#ffd24a', 3);
+    if(this.hp <= 0) this.die(attackerOwner);
+  }
+  die(attackerOwner){
+    if(this.dead) return;
+    this.dead = true; this.state='dead';
+    // kill bounty + xp go to the killer's side
+    if(attackerOwner==='player'){ gameState.gold += this.gold; gameState.xp += this.xp; }
+    else { aiState.gold += this.gold; aiState.xp += this.xp; }
+    spawnDeath(this.cx, this.topY+this.h/2, this.color);
+  }
+}
+
+/* ============================ 4. PROJECTILE ============================= */
+class Projectile{
+  constructor(owner, x, y, target, dmg, opts={}){
+    this.owner = owner; this.x=x; this.y=y; this.dmg=dmg;
+    this.splash = !!opts.splash; this.kind = opts.kind || 'ranged';
+    this.art = opts.art || 'ball';
+    this.spin = Math.random()*TAU;
+    this.dead = false; this.life = 0; this.maxLife = 2500;
+    this.len = this.splash ? 7 : 5;
+    const tx = target.isBase ? (owner==='player'?target.x:target.x+target.w) : target.cx;
+    const ty = target.isBase ? (CONFIG.groundY-42) : (target.topY + target.h*0.45);
+    const dx = tx-x, dy = ty-y, d = Math.hypot(dx,dy)||1;
+    this.speed = CONFIG.projectileSpeed;
+    this.vx = dx/d*this.speed; this.vy = dy/d*this.speed;
+  }
+  update(dt){
+    if(this.dead) return;
+    const ux=this.vx/this.speed, uy=this.vy/this.speed;
+    let remaining = this.speed * (dt*60), STEP=7;
+    while(remaining>0 && !this.dead){                 // substep to avoid tunneling
+      const s = Math.min(STEP,remaining); remaining-=s;
+      this.x += ux*s; this.y += uy*s;
+      for(const t of units){                          // hostile unit collision
+        if(t.dead || t.owner===this.owner) continue;
+        if(this.x>=t.x && this.x<=t.x+t.w && this.y>=t.topY-2 && this.y<=t.feetY+2){
+          applyHit(this.owner, t, this.dmg, this.splash, this.x, this.y);
+          this.dead=true; break;
+        }
+      }
+      if(this.dead) break;
+      const base = this.owner==='player'?enemyBase:playerBase;   // hostile base collision
+      if(this.x>=base.x && this.x<=base.x+base.w && this.y<=CONFIG.groundY){
+        applyHit(this.owner, base, this.dmg, this.splash, this.x, this.y);
+        this.dead=true; break;
+      }
+    }
+    this.life += dt*1000;
+    if(!this.dead && Math.random()<0.6){            // subtle projectile motion trail
+      const p=mkParticle(this.x,this.y,this.splash?'#ffcf6a':'#d3dae4',1,2,0.2,false,'spark');
+      p.vx*=0.18; p.vy=p.vy*0.18-0.08; particles.push(p);
+    }
+    if(this.life>this.maxLife || this.x<-30 || this.x>W+30 || this.y>CONFIG.groundY+30) this.dead=true;
+  }
+}
+
+/* ============================ 5. TURRET ================================= */
+class Turret{
+  constructor(owner, slotIndex, age){
+    const t = CONFIG.turrets[age];
+    this.owner=owner; this.age=age; this.slot=slotIndex;
+    this.name=t.name; this.dmg=t.dmg; this.range=t.range; this.cd=t.cd; this.cost=t.cost; this.splash=!!t.splash;
+    this.atkTimer=0; this.muzzle=0;
+    this.dir = owner==='player'?1:-1;
+    const px = owner==='player' ? [26,56,86] : [W-86,W-56,W-26];
+    this.x = px[slotIndex];
+    this.y = CONFIG.base.topY - 6 - slotIndex*15;     // stack turrets up the tower
+  }
+  update(dt){
+    if(this.atkTimer>0) this.atkTimer-=dt*1000;
+    if(this.muzzle>0)   this.muzzle-=dt*1000;
+    let best=null, bd=Infinity;
+    for(const u of units){
+      if(u.dead || u.owner===this.owner) continue;
+      const front = this.owner==='player' ? u.cx>this.x : u.cx<this.x;
+      if(!front) continue;
+      const d = Math.abs(u.cx-this.x);
+      if(d<=this.range && d<bd){ bd=d; best=u; }
+    }
+    if(best && this.atkTimer<=0){
+      projectiles.push(new Projectile(this.owner, this.x, this.y, best, this.dmg,
+        {splash:this.splash, kind:'turret', art:({1:'rock',2:'bolt',3:'cannonball',4:'bullet',5:'plasma'})[this.age]}));
+      this.atkTimer=this.cd; this.muzzle=80;
+    }
+  }
+}
+
+/* ============================ 6. BASE =================================== */
+function makeBase(owner){
+  return {
+    owner, isBase:true,
+    x: owner==='player' ? 0 : W-CONFIG.base.w,
+    w: CONFIG.base.w,
+    hp: CONFIG.base.maxHp, maxHp: CONFIG.base.maxHp,
+    turretSlots:1, slotsOwned:0,
+    get cx(){ return this.x+this.w/2; },
+    takeDamage(amt){
+      this.hp -= amt;
+      addShake(Math.min(9, 3+amt*0.03));         // base hit shakes the screen (scaled, capped)
+      if(amt>=40) addHitStop(0.03);              // only heavy blows add a micro-pause
+      if(this.hp<=0){ this.hp=0; endGame(this.owner==='player' ? 'lost' : 'won'); }
+    }
+  };
+}
+
+/* ============================ 7. COMBAT HELPERS ========================= */
+// nearest hostile entity (unit or base) in front of u → {target, gap}
+function findTarget(u){
+  let best=null, bestGap=Infinity;
+  const isP = u.owner==='player';
+  for(const t of units){
+    if(t===u || t.dead || t.owner===u.owner) continue;
+    const ahead = isP ? (t.cx>=u.cx) : (t.cx<=u.cx);
+    if(!ahead) continue;
+    const gap = isP ? (t.x-(u.x+u.w)) : (u.x-(t.x+t.w));   // edge-to-edge (can be <0 when overlapping)
+    if(gap<bestGap){ bestGap=gap; best=t; }
+  }
+  const base = isP ? enemyBase : playerBase;
+  const bgap = isP ? (base.x-(u.x+u.w)) : (u.x-(base.x+base.w));
+  if(bgap<bestGap){ bestGap=bgap; best=base; }
+  return {target:best, gap:bestGap};
+}
+
+// apply a single hit (direct melee or projectile impact). Handles splash.
+function applyHit(attackerOwner, primary, dmg, splash, hx, hy){
+  if(primary){
+    if(primary.isBase) primary.takeDamage(dmg);
+    else primary.takeDamage(dmg, attackerOwner);
+  }
+  if(splash){
+    const r2 = CONFIG.splashRadius*CONFIG.splashRadius;
+    for(const t of units){
+      if(t.dead || t.owner===attackerOwner || t===primary) continue;
+      const dx=t.cx-hx, dy=(t.topY+t.h/2)-hy;
+      if(dx*dx+dy*dy<=r2) t.takeDamage(dmg, attackerOwner);
+    }
+    spawnExplosion(hx,hy);
+    addShake(6); addHitStop(0.045);              // heavy splash = weighty impact
+  }
+}
+
+// piercing beam: instantly damages every hostile unit along the forward line (within range)
+function fireBeam(u, mx, my){
+  const dir=u.dir, endX = mx + dir*u.range;
+  let drawEnd = endX;
+  for(const t of units){
+    if(t.dead || t.owner===u.owner) continue;
+    const ahead = dir>0 ? t.cx>=mx : t.cx<=mx;
+    if(!ahead) continue;
+    const within = dir>0 ? (t.x<=endX) : (t.x+t.w>=endX);
+    if(!within) continue;
+    if(my>=t.topY-6 && my<=t.feetY+6) t.takeDamage(u.dmg, u.owner);
+  }
+  const base = u.owner==='player'?enemyBase:playerBase;
+  const baseHit = dir>0 ? (base.x<=endX) : (base.x+base.w>=endX);
+  if(baseHit){ base.takeDamage(u.dmg); drawEnd = dir>0?base.x:base.x+base.w; }
+  effects.push(makeBeamShot(mx,my,drawEnd));
+}
+
+/* ============================ 8. EFFECTS / PARTICLES ==================== */
+// particle shapes: 'dot' (default), 'spark' (streak), 'smoke' (rising fade), 'ring' (shockwave)
+function mkParticle(x,y,color,minR,maxR,life,big,shape){
+  const a=rand(0,TAU), sp=(big?2.6:1.7)*(0.5+Math.random());
+  return {x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-0.6,r:rand(minR,maxR),color,life,maxLife:life,
+    shape:shape||'dot', grav:0.15, drag:1};
+}
+function spawnPuff(x,y,color,n){ for(let i=0;i<n;i++) particles.push(mkParticle(x,y,color,1.5,3,0.3,false,'spark')); }
+function spawnDust(x,y){                                   // soft kicked-up dust behind moving feet
+  for(let i=0;i<2;i++){ const p=mkParticle(x+rand(-3,3), y, i?'#c9a36a':'#b78a52', 2,4, 0.45, false,'smoke');
+    p.vx*=0.25; p.vy=-Math.abs(p.vy)*0.25-0.12; p.grav=-0.015; particles.push(p); }
+}
+function spawnDeath(x,y,color){
+  for(let i=0;i<10;i++) particles.push(mkParticle(x,y,color,2,5,0.6,true));      // body debris
+  for(let i=0;i<5;i++){ const p=mkParticle(x,y,'#5a5a5a',3,6,0.9,false,'smoke'); p.grav=-0.05; particles.push(p); } // dust rising
+  spawnRing(x,y,mix(color,'#ffffff',0.4),24,0.35);
+}
+function spawnExplosion(x,y){
+  for(let i=0;i<16;i++) particles.push(mkParticle(x,y,i%2?'#ff7b1a':'#ffd24a',3,7,0.55,true));
+  for(let i=0;i<6;i++){ const p=mkParticle(x,y,'#444',5,10,1.0,true,'smoke'); p.grav=-0.06; particles.push(p); }
+  for(let i=0;i<8;i++){ const p=mkParticle(x,y,'#fff0b0',1,2,0.4,true,'spark'); p.vx*=2.2; p.vy=p.vy*2.2; particles.push(p); }
+  spawnRing(x,y,'#ffd24a',44,0.4);
+}
+function spawnRing(x,y,color,maxR,dur){ let t=0; effects.push({
+  update(dt){ t+=dt; return t<dur; },
+  draw(ctx){ const p=t/dur; ctx.globalAlpha=Math.max(0,1-p)*0.8; ctx.strokeStyle=color;
+    ctx.lineWidth=Math.max(1,3*(1-p)); ctx.beginPath(); ctx.arc(x,y,8+maxR*p,0,TAU); ctx.stroke(); ctx.globalAlpha=1; }
+}); }
+function spawnFloater(val,x,y,victimOwner){
+  floaters.push({text:'-'+val, x:x+rand(-5,5), y, vy:-0.65, life:0.8, maxLife:0.8,
+    color: victimOwner==='enemy' ? '#fff2a8' : '#ffc9c9'});
+}
+function addFlash(color,dur){ let t=0; effects.push({
+  update(dt){ t+=dt; return t<dur; },
+  draw(ctx){ ctx.globalAlpha=(1-t/dur)*0.35; ctx.fillStyle=color; ctx.fillRect(-20,-20,W+40,H+40); ctx.globalAlpha=1; }
+}); }
+function makeBeamShot(x1,y,x2){ let t=0; const dur=0.2; return {
+  update(dt){ t+=dt; return t<dur; },
+  draw(ctx){ const a=Math.max(0,1-t/dur); ctx.globalAlpha=a;
+    ctx.strokeStyle='rgba(125,240,255,.4)'; ctx.lineWidth=10; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke();
+    ctx.strokeStyle='#7df0ff'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke();
+    ctx.globalAlpha=1; }
+}; }
+// themed projectile look by age + unit type
+function projArt(age,type){
+  const m={ 1:{ranged:'rock'}, 2:{ranged:'arrow'},
+            3:{ranged:'ball', heavy:'cannonball'}, 4:{ranged:'bullet', heavy:'shell'},
+            5:{ranged:'plasma', heavy:'plasma'} };
+  return (m[age] && m[age][type]) || 'ball';
+}
+function hostilesOf(owner){ return units.filter(u=>!u.dead && u.owner!==owner); }
+// splash explosion against a point, crediting `owner`
+function explodeAt(owner,x,y,dmg,radius){
+  const r2=radius*radius;
+  for(const u of hostilesOf(owner)){ const dx=u.cx-x, dy=(u.topY+u.h/2)-y; if(dx*dx+dy*dy<=r2) u.takeDamage(dmg,owner); }
+  spawnExplosion(x,y); spawnExplosion(x+8,y-6);
+  addShake(10); addHitStop(0.05);
+}
+
+/* ============================ 9. SPECIAL ABILITIES ===================== */
+function fireSpecialFor(owner, age){
+  switch(age){
+    case 1: meteorShower(owner); break;
+    case 2: arrowRain(owner);    break;
+    case 3: artilleryStrike(owner); break;
+    case 4: bomberRaid(owner);   break;
+    case 5: ionCannon(owner);    break;
+  }
+}
+function hostileHalf(owner){ return owner==='player' ? [CONFIG.base.w,W] : [0,W-CONFIG.base.w]; }
+
+// 1 — Meteor Shower: ~80 to ALL hostile units + falling streaks
+function meteorShower(owner){
+  for(const u of hostilesOf(owner)) u.takeDamage(80, owner);
+  addShake(9); addHitStop(0.05);
+  const [a,b]=hostileHalf(owner);
+  for(let i=0;i<14;i++){ const tx=rand(a+10,b-10); let t=0; const dur=rand(0.4,0.6); let boom=false;
+    effects.push({ update(dt){ t+=dt; if(t>=dur&&!boom){boom=true; spawnExplosion(tx,CONFIG.groundY-10);} return t<dur+0.25; },
+      draw(ctx){ const p=Math.min(1,t/dur); if(p>=1) return;
+        const x=(tx-120)+ (tx-(tx-120))*p, y=-40+(CONFIG.groundY-10+40)*p;
+        ctx.strokeStyle='#ff8a2a'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-22,y-30); ctx.stroke();
+        ctx.fillStyle='#ffd24a'; ctx.beginPath(); ctx.arc(x,y,4,0,TAU); ctx.fill(); } });
+  }
+  addFlash('#ff7b1a',0.4);
+}
+// 2 — Arrow Rain: three waves of ~50 to all hostile units
+function arrowRain(owner){
+  const [a,b]=hostileHalf(owner);
+  [0,0.4,0.8].forEach(delay=>{ let t=0,applied=false; const dur=delay+0.5;
+    const arrows=[]; for(let i=0;i<24;i++) arrows.push({x:rand(a,b), y:rand(-70,-10), s:rand(6,10)});
+    effects.push({ update(dt){ t+=dt; if(t>=delay&&!applied){applied=true; for(const u of hostilesOf(owner)) u.takeDamage(50,owner);} return t<dur; },
+      draw(ctx){ const p=clamp(t/(delay+0.001),0,1); ctx.strokeStyle='#e8eef6'; ctx.lineWidth=2;
+        for(const ar of arrows){ const y=ar.y+p*(CONFIG.groundY-ar.y); ctx.beginPath(); ctx.moveTo(ar.x,y); ctx.lineTo(ar.x-3,y-ar.s); ctx.stroke(); } } });
+  });
+  addFlash('#cfe8ff',0.3);
+}
+// 3 — Artillery Strike: 5 shells at random x, ~200 splash each
+function artilleryStrike(owner){
+  const lo = owner==='player'?CONFIG.base.w+60:20, hi = owner==='player'?W-20:W-CONFIG.base.w-60;
+  const sx = owner==='player'?CONFIG.base.w*0.5:W-CONFIG.base.w*0.5, sy=CONFIG.base.topY-30;
+  for(let i=0;i<5;i++){ const tx=rand(lo,hi), delay=i*0.15, flight=0.55; let t=0,boom=false; const dur=delay+flight+0.3;
+    effects.push({ update(dt){ t+=dt; const lt=t-delay; if(lt>=flight&&!boom){boom=true; explodeAt(owner,tx,CONFIG.groundY-10,200,70);} return t<dur; },
+      draw(ctx){ const lt=t-delay; if(lt<0) return; const p=clamp(lt/flight,0,1); if(p>=1) return;
+        const x=sx+(tx-sx)*p, arc=Math.sin(p*Math.PI)*120, y=sy+(CONFIG.groundY-10-sy)*p-arc;
+        ctx.fillStyle='#2b2b2b'; ctx.beginPath(); ctx.arc(x,y,4,0,TAU); ctx.fill(); } });
+  }
+  addFlash('#ffe0a0',0.25);
+}
+// 4 — B-2 Bomber Raid: plane crosses, dropping a row of ~400 bombs
+function bomberRaid(owner){
+  const dir = owner==='player'?1:-1, y=70, speed=7;
+  let x = owner==='player'?-60:W+60;
+  let nextDrop = owner==='player'?CONFIG.base.w+40:W-CONFIG.base.w-40;
+  const dropEnd = owner==='player'?W-20:20, gap=55;
+  const bombs=[];
+  effects.push({
+    update(dt){ const f=dt*60; x+=dir*speed*f;
+      while( dir>0 ? (x>=nextDrop && nextDrop<=dropEnd) : (x<=nextDrop && nextDrop>=dropEnd) ){
+        bombs.push({x:nextDrop, y:y+12, vy:1, done:false}); nextDrop+=dir*gap; }
+      for(const b of bombs){ if(b.done) continue; b.vy+=0.6*f; b.y+=b.vy*f;
+        if(b.y>=CONFIG.groundY-10){ b.done=true; explodeAt(owner,b.x,CONFIG.groundY-10,400,70); } }
+      const off = dir>0 ? x>W+80 : x<-80;
+      return !(off && bombs.every(b=>b.done));
+    },
+    draw(ctx){ ctx.save(); ctx.translate(x,y); ctx.scale(dir,1);
+      ctx.fillStyle='#2c3e50'; ctx.beginPath(); ctx.moveTo(-26,0); ctx.lineTo(20,-4); ctx.lineTo(28,0); ctx.lineTo(20,4); ctx.closePath(); ctx.fill();
+      ctx.fillRect(-7,-13,11,26); ctx.restore();
+      ctx.fillStyle='#111'; for(const b of bombs){ if(b.done) continue; ctx.beginPath(); ctx.arc(b.x,b.y,3,0,TAU); ctx.fill(); } }
+  });
+  addFlash('#dfe7ee',0.2);
+}
+// 5 — Orbital Ion Cannon: ~5000 to everything in the center band
+function ionCannon(owner){
+  const cx=W/2, bw=150;
+  for(const u of hostilesOf(owner)){ if(Math.abs(u.cx-cx)<=bw/2) u.takeDamage(5000, owner); }
+  for(let i=0;i<8;i++) spawnExplosion(cx+rand(-bw/2,bw/2), CONFIG.groundY-rand(0,40));
+  addShake(14); addHitStop(0.07);
+  let t=0; const dur=0.7;
+  effects.push({ update(dt){ t+=dt; return t<dur; },
+    draw(ctx){ const a=Math.max(0,1-t/dur); ctx.globalAlpha=a;
+      ctx.fillStyle='rgba(120,240,255,.85)'; ctx.fillRect(cx-bw/2,0,bw,CONFIG.groundY+10);
+      ctx.fillStyle='rgba(255,255,255,.9)'; ctx.fillRect(cx-11,0,22,CONFIG.groundY+10); ctx.globalAlpha=1; } });
+  addFlash('#bff7ff',0.4);
+}
+
+function tryFireSpecial(){
+  if(gameState.phase!=='playing' || gameState.specialCd>0) return;
+  fireSpecialFor('player', gameState.currentAge);
+  gameState.specialCd = CONFIG.special.cooldown;
+}
+
+/* ============================ 10. ENEMY AI ============================= */
+// Runs the enemy as a mirror player: own gold/xp/age, timed spawns, auto-evolve,
+// optional turrets and ultimates. Pressure escalates as spawn interval shrinks.
+function aiUpdate(dt){
+  // passive gold (×1.2 compounding per age)
+  aiState.gold += CONFIG.economy.enemyPassiveBase * Math.pow(CONFIG.economy.enemyGoldAgeMult, aiState.age-1) * dt;
+
+  // auto-evolve the instant xp crosses the threshold
+  if(aiState.age<5 && aiState.xp >= CONFIG.ageXp[aiState.age+1]){
+    aiState.age++;
+    let refund=0; turrets.forEach(t=>{ if(t.owner==='enemy') refund += t.cost*0.5; });
+    turrets = turrets.filter(t=>t.owner!=='enemy');
+    aiState.gold += refund;
+  }
+
+  // spawn on a shrinking timer
+  const ramp = clamp(gameState.elapsed/CONFIG.ai.rampTime,0,1);
+  const interval = CONFIG.ai.spawnIntervalStart + (CONFIG.ai.spawnIntervalEnd-CONFIG.ai.spawnIntervalStart)*ramp;
+  aiState.spawnTimer -= dt*1000;
+  if(aiState.spawnTimer<=0){
+    aiState.spawnTimer = interval;
+    const alive = units.filter(u=>u.owner==='enemy'&&!u.dead).length;
+    if(alive<CONFIG.unitCap){
+      const r=CONFIG.units[aiState.age];
+      const opts=[r.melee,r.ranged,r.heavy].filter(s=>s.cost<=aiState.gold);
+      if(opts.length){
+        const pick = Math.random()<CONFIG.ai.varietyChance
+          ? opts[Math.floor(Math.random()*opts.length)]          // variety: random affordable
+          : opts.reduce((a,b)=> b.cost>a.cost?b:a);              // else highest-tier affordable
+        aiState.gold -= pick.cost;
+        units.push(new Unit('enemy', pick, aiState.age));
+      }
+    }
+  }
+
+  // optional defensive turrets
+  if(CONFIG.ai.buyTurrets){
+    aiState.turretTimer -= dt*1000;
+    if(aiState.turretTimer<=0){
+      aiState.turretTimer = CONFIG.ai.turretCheckInterval;
+      const tc=CONFIG.turrets[aiState.age], owned=turrets.filter(t=>t.owner==='enemy').length;
+      if(owned<CONFIG.ai.maxTurrets && aiState.gold > tc.cost*CONFIG.ai.turretGoldReserve){
+        aiState.gold -= tc.cost; turrets.push(new Turret('enemy', owned, aiState.age));
+      }
+    }
+  }
+
+  // ultimate on cooldown (only when worth it)
+  aiState.specialCd -= dt*1000;
+  if(aiState.specialCd<=0){
+    if(units.filter(u=>u.owner==='player'&&!u.dead).length>=3){
+      fireSpecialFor('enemy', aiState.age); aiState.specialCd = CONFIG.ai.specialCooldown;
+    } else aiState.specialCd = 3000;
+  }
+}
+
+/* ============================ 11. GAME FLOW ============================= */
+function initGame(){
+  units=[]; projectiles=[]; particles=[]; floaters=[]; effects=[]; turrets=[]; UID=0;
+  playerBase=makeBase('player'); enemyBase=makeBase('enemy');
+  gameState={ gold:CONFIG.economy.startGoldPlayer, xp:0, currentAge:1, specialCd:0, elapsed:0, phase:'start' };
+  aiState={ gold:CONFIG.economy.startGoldEnemy, xp:0, age:1, spawnTimer:2500,
+            specialCd:CONFIG.ai.specialCooldown, turretTimer:CONFIG.ai.turretCheckInterval };
+}
+function playerSpawn(slot){            // slot: 'melee' | 'ranged' | 'heavy'
+  if(gameState.phase!=='playing') return;
+  const spec=CONFIG.units[gameState.currentAge][slot];
+  if(units.filter(u=>u.owner==='player'&&!u.dead).length>=CONFIG.unitCap) return;
+  if(gameState.gold<spec.cost) return;
+  gameState.gold-=spec.cost;
+  units.push(new Unit('player', spec, gameState.currentAge));
+}
+function playerEvolve(){
+  if(gameState.phase!=='playing' || gameState.currentAge>=5) return;
+  if(gameState.xp < CONFIG.ageXp[gameState.currentAge+1]) return;
+  gameState.currentAge++;
+  let refund=0; turrets.forEach(t=>{ if(t.owner==='player') refund+=t.cost*0.5; });   // auto-sell @50%
+  turrets = turrets.filter(t=>t.owner!=='player');
+  gameState.gold += Math.floor(refund);
+  playerBase.slotsOwned = 0;                                                           // slots stay, turrets gone
+  addFlash(CONFIG.colors.ageAccent[gameState.currentAge], 0.5);
+}
+function buySlot(){
+  if(gameState.phase!=='playing' || playerBase.turretSlots>=3) return;
+  const next=playerBase.turretSlots+1, cost=CONFIG.turretSlotCosts[next];
+  if(gameState.gold<cost) return;
+  gameState.gold-=cost; playerBase.turretSlots++;
+}
+function buyTurret(){
+  if(gameState.phase!=='playing' || playerBase.slotsOwned>=playerBase.turretSlots) return;
+  const t=CONFIG.turrets[gameState.currentAge];
+  if(gameState.gold<t.cost) return;
+  gameState.gold-=t.cost;
+  turrets.push(new Turret('player', playerBase.slotsOwned, gameState.currentAge));
+  playerBase.slotsOwned++;
+}
+function endGame(result){            // 'won' | 'lost'
+  if(gameState.phase!=='playing') return;
+  gameState.phase=result; showEndScreen(result);
+}
+
+/* ============================ 12. UPDATE (math) ======================== */
+function update(dt){
+  gameState.elapsed += dt;
+  gameState.gold += CONFIG.economy.playerPassive*dt;             // passive income
+  gameState.specialCd = Math.max(0, gameState.specialCd-dt*1000);
+
+  for(const u of units) u.update(dt);
+  for(const p of projectiles) p.update(dt);
+  for(const t of turrets) t.update(dt);
+  aiUpdate(dt);
+
+  for(let i=effects.length-1;i>=0;i--) if(!effects[i].update(dt)) effects.splice(i,1);
+  for(let i=particles.length-1;i>=0;i--){ const p=particles[i]; p.life-=dt;
+    if(p.life<=0){ particles.splice(i,1); continue; }
+    const f=dt*60; p.x+=p.vx*f; p.y+=p.vy*f; p.vy+=p.grav*f;
+    if(p.shape==='smoke'){ p.vx*=0.94; p.vy*=0.94; p.r+=0.5*f; } }
+  for(let i=floaters.length-1;i>=0;i--){ const f=floaters[i]; f.life-=dt;
+    if(f.life<=0){ floaters.splice(i,1); continue; } f.y+=f.vy*(dt*60); }
+
+  units = units.filter(u=>!u.dead);
+  projectiles = projectiles.filter(p=>!p.dead);
+}
+
+/* ============================ 13. RENDER (drawing) ===================== */
+function render(){
+  const ctx=CTX;
+  const M=18;                                    // overscan so screen-shake never reveals edges
+  const sx = shakeAmt ? (Math.random()*2-1)*shakeAmt : 0;
+  const sy = shakeAmt ? (Math.random()*2-1)*shakeAmt : 0;
+  ctx.save(); ctx.translate(sx,sy);
+  // sky — bright cartoon blue, lighter toward the horizon
+  const sky=ctx.createLinearGradient(0,0,0,CONFIG.groundY);
+  sky.addColorStop(0,'#53b2e8'); sky.addColorStop(0.7,'#8fd2f0'); sky.addColorStop(1,'#c4e9f7');
+  ctx.fillStyle=sky; ctx.fillRect(-M,-M,W+2*M,CONFIG.groundY+M);
+  drawScenery(ctx, M);                           // layered forest (far hills → trees → textured dirt → bushes)
+
+  drawBase(ctx, playerBase); drawBase(ctx, enemyBase);
+  for(const t of turrets) drawTurret(ctx,t);
+
+  // units sorted by x so overlaps layer naturally
+  for(const u of units.slice().sort((a,b)=>a.x-b.x)) drawUnit(ctx,u);
+  for(const p of projectiles) drawProjectile(ctx,p);
+
+  // particles
+  for(const p of particles){ ctx.globalAlpha=clamp(p.life/p.maxLife,0,1); ctx.fillStyle=p.color;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,TAU); ctx.fill(); }
+  ctx.globalAlpha=1;
+  // floating damage numbers
+  ctx.font='bold 13px ui-monospace,Consolas,monospace'; ctx.textAlign='center';
+  for(const f of floaters){ ctx.globalAlpha=clamp(f.life/f.maxLife,0,1); ctx.fillStyle=f.color; ctx.fillText(f.text,f.x,f.y); }
+  ctx.globalAlpha=1; ctx.textAlign='left';
+  // special effect overlays
+  for(const e of effects) e.draw(ctx);
+
+  ctx.restore();                                 // end camera-shake transform
+  // soft vignette for depth / focus (stable, drawn in screen space)
+  const vg=ctx.createRadialGradient(W/2,H*0.42,H*0.32, W/2,H*0.5,H*0.98);
+  vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(10,16,28,0.26)');
+  ctx.fillStyle=vg; ctx.fillRect(0,0,W,H);
+}
+
+/* ---- cartoon forest scenery: stable layout, bold lobed outlines ---- */
+function softHill(ctx,cx,cy,rx,ry){ ctx.beginPath(); ctx.ellipse(cx,cy,rx,ry,0,0,TAU); ctx.fill(); }
+function treeRound(ctx,x,baseY,s,fill,hi,ol,trunk){
+  const th=46*s, tw=10*s;
+  ctx.fillStyle=trunk; fillR(ctx,x-tw/2,baseY-th,tw,th,2,trunk);
+  ctx.strokeStyle=ol; ctx.lineWidth=2*s; ctx.lineJoin='round'; roundRect(ctx,x-tw/2,baseY-th,tw,th,2); ctx.stroke();
+  const cy=baseY-th-18*s;
+  const lobes=[[0,0,20*s],[-15*s,4*s,15*s],[15*s,4*s,15*s],[-8*s,-12*s,14*s],[9*s,-11*s,13*s]];
+  ctx.fillStyle=fill; for(const [dx,dy,r] of lobes){ ctx.beginPath(); ctx.arc(x+dx,cy+dy,r,0,TAU); ctx.fill(); }
+  ctx.strokeStyle=ol; ctx.lineWidth=2.2*s; for(const [dx,dy,r] of lobes){ ctx.beginPath(); ctx.arc(x+dx,cy+dy,r,0,TAU); ctx.stroke(); }
+  ctx.fillStyle=hi; for(const [dx,dy,r] of lobes){ ctx.beginPath(); ctx.arc(x+dx-r*0.32,cy+dy-r*0.34,r*0.32,0,TAU); ctx.fill(); }
+}
+function treePine(ctx,x,baseY,s,fill,hi,ol,trunk){
+  const tw=8*s, th=14*s, top=baseY-th;
+  ctx.fillStyle=trunk; fillR(ctx,x-tw/2,baseY-th+2,tw,th,1,trunk);
+  ctx.strokeStyle=ol; ctx.lineWidth=2*s; ctx.lineJoin='round'; roundRect(ctx,x-tw/2,baseY-th+2,tw,th,1); ctx.stroke();
+  for(let i=0;i<3;i++){ const by=top-i*22*s, hw=(26-i*6)*s, hgt=30*s;
+    ctx.fillStyle=fill; ctx.beginPath(); ctx.moveTo(x,by-hgt); ctx.lineTo(x-hw,by); ctx.lineTo(x+hw,by); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle=ol; ctx.lineWidth=2.2*s; ctx.stroke(); }
+  ctx.fillStyle=hi; ctx.beginPath(); ctx.moveTo(x,top-3*22*s+6*s); ctx.lineTo(x-5*s,top-2*22*s); ctx.lineTo(x+2*s,top-2*22*s); ctx.closePath(); ctx.fill();
+}
+function bush(ctx,x,baseY,s,fill,hi,ol){
+  const R=16*s, cy=baseY-R*0.7;
+  const lobes=[[0,0,R],[-R*0.9,R*0.25,R*0.75],[R*0.9,R*0.25,R*0.75],[-R*0.4,-R*0.4,R*0.6],[R*0.45,-R*0.35,R*0.55]];
+  ctx.fillStyle=fill; for(const [dx,dy,r] of lobes){ ctx.beginPath(); ctx.arc(x+dx,cy+dy,r,0,TAU); ctx.fill(); }
+  ctx.strokeStyle=ol; ctx.lineWidth=2.2*s; ctx.lineJoin='round'; for(const [dx,dy,r] of lobes){ ctx.beginPath(); ctx.arc(x+dx,cy+dy,r,0,TAU); ctx.stroke(); }
+  ctx.fillStyle=hi; ctx.beginPath(); ctx.arc(x-R*0.3,cy-R*0.4,R*0.3,0,TAU); ctx.fill();
+}
+function rockShape(ctx,x,baseY,s){
+  const w=26*s,h=18*s;
+  const path=()=>{ ctx.beginPath(); ctx.moveTo(x-w,baseY); ctx.lineTo(x-w*0.6,baseY-h); ctx.lineTo(x-w*0.1,baseY-h*1.15);
+    ctx.lineTo(x+w*0.5,baseY-h*0.8); ctx.lineTo(x+w,baseY); ctx.closePath(); };
+  ctx.fillStyle='#a6acb2'; path(); ctx.fill();
+  ctx.fillStyle='#878d95'; ctx.beginPath(); ctx.moveTo(x+w*0.5,baseY-h*0.8); ctx.lineTo(x+w,baseY); ctx.lineTo(x-w*0.1,baseY); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle='#4e535a'; ctx.lineWidth=2.4*s; ctx.lineJoin='round'; path(); ctx.stroke();
+}
+function grassTuft(ctx,x,y,s){
+  ctx.strokeStyle='#3f7e2c'; ctx.lineWidth=2.2*s; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-5*s,y-12*s); ctx.moveTo(x,y); ctx.lineTo(x,y-15*s); ctx.moveTo(x,y); ctx.lineTo(x+5*s,y-12*s); ctx.stroke();
+  ctx.strokeStyle='#5fb544'; ctx.lineWidth=1.4*s; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y-13*s); ctx.stroke();
+  ctx.lineCap='butt';
+}
+function ridge(ctx,M,baseY,points,bottomY){
+  ctx.beginPath(); ctx.moveTo(-M,bottomY);
+  for(const [x,h] of points) ctx.lineTo(x, baseY-h);
+  ctx.lineTo(W+M,bottomY); ctx.closePath(); ctx.fill();
+}
+function drawMountains(ctx,M,G){
+  const baseY=G-40;
+  ctx.fillStyle='#aebfd6';                                  // hazy back ridge
+  ridge(ctx,M,baseY+12,[[0,46],[140,6],[300,60],[470,14],[640,66],[800,18],[960,52],[1000,34]],baseY+40);
+  const pk=[[40,78],[180,22],[320,88],[470,34],[600,92],[740,30],[860,84],[980,46],[1000,66]];
+  ctx.fillStyle='#8fa6c4';                                  // front ridge
+  ridge(ctx,M,baseY,pk,baseY+40);
+  ctx.fillStyle='rgba(255,255,255,.85)';                    // snow caps on tall peaks
+  for(const [x,h] of pk){ if(h>=78){ const py=baseY-h; ctx.beginPath(); ctx.moveTo(x,py); ctx.lineTo(x-10,py+14); ctx.lineTo(x+10,py+14); ctx.closePath(); ctx.fill(); } }
+}
+function cloud(ctx,x,y,s,al){
+  ctx.save(); ctx.globalAlpha=al;
+  const puffs=[[0,0,26],[26,6,20],[-26,6,18],[12,-12,18],[-12,-10,16],[44,10,14],[-44,10,13]];
+  ctx.fillStyle='rgba(196,212,228,.55)'; for(const [dx,dy,r] of puffs){ ctx.beginPath(); ctx.ellipse(x+dx*s,(y+dy*s)+3*s,r*s,r*0.8*s,0,0,TAU); ctx.fill(); }
+  ctx.fillStyle='#ffffff';                for(const [dx,dy,r] of puffs){ ctx.beginPath(); ctx.ellipse(x+dx*s,y+dy*s,r*s,r*0.85*s,0,0,TAU); ctx.fill(); }
+  ctx.fillStyle='rgba(255,250,235,.9)';   for(const [dx,dy,r] of puffs.slice(0,4)){ ctx.beginPath(); ctx.ellipse(x+dx*s,(y+dy*s)-r*0.3*s,r*0.6*s,r*0.5*s,0,0,TAU); ctx.fill(); }
+  ctx.restore();
+}
+function drawClouds(ctx){
+  const sets=[[60,6,1.0,.92],[104,10,0.8,.78],[150,15,0.62,.6]];   // y, speed, scale, alpha → parallax by speed
+  for(let s=0;s<sets.length;s++){ const [cy,sp,sc,al]=sets[s];
+    for(let i=0;i<3;i++){ const cx=((CLOCK*sp + i*420 + s*170)%(W+360))-180; cloud(ctx,cx,cy,sc,al); } }
+}
+function drawScenery(ctx, M){
+  const G=CONFIG.groundY;
+  const sun=ctx.createRadialGradient(W-150,72,8,W-150,72,270);       // golden-hour glow
+  sun.addColorStop(0,'rgba(255,243,205,.9)'); sun.addColorStop(0.4,'rgba(255,226,160,.32)'); sun.addColorStop(1,'rgba(255,226,160,0)');
+  ctx.fillStyle=sun; ctx.fillRect(-M,-M,W+2*M,G+M);
+  disc(ctx,W-150,72,30,'rgba(255,250,228,.96)');
+  drawMountains(ctx,M,G);                                            // distant parallax ridges
+  drawClouds(ctx);                                                  // volumetric drifting clouds
+  ctx.fillStyle='#9ccf80'; for(const h of [[160,150],[540,180],[870,165]]) softHill(ctx,h[0],G+20,h[1],100);
+  for(const x of [70,150,250,330,690,780,880,955]) treeRound(ctx,x,G-2,0.55,'#74b85f','#86c66f','#3f7e34','#5e4326');
+  ctx.fillStyle='#63b04e'; for(const h of [[110,150],[430,180],[770,170],[990,140]]) softHill(ctx,h[0],G+18,h[1],86);
+  const mid=[[70,'r',1.05],[175,'p',0.85],[285,'r',0.95],[360,'p',0.7],[470,'p',0.78],[545,'r',0.9],[620,'r',1.1],[710,'p',0.92],[815,'r',1.0],[905,'p',0.82],[968,'r',0.92]];
+  for(const [x,t,s] of mid){ if(t==='r') treeRound(ctx,x,G,s,'#4e9e3e','#67b850','#27591f','#6e4a28'); else treePine(ctx,x,G,s,'#3f8f4a','#52a25c','#214f2c','#6e4a28'); }
+  // dirt
+  ctx.fillStyle='#b07c41'; ctx.fillRect(-M,G,W+2*M,H-G+M);
+  ctx.fillStyle='#9a6630'; ctx.fillRect(-M,H-20,W+2*M,20+M);
+  ctx.fillStyle='rgba(110,70,30,.16)';
+  for(const p of [[120,402,60,12],[300,420,80,14],[560,408,70,12],[780,424,90,16],[930,404,60,12]]){ ctx.beginPath(); ctx.ellipse(p[0],p[1],p[2],p[3],0,0,TAU); ctx.fill(); }
+  for(const p of [[90,408],[210,418],[330,404],[470,420],[600,410],[720,426],[840,406],[940,420],[160,430],[520,432]]){
+    ctx.fillStyle='#7c5226'; ctx.beginPath(); ctx.arc(p[0],p[1],2.4,0,TAU); ctx.fill();
+    ctx.fillStyle='#c89358'; ctx.beginPath(); ctx.arc(p[0]-0.8,p[1]-0.8,1.1,0,TAU); ctx.fill(); }
+  // grass fringe + tufts
+  ctx.fillStyle='#5aa83f'; ctx.beginPath(); ctx.moveTo(-M,G+4);
+  for(let gx=-M; gx<=W+M; gx+=22){ ctx.lineTo(gx+11,G-4); ctx.lineTo(gx+22,G+4); }
+  ctx.lineTo(W+M,G+11); ctx.lineTo(-M,G+11); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle='#3f7e2c'; ctx.lineWidth=1.5; ctx.stroke();
+  for(const x of [60,140,235,330,415,520,610,700,790,860,930]) grassTuft(ctx,x,G+3,0.9+((x%7)/14));
+  // foreground detail
+  rockShape(ctx,300,G+2,0.7); rockShape(ctx,700,G+2,0.6);
+  for(const x of [250,560]) bush(ctx,x,G+6,0.95,'#3f8a3a','#54a046','#1f4f22');
+}
+
+/* ---- bases: cartoon-outlined; stone age is a pile of boulders with a cave ---- */
+function drawBoulderBase(ctx, base, x, w, top, bot, mid){
+  const fill='#a6acb2', sh='#868d95', hi='#c2c7cc', ol='#4e535a';
+  ctx.lineJoin='round';
+  const B=[[mid-30,bot-30,34],[mid+20,bot-28,30],[mid-8,bot-58,30],[mid+30,bot-60,24],[mid-34,bot-66,22],[mid+2,bot-90,26],[mid-22,bot-104,18],[mid+24,bot-104,18]];
+  for(const [bx,by,r] of B){
+    ctx.fillStyle=fill; ctx.beginPath(); ctx.ellipse(bx,by,r,r*0.86,0,0,TAU); ctx.fill();
+    ctx.fillStyle=sh;   ctx.beginPath(); ctx.ellipse(bx+r*0.18,by+r*0.2,r*0.7,r*0.56,0,0,TAU); ctx.fill();
+    ctx.fillStyle=hi;   ctx.beginPath(); ctx.ellipse(bx-r*0.3,by-r*0.32,r*0.34,r*0.26,0,0,TAU); ctx.fill();
+    ctx.strokeStyle=ol; ctx.lineWidth=2.5; ctx.beginPath(); ctx.ellipse(bx,by,r,r*0.86,0,0,TAU); ctx.stroke();
+  }
+  // dark cave mouth
+  ctx.fillStyle='#241f1a'; ctx.beginPath(); ctx.ellipse(mid-2,bot-26,15,18,0,0,TAU); ctx.fill();
+  ctx.strokeStyle=ol; ctx.lineWidth=2.5; ctx.stroke();
+  ctx.fillStyle='#120f0c'; ctx.beginPath(); ctx.ellipse(mid-2,bot-22,10,12,0,0,TAU); ctx.fill();
+  // primitive log on top
+  const lx=mid, ly=bot-118;
+  ctx.strokeStyle='#6e4a28'; ctx.lineWidth=8; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(lx-22,ly+6); ctx.lineTo(lx+24,ly-4); ctx.stroke();
+  ctx.strokeStyle='#3a2614'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(lx-22,ly+6); ctx.lineTo(lx+24,ly-4); ctx.stroke();
+  ctx.fillStyle='#8a5a30'; ctx.beginPath(); ctx.arc(lx+24,ly-4,5,0,TAU); ctx.fill(); ctx.strokeStyle='#3a2614'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.lineCap='butt';
+}
+function drawBaseHP(ctx, base){
+  const age = base.owner==='player'?gameState.currentAge:aiState.age;
+  const x=base.x, w=base.w, mid=x+w/2, top=CONFIG.base.topY;
+  const mat = age<=1 ? {frame:'#7b818a', edge:'#3f4348', plate:'#352a20'} :
+              age===2 ? {frame:'#828b98', edge:'#41464d', plate:'#2c241a'} :
+              age===3 ? {frame:'#9a7338', edge:'#4a3414', plate:'#2c2216'} :
+              age===4 ? {frame:'#828a97', edge:'#3a3f47', plate:'#21252b'} :
+                        {frame:'#3aa6b4', edge:'#1d5760', plate:'#0f2329'};
+  const bw=Math.min(w-12, 80), bh=12, bx=mid-bw/2, by=(age===1? 246 : top-22);
+  const frac=clamp(base.hp/base.maxHp,0,1);
+  // mounting bracket (reads as part of the structure) + bevel
+  fillR(ctx,bx-4,by-4,bw+8,bh+11,5,mat.frame);
+  ctx.fillStyle='rgba(255,255,255,.18)'; ctx.fillRect(bx-4,by-4,bw+8,2);
+  ctx.strokeStyle=mat.edge; ctx.lineWidth=2; roundRect(ctx,bx-4,by-4,bw+8,bh+11,5); ctx.stroke();
+  // recessed track
+  fillR(ctx,bx,by,bw,bh,3,mat.plate);
+  // red fill with vertical gradient for volume + top gloss
+  const fw=bw*frac;
+  if(fw>1){ const g=ctx.createLinearGradient(0,by,0,by+bh); g.addColorStop(0,'#ff6a5a'); g.addColorStop(0.5,'#e23b2e'); g.addColorStop(1,'#a82016');
+    ctx.fillStyle=g; fillR(ctx,bx,by,fw,bh,3,'#e23b2e');
+    ctx.fillStyle='rgba(255,255,255,.30)'; ctx.fillRect(bx+1,by+1.5,Math.max(0,fw-2),2); }
+  // segment ticks
+  ctx.strokeStyle='rgba(0,0,0,.28)'; ctx.lineWidth=1;
+  for(let i=1;i<5;i++){ const tx=bx+bw*i/5; ctx.beginPath(); ctx.moveTo(tx,by+1); ctx.lineTo(tx,by+bh-1); ctx.stroke(); }
+  // value
+  ctx.fillStyle='#fff4dc'; ctx.font='bold 10px ui-monospace,Consolas,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(Math.ceil(base.hp), mid, by+bh/2+0.5); ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+}
+function drawBase(ctx, base){
+  const age = base.owner==='player'?gameState.currentAge:aiState.age;
+  const accent=CONFIG.colors.ageAccent[age];
+  const x=base.x, w=base.w, top=CONFIG.base.topY, bot=CONFIG.groundY, mid=x+w/2;
+  const main=shade(accent, base.owner==='player'?2:-6), lt=shade(main,16);
+  ctx.lineJoin='round';
+  if(age===1){
+    drawBoulderBase(ctx, base, x, w, top, bot, mid);
+  } else {
+    fillR(ctx,x+4,top,w-8,bot-top,4,main);                 // keep / body
+    ctx.strokeStyle='#3a2a18'; ctx.lineWidth=2.5; roundRect(ctx,x+4,top,w-8,bot-top,4); ctx.stroke();
+    ctx.fillStyle=shade(main,-30);                          // gate
+    fillR(ctx, base.owner==='player'? x+w-26 : x+8, bot-40, 18, 40, 3, shade(main,-30));
+    ctx.fillStyle=lt;
+    if(age===2){                                            // castle battlements + corner towers
+      for(let i=0;i<5;i++) fillR(ctx, x+6+i*((w-12)/5), top-16, (w-12)/5-4, 18, 1, lt);
+      fillR(ctx,x+2,top-26,14,30,2,main); fillR(ctx,x+w-16,top-26,14,30,2,main);
+      fillR(ctx,x+2,top-32,14,8,1,lt); fillR(ctx,x+w-16,top-32,14,8,1,lt);
+    } else if(age===3){                                     // manor roof + flag
+      ctx.fillStyle=shade(main,-12); ctx.beginPath(); ctx.moveTo(x,top); ctx.lineTo(mid,top-30); ctx.lineTo(x+w,top); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle='#8a6a26'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(mid,top-30); ctx.lineTo(mid,top-46); ctx.stroke();
+      ctx.fillStyle='#c0392b'; ctx.beginPath(); ctx.moveTo(mid,top-46); ctx.lineTo(mid+(base.owner==='player'?16:-16),top-42); ctx.lineTo(mid,top-38); ctx.closePath(); ctx.fill();
+    } else if(age===4){                                     // bunker HQ + window strip + antenna
+      fillR(ctx,x+8,top-14,w-16,16,2,shade(main,8));
+      ctx.fillStyle='#1c2330'; for(let i=0;i<3;i++) fillR(ctx,x+16+i*((w-32)/3),top-10,(w-32)/3-6,6,1,'#1c2330');
+      ctx.strokeStyle='#9aa2ad'; ctx.lineWidth=2; const ax=base.owner==='player'?x+w-14:x+14;
+      ctx.beginPath(); ctx.moveTo(ax,top-14); ctx.lineTo(ax,top-34); ctx.stroke(); disc(ctx,ax,top-34,3,'#d9534f');
+    } else {                                                // future spire + energy core
+      fillR(ctx,mid-6,top-40,12,42,3,shade(main,10));
+      ctx.shadowColor='#36d6e0'; ctx.shadowBlur=12; disc(ctx,mid,top-44,8,'#7fe6ff'); ctx.shadowBlur=0;
+      fillR(ctx,x+10,top-6,w-20,8,2,mix(main,'#36d6e0',0.3));
+    }
+  }
+  drawBaseHP(ctx, base);
+}
+
+/* ---- vector-art primitives (authored facing +x, feet at origin, up = -y) ---- */
+function capsule(ctx,x0,y0,x1,y1,w,color){ ctx.strokeStyle=color; ctx.lineWidth=w; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke(); }
+function disc(ctx,x,y,r,color){ ctx.fillStyle=color; ctx.beginPath(); ctx.arc(x,y,r,0,TAU); ctx.fill(); }
+function blob(ctx,x,y,rx,ry,color){ ctx.fillStyle=color; ctx.beginPath(); ctx.ellipse(x,y,rx,ry,0,0,TAU); ctx.fill(); }
+function fillR(ctx,x,y,w,h,r,color){ roundRect(ctx,x,y,w,h,r); ctx.fillStyle=color; ctx.fill(); }
+function muzzleFlash(ctx,x,y,r,color){ disc(ctx,x,y,r,color||'#fff2a0'); disc(ctx,x,y,r*0.55,'#fff'); }
+
+// per-unit colour set (type colour tinted by age, whitened while hit)
+function unitPalette(u){
+  const accent=CONFIG.colors.ageAccent[u.age];
+  let body=mix(u.color,accent,0.18);
+  if(u.hitFlash>0) body=mix(body,'#ffffff', u.hitFlash>60?0.9:0.45);   // pure-white pop, then soften
+  const skin = u.hitFlash>0 ? '#ffffff' : '#e7b48b';
+  return { body, dark:shade(body,-30), light:shade(body,22),
+    skin, skinDark:shade(skin,-22), metal:'#c2ccd8', metalDark:'#828d9c',
+    accent, energy:u.owner==='player'?'#7fe6ff':'#ff9d6b',
+    team:u.owner==='player'?CONFIG.colors.playerOutline:CONFIG.colors.enemyOutline };
+}
+// visual size is DECOUPLED from the HP-based hitbox so roles/tiers read clearly
+function visualHeight(u){ const base={melee:30,ranged:29,heavy:48}[u.type]; return Math.round(base*(1+(u.age-1)*0.05)); }
+function isVehicle(u){ return u.type==='heavy' && u.age!==2; }        // dino/cannon/tank/hover (Knight is humanoid)
+function visualWidth(u,H){ return isVehicle(u)?H*1.35:(u.age===5&&u.type==='melee'?H*0.62:H*0.55); }
+
+// shared humanoid pieces
+function drawLegs(ctx,H,backC,frontC,sw,lw){
+  lw=lw||Math.max(3,0.11*H); const hip=-0.40*H, s=0.13*H;
+  capsule(ctx,-0.06*H,hip,-0.06*H - sw*s,0,lw,backC);
+  capsule(ctx, 0.06*H,hip, 0.06*H + sw*s,0,lw,frontC);
+}
+function drawHelmet(ctx,H,pal,type){
+  if(type==='metal'){ ctx.fillStyle=pal.metal; ctx.beginPath(); ctx.arc(0,-0.88*H,0.135*H,Math.PI,TAU); ctx.fill(); fillR(ctx,-0.135*H,-0.885*H,0.27*H,0.035*H,1,pal.metalDark); }
+  else if(type==='plume'){ ctx.fillStyle=pal.metal; ctx.beginPath(); ctx.arc(0,-0.88*H,0.14*H,Math.PI,TAU); ctx.fill(); fillR(ctx,-0.02*H,-1.07*H,0.045*H,0.18*H,2,'#c0392b'); }
+  else if(type==='tricorne'){ ctx.fillStyle='#2c281f'; ctx.beginPath(); ctx.ellipse(0.02*H,-0.95*H,0.21*H,0.05*H,0,0,TAU); ctx.fill(); ctx.beginPath(); ctx.arc(0,-0.97*H,0.11*H,Math.PI,TAU); ctx.fill(); }
+  else if(type==='modern'){ ctx.fillStyle=shade(pal.body,-16); ctx.beginPath(); ctx.arc(0,-0.89*H,0.14*H,Math.PI,TAU); ctx.fill(); fillR(ctx,0.02*H,-0.90*H,0.16*H,0.035*H,1,shade(pal.body,-16)); }
+  else if(type==='visor'){ ctx.fillStyle=pal.metalDark; ctx.beginPath(); ctx.arc(0,-0.88*H,0.145*H,Math.PI,TAU); ctx.fill(); fillR(ctx,-0.10*H,-0.90*H,0.21*H,0.045*H,2,pal.energy); }
+}
+// generic foot-soldier; weapon(ctx,H,pal,handX,handY,angle,swing,recoil) draws the held weapon
+function drawSoldier(ctx,H,pal,a,o){
+  const legC=o.legColor||pal.dark, torsoC=o.torsoColor||pal.body, skin=o.skin||pal.skin, bulk=o.bulk||1;
+  drawLegs(ctx,H,legC,legC,a.legSwing);
+  fillR(ctx,-0.16*H*bulk,-0.76*H,0.32*H*bulk,0.38*H,3,torsoC);
+  if(o.sash){ ctx.strokeStyle=o.sash; ctx.lineWidth=Math.max(2,0.05*H); ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(-0.14*H,-0.74*H); ctx.lineTo(0.12*H,-0.42*H); ctx.stroke(); }
+  const bs=a.legSwing*0.09*H;                                   // back arm swings opposite legs
+  capsule(ctx,-0.10*H*bulk,-0.70*H,-0.13*H*bulk+bs,-0.44*H,Math.max(2.5,0.066*H),shade(torsoC,-12));
+  if(o.shield){ ctx.save(); ctx.translate(-0.13*H*bulk+bs,-0.54*H); ctx.fillStyle=pal.metal; ctx.beginPath(); ctx.ellipse(0,0,0.10*H,0.16*H,0,0,TAU); ctx.fill(); ctx.strokeStyle=pal.metalDark; ctx.lineWidth=Math.max(1,0.02*H); ctx.stroke(); ctx.restore(); }
+  disc(ctx,0,-0.87*H,0.12*H,skin);
+  drawHelmet(ctx,H,pal,o.helmet);
+  const sw=a.swing, sh={x:0.10*H*bulk,y:-0.70*H};               // front arm + weapon
+  let ang, recoil=0;
+  if(o.mode==='melee') ang=(o.rest!=null?o.rest:-1.9)+sw*(o.arc!=null?o.arc:2.4);
+  else { ang=(o.aim!=null?o.aim:-0.12); recoil=sw*(o.recoil||0.10*H); }
+  const L=0.18*H, hx=sh.x+Math.cos(ang)*L-recoil, hy=sh.y+Math.sin(ang)*L;
+  capsule(ctx,sh.x,sh.y,hx,hy,Math.max(2.5,0.066*H),skin);
+  o.weapon(ctx,H,pal,hx,hy,ang,sw,recoil);
+}
+
+/* ---------------- distinctive art for all 15 units ---------------- */
+const UNIT_ART = {
+ // AGE 1 — STONE
+ '1_melee':(ctx,H,pal,a)=>{                       // Clubman: caveman swinging a club
+   drawLegs(ctx,H,pal.skinDark,pal.skin,a.legSwing);
+   fillR(ctx,-0.17*H,-0.74*H,0.34*H,0.36*H,4,pal.body);
+   ctx.fillStyle=pal.dark; for(let i=-2;i<3;i++){ const x=i*0.07*H; ctx.beginPath(); ctx.moveTo(x-0.035*H,-0.40*H); ctx.lineTo(x+0.035*H,-0.40*H); ctx.lineTo(x,-0.32*H); ctx.closePath(); ctx.fill(); }
+   const bs=a.legSwing*0.09*H; capsule(ctx,-0.10*H,-0.68*H,-0.14*H+bs,-0.46*H,Math.max(2.5,0.066*H),pal.skin);
+   disc(ctx,0,-0.86*H,0.125*H,pal.skin);
+   ctx.fillStyle='#5a3b22'; ctx.beginPath(); ctx.arc(0,-0.90*H,0.13*H,Math.PI*1.02,Math.PI*1.98); ctx.fill();
+   disc(ctx,0.05*H,-0.86*H,0.018*H,'#222');
+   const sw=a.swing, ang=-2.2+sw*2.5, sh={x:0.10*H,y:-0.70*H};
+   const hx=sh.x+Math.cos(ang)*0.18*H, hy=sh.y+Math.sin(ang)*0.18*H;
+   capsule(ctx,sh.x,sh.y,hx,hy,Math.max(2.5,0.07*H),pal.skin);
+   const ex=hx+Math.cos(ang)*0.26*H, ey=hy+Math.sin(ang)*0.26*H;
+   capsule(ctx,hx,hy,ex,ey,Math.max(3,0.10*H),'#7a4a25');
+   disc(ctx,ex,ey,0.11*H,'#8a5a2c'); disc(ctx,ex-0.04*H,ey-0.03*H,0.035*H,'#6b3f1f');
+ },
+ '1_ranged':(ctx,H,pal,a)=>{                      // Rock Thrower: caveman hurling a rock
+   drawLegs(ctx,H,pal.skinDark,pal.skin,a.legSwing);
+   fillR(ctx,-0.15*H,-0.72*H,0.30*H,0.34*H,4,pal.body);
+   disc(ctx,0,-0.84*H,0.12*H,pal.skin);
+   ctx.fillStyle='#5a3b22'; ctx.beginPath(); ctx.arc(0,-0.88*H,0.125*H,Math.PI*1.02,Math.PI*1.98); ctx.fill();
+   disc(ctx,0.05*H,-0.84*H,0.017*H,'#222');
+   capsule(ctx,-0.08*H,-0.66*H,-0.14*H,-0.46*H,Math.max(2.5,0.06*H),pal.skin);
+   const sw=a.swing, ang=-2.5+sw*2.9, sh={x:0.08*H,y:-0.68*H};
+   const hx=sh.x+Math.cos(ang)*0.32*H, hy=sh.y+Math.sin(ang)*0.32*H;
+   capsule(ctx,sh.x,sh.y,hx,hy,Math.max(2.5,0.07*H),pal.skin);
+   if(sw<0.45){ disc(ctx,hx,hy,0.08*H,'#9b9b9b'); disc(ctx,hx-0.02*H,hy-0.02*H,0.03*H,'#bcbcbc'); }
+ },
+ '1_heavy':(ctx,H,pal,a)=>{                       // Dino Rider: a caveman astride a dinosaur
+   const green=mix('#5aa84a',pal.accent,0.12), gd=shade(green,-30), gl=shade(green,18);
+   ctx.fillStyle=green; ctx.beginPath(); ctx.moveTo(-0.28*H,-0.44*H); ctx.quadraticCurveTo(-0.74*H,-0.52*H,-0.98*H,-0.16*H); ctx.quadraticCurveTo(-0.58*H,-0.30*H,-0.24*H,-0.34*H); ctx.closePath(); ctx.fill();
+   const sw=a.legSwing;
+   capsule(ctx,-0.04*H,-0.40*H,-0.04*H - sw*0.13*H,0,Math.max(4,0.14*H),gd);
+   capsule(ctx, 0.12*H,-0.40*H, 0.12*H + sw*0.13*H,0,Math.max(4,0.14*H),green);
+   blob(ctx,-0.04*H,-0.52*H,0.44*H,0.27*H,green);
+   const ln=a.swing*0.09*H;
+   ctx.strokeStyle=green; ctx.lineWidth=Math.max(5,0.17*H); ctx.lineCap='round';
+   ctx.beginPath(); ctx.moveTo(0.24*H,-0.58*H); ctx.quadraticCurveTo(0.52*H+ln,-0.82*H,0.64*H+ln,-0.74*H); ctx.stroke();
+   ctx.fillStyle=green; ctx.beginPath(); ctx.ellipse(0.69*H+ln,-0.72*H,0.15*H,0.10*H,0.15,0,TAU); ctx.fill();
+   fillR(ctx,0.62*H+ln,-0.685*H,0.18*H,0.05*H,2,gl);
+   ctx.fillStyle='#fff'; for(let k=0;k<3;k++){ ctx.fillRect((0.64+k*0.05)*H+ln,-0.665*H,0.018*H,0.03*H); }
+   disc(ctx,0.73*H+ln,-0.76*H,0.022*H,'#111');
+   fillR(ctx,-0.22*H,-0.72*H,0.30*H,0.06*H,2,'#6b4a2c');
+   fillR(ctx,-0.13*H,-0.94*H,0.17*H,0.24*H,3,pal.body);
+   disc(ctx,-0.045*H,-1.02*H,0.10*H,pal.skin);
+   ctx.fillStyle='#5a3b22'; ctx.beginPath(); ctx.arc(-0.045*H,-1.05*H,0.10*H,Math.PI*1.02,Math.PI*1.98); ctx.fill();
+   const jb=a.swing*0.13*H;
+   capsule(ctx,0.0,-0.92*H,0.30*H+jb,-0.80*H,Math.max(2.5,0.05*H),'#7a4a25');
+   ctx.fillStyle='#cfcfcf'; ctx.beginPath(); ctx.moveTo(0.30*H+jb,-0.84*H); ctx.lineTo(0.37*H+jb,-0.80*H); ctx.lineTo(0.30*H+jb,-0.76*H); ctx.closePath(); ctx.fill();
+ },
+
+ // AGE 2 — CASTLE
+ '2_melee':(ctx,H,pal,a)=> drawSoldier(ctx,H,pal,a,{ legColor:pal.metalDark, helmet:'metal', shield:true, mode:'melee',
+   weapon:(c,H,pal,hx,hy,ang)=>{ const bx=hx+Math.cos(ang)*0.36*H, by=hy+Math.sin(ang)*0.36*H; capsule(c,hx,hy,bx,by,Math.max(2.5,0.045*H),'#e2e8f0'); disc(c,hx,hy,0.05*H,'#caa44a'); } }),
+ '2_ranged':(ctx,H,pal,a)=>{                      // Archer: drawing a longbow
+   drawLegs(ctx,H,pal.dark,pal.dark,a.legSwing);
+   fillR(ctx,-0.15*H,-0.76*H,0.30*H,0.38*H,3,pal.body);
+   fillR(ctx,-0.18*H,-0.80*H,0.06*H,0.22*H,2,'#6b4a2c');         // quiver
+   disc(ctx,0,-0.87*H,0.12*H,pal.skin);
+   ctx.fillStyle=shade(pal.body,-10); ctx.beginPath(); ctx.arc(0,-0.88*H,0.125*H,Math.PI*1.05,Math.PI*1.95); ctx.fill();
+   const draw=(1-a.swing);                                       // string pulled back until release
+   const bx=0.26*H, by=-0.64*H;
+   ctx.strokeStyle='#7a4a25'; ctx.lineWidth=Math.max(2,0.05*H); ctx.lineCap='round';
+   ctx.beginPath(); ctx.arc(bx,by,0.22*H,-1.1,1.1); ctx.stroke();
+   const tyTop=by-0.22*H*Math.sin(1.1), tyBot=by+0.22*H*Math.sin(1.1), tx=bx+0.22*H*Math.cos(1.1);
+   const nockX=bx-0.06*H - draw*0.10*H;
+   ctx.strokeStyle='#eee'; ctx.lineWidth=Math.max(1,0.02*H);
+   ctx.beginPath(); ctx.moveTo(tx,tyTop); ctx.lineTo(nockX,by); ctx.lineTo(tx,tyBot); ctx.stroke();
+   capsule(ctx,0.10*H,-0.70*H,bx,by,Math.max(2.5,0.06*H),pal.skin);
+   capsule(ctx,-0.06*H,-0.70*H,nockX,by,Math.max(2.5,0.06*H),pal.skin);
+   if(draw>0.5) capsule(ctx,nockX,by,bx+0.05*H,by,Math.max(1.5,0.02*H),'#5a3b22');
+ },
+ '2_heavy':(ctx,H,pal,a)=> drawSoldier(ctx,H,pal,a,{ legColor:pal.metalDark, helmet:'plume', shield:true, bulk:1.18, torsoColor:pal.metal, mode:'melee', rest:-2.0, arc:2.5,
+   weapon:(c,H,pal,hx,hy,ang)=>{ const bx=hx+Math.cos(ang)*0.46*H, by=hy+Math.sin(ang)*0.46*H; capsule(c,hx,hy,bx,by,Math.max(3,0.06*H),'#eef2f7'); disc(c,hx,hy,0.06*H,'#caa44a'); capsule(c,hx-0.05*H,hy+0.04*H,hx+0.05*H,hy-0.04*H,0.04*H,'#caa44a'); } }),
+
+ // AGE 3 — RENAISSANCE
+ '3_melee':(ctx,H,pal,a)=> drawSoldier(ctx,H,pal,a,{ helmet:'tricorne', bulk:0.9, sash:'#caa44a', mode:'melee', rest:-1.4, arc:1.9,
+   weapon:(c,H,pal,hx,hy,ang)=>{ const bx=hx+Math.cos(ang)*0.5*H, by=hy+Math.sin(ang)*0.5*H; capsule(c,hx,hy,bx,by,Math.max(1.5,0.028*H),'#dfe6ee'); disc(c,hx,hy,0.045*H,'#caa44a'); } }),
+ '3_ranged':(ctx,H,pal,a)=> drawSoldier(ctx,H,pal,a,{ helmet:'tricorne', mode:'ranged', aim:-0.06, recoil:0.06*H,
+   weapon:(c,H,pal,hx,hy,ang,sw)=>{ const bx=hx+Math.cos(ang)*0.5*H, by=hy+Math.sin(ang)*0.5*H; capsule(c,hx-0.1*H,hy,bx,by,Math.max(3,0.055*H),'#3a2c1c'); capsule(c,bx-0.12*H,by,bx,by,Math.max(2,0.03*H),'#b9c3cf'); if(sw>0.55){ muzzleFlash(c,bx+0.04*H,by,0.09*H,'#ffd24a'); for(let k=0;k<4;k++) disc(c,bx+0.08*H+k*0.04*H,by-0.03*H,0.03*H,'rgba(220,220,220,.6)'); } } }),
+ '3_heavy':(ctx,H,pal,a)=>{                       // Cannon: wheeled artillery
+   const wood='#6b4a2c', metal=pal.metalDark, recoil=a.swing*0.13*H, wr=0.22*H;
+   for(const cxw of [-0.18*H,0.13*H]){ disc(ctx,cxw,-wr,wr,'#33271a'); disc(ctx,cxw,-wr,wr*0.55,wood);
+     ctx.strokeStyle=shade(wood,-15); ctx.lineWidth=Math.max(1,0.02*H);
+     for(let k=0;k<4;k++){ const an=k*Math.PI/4; ctx.beginPath(); ctx.moveTo(cxw,-wr); ctx.lineTo(cxw+Math.cos(an)*wr*0.5,-wr+Math.sin(an)*wr*0.5); ctx.stroke(); } }
+   capsule(ctx,-0.04*H,-wr,-0.5*H,-0.04*H,Math.max(3,0.08*H),wood);
+   ctx.save(); ctx.translate(-recoil,0);
+   capsule(ctx,-0.12*H,-wr-0.04*H,0.46*H,-wr-0.20*H,Math.max(5,0.17*H),metal);
+   disc(ctx,0.46*H,-wr-0.20*H,0.11*H,shade(metal,-18)); disc(ctx,0.46*H,-wr-0.20*H,0.06*H,'#111');
+   ctx.restore();
+   if(a.swing>0.6) muzzleFlash(ctx,0.56*H-recoil,-wr-0.21*H,0.13*H,'#ffb24a');
+ },
+
+ // AGE 4 — MODERN
+ '4_melee':(ctx,H,pal,a)=> drawSoldier(ctx,H,pal,a,{ helmet:'modern', torsoColor:mix(pal.body,'#4a5a32',0.4), legColor:mix(pal.dark,'#3a4424',0.4), mode:'ranged', aim:-0.05, recoil:0.07*H,
+   weapon:(c,H,pal,hx,hy,ang,sw)=>{ const bx=hx+Math.cos(ang)*0.34*H, by=hy+Math.sin(ang)*0.34*H; capsule(c,hx-0.08*H,hy,bx,by,Math.max(3,0.05*H),'#23262b'); fillR(c,hx-0.02*H,hy+0.01*H,0.08*H,0.07*H,1,'#1a1c20'); if(sw>0.5) muzzleFlash(c,bx+0.03*H,by,0.07*H,'#fff'); } }),
+ '4_ranged':(ctx,H,pal,a)=> drawSoldier(ctx,H,pal,a,{ helmet:'modern', bulk:0.95, torsoColor:mix(pal.body,'#4a5a32',0.35), legColor:mix(pal.dark,'#3a4424',0.4), mode:'ranged', aim:0.0, recoil:0.05*H,
+   weapon:(c,H,pal,hx,hy,ang,sw)=>{ const bx=hx+Math.cos(ang)*0.58*H, by=hy+Math.sin(ang)*0.58*H; capsule(c,hx-0.1*H,hy,bx,by,Math.max(3,0.045*H),'#1f2227'); disc(c,hx+0.12*H,hy-0.05*H,0.05*H,'#2b3038'); capsule(c,hx+0.12*H,hy-0.10*H,hx+0.12*H,hy-0.02*H,0.03*H,'#444'); if(sw>0.6) muzzleFlash(c,bx+0.03*H,by,0.06*H,'#fff'); } }),
+ '4_heavy':(ctx,H,pal,a)=>{                       // Battle Tank
+   const hull=mix('#5a6a3c',pal.accent,0.1), hd=shade(hull,-26), recoil=a.swing*0.1*H, wr=0.13*H;
+   fillR(ctx,-0.46*H,-0.30*H,0.92*H,0.16*H,wr,hd);
+   for(let i=-2;i<=2;i++) disc(ctx,i*0.18*H,-0.16*H,wr*0.7,shade(hull,-10));
+   disc(ctx,-0.40*H,-0.16*H,wr,shade(hull,-12)); disc(ctx,0.40*H,-0.16*H,wr,shade(hull,-12));
+   fillR(ctx,-0.40*H,-0.52*H,0.78*H,0.24*H,4,hull);
+   fillR(ctx,-0.18*H,-0.66*H,0.34*H,0.18*H,4,shade(hull,8));
+   ctx.save(); ctx.translate(-recoil,0); capsule(ctx,0.10*H,-0.58*H,0.62*H,-0.58*H,Math.max(4,0.07*H),hd); ctx.restore();
+   if(a.swing>0.6) muzzleFlash(ctx,0.66*H-recoil,-0.58*H,0.1*H,'#ffb24a');
+ },
+
+ // AGE 5 — FUTURE
+ '5_melee':(ctx,H,pal,a)=>{                       // Mecha-Blade: robot with an energy blade
+   drawLegs(ctx,H,pal.metalDark,pal.metal,a.legSwing,Math.max(4,0.12*H));
+   fillR(ctx,-0.17*H,-0.78*H,0.34*H,0.40*H,4,pal.metal);
+   fillR(ctx,-0.10*H,-0.70*H,0.20*H,0.10*H,2,shade(pal.metal,-18)); disc(ctx,0,-0.62*H,0.05*H,pal.energy);
+   disc(ctx,0,-0.88*H,0.13*H,pal.metalDark); fillR(ctx,-0.09*H,-0.91*H,0.20*H,0.05*H,2,pal.energy);
+   const bs=a.legSwing*0.09*H; capsule(ctx,-0.12*H,-0.72*H,-0.15*H+bs,-0.46*H,Math.max(3,0.07*H),pal.metalDark);
+   const sw=a.swing, ang=-1.7+sw*2.4, sh={x:0.12*H,y:-0.72*H};
+   const hx=sh.x+Math.cos(ang)*0.16*H, hy=sh.y+Math.sin(ang)*0.16*H;
+   capsule(ctx,sh.x,sh.y,hx,hy,Math.max(3,0.07*H),pal.metal);
+   const bx=hx+Math.cos(ang)*0.5*H, by=hy+Math.sin(ang)*0.5*H;
+   ctx.shadowColor=pal.energy; ctx.shadowBlur=10;
+   capsule(ctx,hx,hy,bx,by,Math.max(3,0.06*H),pal.energy); capsule(ctx,hx,hy,bx,by,Math.max(1,0.02*H),'#fff');
+   ctx.shadowBlur=0;
+ },
+ '5_ranged':(ctx,H,pal,a)=> drawSoldier(ctx,H,pal,a,{ helmet:'visor', torsoColor:pal.metal, legColor:pal.metalDark, mode:'ranged', aim:-0.04, recoil:0.05*H,
+   weapon:(c,H,pal,hx,hy,ang,sw)=>{ const bx=hx+Math.cos(ang)*0.55*H, by=hy+Math.sin(ang)*0.55*H; capsule(c,hx-0.1*H,hy,bx,by,Math.max(4,0.07*H),pal.metalDark); c.shadowColor=pal.energy; c.shadowBlur=8; capsule(c,bx-0.1*H,by,bx,by,Math.max(2,0.04*H),pal.energy); c.shadowBlur=0; if(sw>0.4) muzzleFlash(c,bx+0.04*H,by,0.08*H,pal.energy); } }),
+ '5_heavy':(ctx,H,pal,a)=>{                       // Hover Tank: floating, energy cannon
+   const hull=mix('#3a6a8c',pal.accent,0.15), hd=shade(hull,-28), bobf=Math.sin(CLOCK*2.5+1)*0.02*H, recoil=a.swing*0.1*H;
+   ctx.save(); ctx.translate(0,bobf);
+   ctx.globalAlpha=0.55; for(let i=0;i<3;i++) blob(ctx,(-0.25+i*0.25)*H,-0.06*H,0.13*H,0.04*H,pal.energy); ctx.globalAlpha=1;
+   ctx.beginPath(); ctx.moveTo(-0.46*H,-0.30*H); ctx.lineTo(0.46*H,-0.30*H); ctx.lineTo(0.36*H,-0.16*H); ctx.lineTo(-0.36*H,-0.16*H); ctx.closePath(); ctx.fillStyle=hd; ctx.fill();
+   fillR(ctx,-0.42*H,-0.52*H,0.82*H,0.24*H,5,hull);
+   fillR(ctx,-0.20*H,-0.66*H,0.36*H,0.18*H,5,shade(hull,10)); disc(ctx,-0.10*H,-0.57*H,0.04*H,pal.energy);
+   ctx.save(); ctx.translate(-recoil,0);
+   capsule(ctx,0.12*H,-0.58*H,0.64*H,-0.58*H,Math.max(5,0.09*H),hd);
+   ctx.shadowColor=pal.energy; ctx.shadowBlur=8; capsule(ctx,0.5*H,-0.58*H,0.66*H,-0.58*H,Math.max(3,0.05*H),pal.energy); ctx.shadowBlur=0;
+   ctx.restore();
+   if(a.swing>0.6) muzzleFlash(ctx,0.7*H-recoil,-0.58*H,0.11*H,pal.energy);
+   ctx.restore();
+ },
+};
+
+function drawUnitBody(ctx, u, a, Hv, Wv, bob){      // body only (no HP bar) — reused by portrait icons
+  ctx.save();
+  ctx.translate(0, -bob);
+  ctx.scale(u.dir,1);                                      // author facing +x; auto-mirror enemies
+  const pal = unitPalette(u);
+  (UNIT_ART[u.age+'_'+u.type] || UNIT_ART['1_melee'])(ctx, Hv, pal, a);
+  ctx.fillStyle=pal.team; ctx.globalAlpha=0.9; ctx.beginPath(); ctx.arc(-Wv*0.5, -Hv*0.5, 2.2, 0, TAU); ctx.fill(); ctx.globalAlpha=1;
+  ctx.restore();
+  ctx.shadowBlur=0; ctx.lineCap='butt';
+}
+function drawUnit(ctx,u){
+  const dir=u.dir;
+  const easeOut = t=>1-Math.pow(1-t,3);                    // fast out, slow settle
+  const sRaw = clamp(u.lunge/6,0,1);
+  const swing = easeOut(sRaw);                             // weapon arc / recoil (eased)
+  const push = (u.state==='attack' ? dir*swing*9 : 0);     // body lunges forward on the strike
+  const cx = u.cx + push;
+  const Hv = visualHeight(u), Wv = visualWidth(u,Hv);
+  const walking = u.state==='walk';
+  const cyc = CLOCK*(6+u.speed*2) + u.id*1.7;               // per-unit stride phase
+  const legSwing = walking ? Math.sin(cyc) : 0;
+  const bob = walking ? Math.abs(Math.sin(cyc))*(Hv*0.035) : Math.sin(CLOCK*2+u.id)*(Hv*0.012);
+  const a = {legSwing, swing, walking, cyc};
+
+  // ground shadow + a little scuff behind moving feet
+  ctx.fillStyle='rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(cx, u.feetY+2, Wv*0.55, 4,0,0,TAU); ctx.fill();
+  if(walking){ ctx.fillStyle='rgba(120,150,90,.25)'; ctx.beginPath(); ctx.ellipse(cx - dir*Hv*0.18, u.feetY+2, Hv*0.10,3,0,0,TAU); ctx.fill(); }
+
+  ctx.save(); ctx.translate(cx, u.feetY); drawUnitBody(ctx, u, a, Hv, Wv, bob); ctx.restore();
+
+  // HP bar above the visual silhouette
+  drawBar(ctx, cx - Wv/2, (u.feetY - bob) - Hv - 7, Wv, 3, u.hp/u.maxHp, u.owner==='player'?'#7fe39a':'#ff9a8a');
+}
+
+/* ---- button portrait icons (rendered to small offscreen canvases, reuse real art) ---- */
+function iconBackdrop(ctx,W0,H0){
+  const bg=ctx.createRadialGradient(W0*0.5,H0*0.42,2,W0*0.5,H0*0.55,W0*0.62);
+  bg.addColorStop(0,'rgba(255,246,220,.22)'); bg.addColorStop(1,'rgba(40,24,8,0)');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W0,H0);
+}
+function drawUnitIcon(canvas, age, type){
+  if(!canvas||!canvas.getContext) return; const ctx=canvas.getContext('2d'); if(!ctx) return;
+  const W0=canvas.width,H0=canvas.height; ctx.clearRect(0,0,W0,H0); iconBackdrop(ctx,W0,H0);
+  const fake={ type, age, owner:'player', dir:1, state:'idle', lunge:0, hitFlash:0, id:3, speed:1, hp:1, maxHp:1, dead:false, feetY:0, cx:0, color:(CONFIG.colors[type]||'#2f6fd0') };
+  const Hv=visualHeight(fake), Wv=visualWidth(fake,Hv), pad=11;
+  const s=Math.min((H0-pad*2)/Hv, (W0-pad*2)/Wv);
+  ctx.save(); ctx.translate(W0/2, H0-pad); ctx.scale(s,s);
+  ctx.fillStyle='rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(0,2,Wv*0.5,4,0,0,TAU); ctx.fill();
+  drawUnitBody(ctx, fake, {legSwing:0,swing:0,walking:false,cyc:0}, Hv, Wv, 0);
+  ctx.restore();
+}
+function drawTurretIcon(canvas, age){
+  if(!canvas||!canvas.getContext) return; const ctx=canvas.getContext('2d'); if(!ctx) return;
+  const W0=canvas.width,H0=canvas.height; ctx.clearRect(0,0,W0,H0); iconBackdrop(ctx,W0,H0);
+  const s=Math.min((H0-18)/32, (W0-18)/32);
+  ctx.save(); ctx.translate(W0*0.44, H0*0.7); ctx.scale(s,s);
+  ctx.fillStyle='rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(2,13,13,3,0,0,TAU); ctx.fill();
+  drawTurret(ctx, { age, dir:1, x:0, y:0, muzzle:0 });
+  ctx.restore();
+}
+function drawSpecialIcon(canvas, age){
+  if(!canvas||!canvas.getContext) return; const ctx=canvas.getContext('2d'); if(!ctx) return;
+  const W0=canvas.width,H0=canvas.height; ctx.clearRect(0,0,W0,H0); iconBackdrop(ctx,W0,H0);
+  const cx=W0/2, cy=H0/2, R=Math.min(W0,H0)*0.34, r=R*0.44;
+  ctx.beginPath(); for(let i=0;i<10;i++){ const ang=-Math.PI/2+i*Math.PI/5, rad=i%2?r:R; ctx.lineTo(cx+Math.cos(ang)*rad, cy+Math.sin(ang)*rad); } ctx.closePath();
+  const g=ctx.createLinearGradient(0,cy-R,0,cy+R); g.addColorStop(0,'#fff3c0'); g.addColorStop(.5,'#ffd24a'); g.addColorStop(1,'#b9851f');
+  ctx.shadowColor='rgba(255,210,74,.7)'; ctx.shadowBlur=8; ctx.fillStyle=g; ctx.fill(); ctx.shadowBlur=0;
+  ctx.strokeStyle='#6e4a14'; ctx.lineWidth=2; ctx.stroke();
+}
+function drawEvolveIcon(canvas){
+  if(!canvas||!canvas.getContext) return; const ctx=canvas.getContext('2d'); if(!ctx) return;
+  const W0=canvas.width,H0=canvas.height; ctx.clearRect(0,0,W0,H0); iconBackdrop(ctx,W0,H0);
+  const cx=W0/2, w=W0*0.24, lw=Math.max(4,W0*0.085);
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  for(const oy of [H0*0.30, H0*0.52]){
+    ctx.strokeStyle='#6e4a14'; ctx.lineWidth=lw+3; ctx.beginPath(); ctx.moveTo(cx-w,oy+w); ctx.lineTo(cx,oy); ctx.lineTo(cx+w,oy+w); ctx.stroke();
+    ctx.strokeStyle='#7fe39a'; ctx.lineWidth=lw;   ctx.beginPath(); ctx.moveTo(cx-w,oy+w); ctx.lineTo(cx,oy); ctx.lineTo(cx+w,oy+w); ctx.stroke();
+  }
+  ctx.lineCap='butt';
+}
+function drawSlotIcon(canvas){
+  if(!canvas||!canvas.getContext) return; const ctx=canvas.getContext('2d'); if(!ctx) return;
+  const W0=canvas.width,H0=canvas.height; ctx.clearRect(0,0,W0,H0); iconBackdrop(ctx,W0,H0);
+  const cx=W0/2, cy=H0/2, R=Math.min(W0,H0)*0.30;
+  // empty stone slot (dashed) + green plus
+  ctx.strokeStyle='#5e5048'; ctx.lineWidth=Math.max(3,W0*0.06); ctx.setLineDash([W0*0.12,W0*0.07]);
+  roundRect(ctx,cx-R,cy-R,R*2,R*2,5); ctx.stroke(); ctx.setLineDash([]);
+  const p=R*0.62, lw=Math.max(4,W0*0.085); ctx.lineCap='round';
+  ctx.strokeStyle='#1f4f22'; ctx.lineWidth=lw+3; ctx.beginPath(); ctx.moveTo(cx-p,cy); ctx.lineTo(cx+p,cy); ctx.moveTo(cx,cy-p); ctx.lineTo(cx,cy+p); ctx.stroke();
+  ctx.strokeStyle='#7fe39a'; ctx.lineWidth=lw;   ctx.beginPath(); ctx.moveTo(cx-p,cy); ctx.lineTo(cx+p,cy); ctx.moveTo(cx,cy-p); ctx.lineTo(cx,cy+p); ctx.stroke();
+  ctx.lineCap='butt';
+}
+function renderButtonIcons(){
+  const a=gameState.currentAge;
+  drawUnitIcon(el.icoMelee,a,'melee'); drawUnitIcon(el.icoRanged,a,'ranged'); drawUnitIcon(el.icoHeavy,a,'heavy');
+  drawTurretIcon(el.icoTurret,a); drawSpecialIcon(el.icoSpecial,a);
+  drawSlotIcon(el.icoSlot); drawEvolveIcon(el.icoEvolve);
+}
+
+function drawTurret(ctx,t){
+  const accent=CONFIG.colors.ageAccent[t.age], dir=t.dir;
+  ctx.save(); ctx.translate(t.x,t.y); ctx.scale(dir,1);
+  const m=shade(accent,-4), md=shade(accent,-26);
+  if(t.age===1){            // Slingshot Tower: forked stick + band
+    fillR(ctx,-3,-2,6,16,1,'#6b4a2c');
+    ctx.strokeStyle='#6b4a2c'; ctx.lineWidth=3; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(0,-2); ctx.lineTo(-5,-12); ctx.moveTo(0,-2); ctx.lineTo(7,-12); ctx.stroke();
+    ctx.strokeStyle='#7a3b2a'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(-5,-12); ctx.lineTo(3,-6); ctx.lineTo(7,-12); ctx.stroke();
+  } else if(t.age===2){     // Ballista: mounted crossbow
+    fillR(ctx,-4,-4,8,16,1,'#6b4a2c');
+    capsule(ctx,-2,-9,14,-10,4,'#5a3b22');
+    ctx.strokeStyle='#3a2a1a'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(2,-16); ctx.lineTo(10,-9); ctx.lineTo(2,-2); ctx.stroke();
+  } else if(t.age===3){     // Wall Cannon: stubby barrel on stone
+    fillR(ctx,-7,-3,14,16,2,'#7a7f88');
+    capsule(ctx,0,-6,15,-9,7,md); disc(ctx,15,-9,4,'#111');
+  } else if(t.age===4){     // Machine Gun Nest: sandbags + gun
+    fillR(ctx,-9,2,18,10,3,'#9c8a5a'); fillR(ctx,-9,-2,18,5,2,'#b09a66');
+    capsule(ctx,-2,-6,16,-7,3,'#23262b'); disc(ctx,-3,-7,3,'#1a1c20');
+  } else {                  // Plasma Railgun: glowing emitter
+    fillR(ctx,-8,-4,16,18,3,m);
+    ctx.shadowColor='#36d6e0'; ctx.shadowBlur=10;
+    capsule(ctx,0,-8,18,-11,5,md); capsule(ctx,8,-8,18,-11,2.5,'#7fe6ff'); ctx.shadowBlur=0;
+  }
+  if(t.muzzle>0){ const fx=t.age>=3?16:12; muzzleFlash(ctx,fx,-9,4,t.age===5?'#7fe6ff':'#ffb24a'); }
+  ctx.restore(); ctx.shadowBlur=0; ctx.lineCap='butt';
+}
+
+function drawProjectile(ctx,p){
+  const ux=p.vx/p.speed, uy=p.vy/p.speed, ang=Math.atan2(uy,ux);
+  if(p.splash){                                   // shell / energy orb with hot trail
+    ctx.strokeStyle='rgba(255,160,60,.5)'; ctx.lineWidth=4; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p.x-ux*14,p.y-uy*14); ctx.stroke();
+    disc(ctx,p.x,p.y,3.5,'#ffd24a'); disc(ctx,p.x,p.y,2,'#fff');
+  } else {                                        // dart / arrow with head + fletch
+    ctx.strokeStyle='rgba(60,60,70,.30)'; ctx.lineWidth=2; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p.x-ux*10,p.y-uy*10); ctx.stroke();
+    ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(ang);
+    ctx.fillStyle='#33323a'; ctx.beginPath(); ctx.moveTo(5,0); ctx.lineTo(-5,-2); ctx.lineTo(-5,2); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#caa44a'; ctx.fillRect(-6,-2,2,4);
+    ctx.restore();
+  }
+  ctx.lineCap='butt';
+}
+
+/* ============================ 14. UI + EVENTS + LOOP =================== */
+const el = {};
+['goldVal','xpVal','ageName','xpMeterFill','xpMeterLabel','capLabel',
+ 'btnMelee','btnRanged','btnHeavy','btnSlot','slotLabel','btnTurret','turretLabel','turretCount',
+ 'btnEvolve','evolveLabel','btnSpecial','specialLabel','specialOverlay','specialCd',
+ 'startScreen','btnStart','endScreen','btnPlayAgain','endTitle','endMsg','endKicker',
+ 'statAge','statTime','statXp','timeline',
+ 'icoMelee','icoRanged','icoHeavy','icoSlot','icoTurret','icoEvolve','icoSpecial'].forEach(id=> el[id]=document.getElementById(id));
+const eras = Array.from(el.timeline.querySelectorAll('.era'));
+
+function setUnitBtn(btn, spec, capped, playing){
+  btn.querySelector('.u-name').textContent = spec.name;
+  btn.querySelector('.u-cost').textContent = spec.cost+'g';
+  btn.disabled = !playing || capped || gameState.gold<spec.cost;
+}
+let lastIconAge=-1;
+function updateUI(){
+  const playing = gameState.phase==='playing';
+  const a = gameState.currentAge;
+  if(a!==lastIconAge){ lastIconAge=a; renderButtonIcons(); }   // refresh portraits when the era changes
+  el.goldVal.textContent = Math.floor(gameState.gold);
+  el.xpVal.textContent   = Math.floor(gameState.xp);
+  el.ageName.textContent = CONFIG.ageNames[a];
+
+  // era timeline + xp meter (signature element)
+  eras.forEach(e=>{ const n=+e.dataset.age; e.classList.toggle('done', n<a); e.classList.toggle('active', n===a); });
+  if(a>=5){ el.xpMeterFill.style.width='100%'; el.xpMeterLabel.textContent='MAX ERA'; }
+  else { const lo=CONFIG.ageXp[a], hi=CONFIG.ageXp[a+1];
+    el.xpMeterFill.style.width=(clamp((gameState.xp-lo)/(hi-lo),0,1)*100)+'%';
+    el.xpMeterLabel.textContent=Math.floor(gameState.xp)+' / '+hi+' xp'; }
+
+  // unit buttons
+  const r=CONFIG.units[a], aliveP=units.filter(u=>u.owner==='player'&&!u.dead).length, capped=aliveP>=CONFIG.unitCap;
+  setUnitBtn(el.btnMelee,r.melee,capped,playing); setUnitBtn(el.btnRanged,r.ranged,capped,playing); setUnitBtn(el.btnHeavy,r.heavy,capped,playing);
+  el.capLabel.textContent = aliveP+' / '+CONFIG.unitCap; el.capLabel.classList.toggle('full',capped);
+
+  // turret panel
+  if(playerBase.turretSlots>=3){ el.btnSlot.disabled=true; el.slotLabel.textContent='Full (3/3)'; el.slotLabel.classList.remove('cost'); }
+  else { const c=CONFIG.turretSlotCosts[playerBase.turretSlots+1];
+    el.slotLabel.textContent='#'+(playerBase.turretSlots+1)+' ('+c+'g)'; el.slotLabel.classList.add('cost');
+    el.btnSlot.disabled=!playing || gameState.gold<c; }
+  const tc=CONFIG.turrets[a], canT=playerBase.slotsOwned<playerBase.turretSlots;
+  el.turretLabel.innerHTML = tc.name+' <span class="cost">('+tc.cost+'g)</span>';
+  el.btnTurret.disabled = !playing || !canT || gameState.gold<tc.cost;
+  el.turretCount.textContent = playerBase.slotsOwned+' / '+playerBase.turretSlots;
+
+  // evolve
+  if(a>=5){ el.btnEvolve.disabled=true; el.btnEvolve.classList.remove('ready'); el.evolveLabel.textContent='Max Era'; }
+  else { const ready=gameState.xp>=CONFIG.ageXp[a+1];
+    el.btnEvolve.disabled=!playing || !ready; el.btnEvolve.classList.toggle('ready', ready && playing);
+    el.evolveLabel.textContent='→ '+CONFIG.ageNames[a+1]; }
+
+  // special + cooldown overlay
+  el.specialLabel.textContent = CONFIG.specials[a].name;
+  if(gameState.specialCd>0){ el.btnSpecial.disabled=true; el.specialCd.style.display='flex';
+    el.specialCd.textContent=Math.ceil(gameState.specialCd/1000)+'s';
+    el.specialOverlay.style.height=(gameState.specialCd/CONFIG.special.cooldown*100)+'%'; }
+  else { el.btnSpecial.disabled=!playing; el.specialCd.style.display='none'; el.specialOverlay.style.height='0%'; }
+
+  // affordability cue: glow buttons the instant they become usable (disabled already encodes cost/cap/cooldown)
+  [el.btnMelee,el.btnRanged,el.btnHeavy,el.btnSlot,el.btnTurret,el.btnSpecial].forEach(b=> b && b.classList.toggle('afford', !b.disabled));
+}
+
+function showEndScreen(result){
+  const win = result==='won';
+  el.endKicker.textContent = win ? 'Enemy Base Destroyed' : 'Your Base Has Fallen';
+  el.endTitle.textContent = win ? 'Victory' : 'Defeat';
+  el.endTitle.className = win ? 'win' : 'lose';
+  el.endMsg.textContent = win ? 'The enemy stronghold lies in ruins. The age is yours.'
+                              : 'Your stronghold is rubble. The enemy advances unopposed.';
+  el.statAge.textContent = CONFIG.ageNames[gameState.currentAge];
+  const s=Math.floor(gameState.elapsed); el.statTime.textContent = Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+  el.statXp.textContent = Math.floor(gameState.xp).toLocaleString();
+  el.endScreen.classList.remove('hidden');
+}
+function startPlaying(){ initGame(); gameState.phase='playing';
+  el.startScreen.classList.add('hidden'); el.endScreen.classList.add('hidden'); }
+
+// ---- event wiring ----
+el.btnStart.addEventListener('click', startPlaying);
+el.btnPlayAgain.addEventListener('click', startPlaying);
+el.btnMelee.addEventListener('click', ()=>playerSpawn('melee'));
+el.btnRanged.addEventListener('click', ()=>playerSpawn('ranged'));
+el.btnHeavy.addEventListener('click', ()=>playerSpawn('heavy'));
+el.btnSlot.addEventListener('click', buySlot);
+el.btnTurret.addEventListener('click', buyTurret);
+el.btnEvolve.addEventListener('click', playerEvolve);
+el.btnSpecial.addEventListener('click', tryFireSpecial);
+
+// keyboard shortcuts
+window.addEventListener('keydown', e=>{
+  if(gameState.phase!=='playing') return;
+  switch(e.key.toLowerCase()){
+    case '1': playerSpawn('melee'); break;
+    case '2': playerSpawn('ranged'); break;
+    case '3': playerSpawn('heavy'); break;
+    case 'e': playerEvolve(); break;
+    case 'q': tryFireSpecial(); break;
+    case 't': buyTurret(); break;
+    case 'r': buySlot(); break;
+  }
+});
+
+// ---- main loop : single rAF, delta-time, math (update) separate from drawing (render) ----
+let last = performance.now();
+function loop(now){
+  const dt = Math.min((now-last)/1000, 0.05);   // clamp to avoid huge jumps after tab switch
+  last = now;
+  CLOCK = now/1000;                              // animation clock (always advances, even paused)
+  if(gameState.phase==='playing'){
+    if(hitStop>0) hitStop = Math.max(0, hitStop-dt);   // micro-pause: freeze sim, keep drawing
+    else update(dt);
+  }
+  shakeAmt *= 0.86; if(shakeAmt < 0.3) shakeAmt = 0;   // screen-shake settles
+  render();
+  updateUI();
+  requestAnimationFrame(loop);
+}
+
+// boot: fresh state, start screen up, loop running behind it
+initGame();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
