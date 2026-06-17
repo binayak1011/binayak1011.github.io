@@ -152,26 +152,26 @@
   .screen .hint{ color:#5e3c1c; } .screen .hint b{ color:#7a4f12; }
 
   /* ---------- OVERLAY SCREENS (frosted panel over the bright scene) ---------- */
-  .screen{ position:absolute; inset:0; z-index:20; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; text-align:center; padding:24px; background:transparent; }
+  .screen{ position:fixed; inset:0; z-index:120; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; padding:18px; background:rgba(16,10,4,.42); overflow:auto; }
   .screen.hidden{ display:none; }
-  .screen::before{ content:''; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:min(640px,88%); height:min(82%,470px);
-    background:linear-gradient(180deg, rgba(180,222,245,.42), rgba(150,205,235,.30));
+  .card{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center;
+    width:min(640px,94%); max-height:calc(100vh - 36px); overflow-y:auto; padding:22px 30px;
+    background:linear-gradient(180deg, rgba(180,222,245,.46), rgba(150,205,235,.34));
     border:2px solid rgba(255,255,255,.55); border-radius:20px;
-    box-shadow:0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.6);
-    -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); z-index:-1; }
-  .screen > *{ position:relative; z-index:1; }
+    box-shadow:0 18px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.6);
+    -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); }
+  .board-card{ width:min(640px,94%); }
   .screen .kicker{ font-family:var(--display); text-transform:uppercase; letter-spacing:.35em;
-    font-size:12px; color:#7a4f12; margin-bottom:10px; text-shadow:0 1px 0 rgba(255,255,255,.5); }
-  .screen h1{ font-family:var(--display); font-weight:800; text-transform:uppercase; letter-spacing:.05em;
-    font-size:clamp(40px,8vw,76px); margin:0 0 6px; line-height:.95; color:#fff;
+    font-size:12px; color:#7a4f12; margin-bottom:8px; text-shadow:0 1px 0 rgba(255,255,255,.5); }
+  .screen h1{ font-family:var(--display); font-weight:800; text-transform:uppercase; letter-spacing:.04em;
+    font-size:clamp(30px,6vw,54px); margin:0 0 6px; line-height:.95; color:#fff;
     text-shadow:0 2px 0 #b9851f,0 4px 0 #8a5f15,0 6px 10px rgba(0,0,0,.4); }
   #startScreen h1, #endScreen h1{ background:linear-gradient(180deg,#fff7da,#ffd24a 55%,#b9851f);
     -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent;
     filter:drop-shadow(0 3px 0 rgba(110,74,20,.6)) drop-shadow(0 5px 6px rgba(0,0,0,.4)); }
-  .screen p{ max-width:520px; color:#3a230f; font-size:14px; line-height:1.5; margin:6px 0 22px; text-shadow:0 1px 0 rgba(255,255,255,.4); }
-  .screen p b{ color:#7a4f12; } .screen .big{ font-size:16px; }
+  .screen p{ max-width:500px; color:#3a230f; font-size:13.5px; line-height:1.45; margin:2px 0 16px; text-shadow:0 1px 0 rgba(255,255,255,.4); }
+  .screen p b{ color:#7a4f12; } .screen .big{ font-size:14.5px; }
   #endStats{ display:flex; gap:30px; margin:0 0 24px; }
   #endStats .s{ display:flex; flex-direction:column; gap:3px; }
   #endStats .s .k{ font-family:var(--display); text-transform:uppercase; letter-spacing:.12em; font-size:10px; color:#6b4a26; }
@@ -244,6 +244,46 @@
   #xpVal{ color:#f1ddb8; text-shadow:0 1px 0 #5e3c19, 0 1px 2px rgba(20,10,2,.55); }
   #cv{ border:4px solid #4a2f14; border-radius:4px;
     box-shadow: inset 0 0 0 1px rgba(255,210,120,.18), inset 0 0 22px rgba(0,0,0,.42), 0 0 0 2px #2e1d0c; }
+  /* commander name, leaderboard, menu buttons */
+  .namerow{ display:flex; align-items:center; justify-content:center; gap:10px; margin:2px 0 16px; }
+  .namerow label{ font-family:var(--display); text-transform:uppercase; letter-spacing:.16em; font-size:11px; color:#7a4f12; text-shadow:0 1px 0 rgba(255,255,255,.5); }
+  .namerow input{ font-family:var(--body); font-size:15px; font-weight:700; color:#3a230f; width:190px; padding:8px 12px; border-radius:8px;
+    border:2px solid var(--wood-dd); background:rgba(255,248,232,.88); box-shadow:inset 0 2px 4px rgba(40,20,5,.25); outline:none; }
+  .namerow input::placeholder{ color:#9a8054; font-weight:600; }
+  .namerow input:focus{ border-color:#f0b52f; box-shadow:inset 0 2px 4px rgba(40,20,5,.25),0 0 10px rgba(255,210,74,.5); }
+
+  .minibtn{ font-family:var(--display); text-transform:uppercase; letter-spacing:.1em; font-size:12px; font-weight:700;
+    color:#fff7e4; padding:9px 18px; border-radius:8px; border:2px solid var(--wood-dd); cursor:pointer;
+    background:linear-gradient(180deg,#caa86a,#8a6a2a); box-shadow:inset 0 1px 0 rgba(255,240,210,.3), 0 3px 0 #5e3c19, 0 5px 9px rgba(0,0,0,.3);
+    text-shadow:0 1px 2px rgba(15,8,2,.7); margin-top:12px; transition:transform .08s, filter .12s; }
+  .minibtn:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+  .minibtn:active{ transform:translateY(2px); box-shadow:inset 0 2px 4px rgba(40,20,5,.5),0 1px 0 #5e3c19; }
+  .endbtns{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; align-items:center; }
+  .endbtns .minibtn{ margin-top:0; }
+  #endStats .s.score .v{ color:#ffd24a; -webkit-text-fill-color:#ffd24a; }
+
+  /* in-game menu button */
+  #btnMenu{ position:absolute; top:10px; left:10px; z-index:15; display:none;
+    font-family:var(--display); text-transform:uppercase; letter-spacing:.08em; font-size:12px; font-weight:700; color:#fff7e4;
+    padding:7px 13px; border-radius:8px; border:2px solid #4a2f14; cursor:pointer;
+    background:linear-gradient(180deg, rgba(189,133,66,.94), rgba(122,90,42,.94)); box-shadow:0 2px 0 #4a2f14, 0 4px 8px rgba(0,0,0,.4);
+    text-shadow:0 1px 2px rgba(15,8,2,.7); }
+  #btnMenu:hover{ filter:brightness(1.08); }
+  #btnMenu:active{ transform:translateY(1px); }
+
+  /* leaderboard list */
+  .boardtitle{ font-size:clamp(30px,6vw,52px) !important; margin-bottom:14px !important; }
+  #boardList{ width:min(560px,100%); max-height:46vh; overflow-y:auto; margin:0 0 18px; display:flex; flex-direction:column; gap:6px; padding:4px; }
+  .brow{ display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:8px;
+    background:linear-gradient(180deg, rgba(255,248,232,.55), rgba(245,225,195,.45)); border:1px solid rgba(94,60,25,.4); }
+  .brow.me{ border-color:#f0b52f; box-shadow:0 0 10px rgba(255,210,74,.6); background:linear-gradient(180deg, rgba(255,238,190,.7), rgba(255,222,150,.55)); }
+  .brank{ font-family:var(--display); font-weight:800; font-size:15px; color:#7a4f12; width:34px; flex:none; text-align:center; }
+  .bname{ font-weight:800; color:#3a230f; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bmeta{ font-family:var(--mono); font-size:10px; color:#6b4a26; flex:none; }
+  .bscore{ font-family:var(--mono); font-weight:700; color:#9a6f1f; flex:none; min-width:62px; text-align:right; }
+  .bempty{ color:#5e3c1c; font-size:14px; padding:24px; text-align:center; }
+  .bnote{ color:#8a5f2a; font-size:11px; font-style:italic; text-align:center; padding:2px 0 6px; }
+  @media (max-width:600px){ .bmeta{ display:none; } }
 </style>
 </head>
 <body>
@@ -263,7 +303,7 @@
         <div class="era" data-age="4"><div class="dot"><svg class="emini" viewBox="0 0 24 24"><path d="M3 12L5 9L7 12L9 9L11 12Z"/><rect x="3" y="12" width="13" height="9"/><rect x="13" y="5" width="3" height="8"/><circle cx="14.6" cy="3.4" r="1.6"/><circle cx="17.1" cy="2.4" r="1.1"/></svg></div><div class="nm">Modern</div></div>
         <div class="era" data-age="5"><div class="dot"><svg class="emini" viewBox="0 0 24 24"><path d="M12 2C9.2 2 9 8 9 12V16H15V12C15 8 14.8 2 12 2Z"/><path d="M9 14L6 19L9 17.5Z"/><path d="M15 14L18 19L15 17.5Z"/><path d="M10.5 16L12 21L13.5 16Z"/></svg></div><div class="nm">Future</div></div>
       </div>
-      <div class="xpmeter"><div id="xpMeterFill"></div><div id="xpMeterLabel">0 / 4000</div></div>
+      <div class="xpmeter"><div id="xpMeterFill"></div><div id="xpMeterLabel">0 / 2000</div></div>
     </div>
     <div class="stat" style="text-align:right"><span class="k">Current Era</span><span class="v" id="ageName" style="font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--brass)">Stone Age</span></div>
   </div>
@@ -271,12 +311,15 @@
   <!-- ============ BATTLEFIELD ============ -->
   <div id="stage">
     <canvas id="cv" width="1000" height="450"></canvas>
+    <button id="btnMenu">☰ Menu</button>
 
     <!-- START SCREEN -->
     <div class="screen" id="startScreen">
+      <div class="card">
       <div class="kicker">Stone Age → The Future</div>
       <h1>Ages of War</h1>
       <p class="big">Command an army across five eras of warfare. Earn gold, spend experience to <b>evolve</b>, hold the line with turrets and ultimates — then march right and raze the enemy base before they raze yours.</p>
+      <div class="namerow"><label for="nameInput">Commander</label><input id="nameInput" maxlength="14" placeholder="Enter your name" autocomplete="off" spellcheck="false"></div>
       <div class="difflabel">Choose your difficulty</div>
       <div class="diffrow" id="diffRow">
         <button class="diffbtn" data-diff="easy"><b>Easy</b><small>Relaxed enemy</small></button>
@@ -284,11 +327,14 @@
         <button class="diffbtn" data-diff="impossible"><b>Impossible</b><small>Brutal AI</small></button>
       </div>
       <button class="playbtn" id="btnStart">Start Battle</button>
-      <div class="hint" style="margin-top:18px"><b>1 2 3</b> deploy units &nbsp;·&nbsp; <b>E</b> evolve &nbsp;·&nbsp; <b>Q</b> ultimate &nbsp;·&nbsp; <b>T</b> turret &nbsp;·&nbsp; <b>R</b> slot</div>
+      <button class="minibtn" id="btnBoard">🏆 Leaderboard</button>
+      <div class="hint"><b>1 2 3</b> deploy units &nbsp;·&nbsp; <b>E</b> evolve &nbsp;·&nbsp; <b>Q</b> ultimate &nbsp;·&nbsp; <b>T</b> turret &nbsp;·&nbsp; <b>R</b> slot</div>
+      </div>
     </div>
 
     <!-- END SCREEN -->
     <div class="screen hidden" id="endScreen">
+      <div class="card">
       <div class="kicker" id="endKicker">Battle Over</div>
       <h1 id="endTitle">Victory</h1>
       <p id="endMsg">The enemy base lies in ruins.</p>
@@ -297,8 +343,24 @@
         <div class="s"><span class="k">Time</span><span class="v" id="statTime">—</span></div>
         <div class="s"><span class="k">XP Earned</span><span class="v" id="statXp">—</span></div>
         <div class="s"><span class="k">Difficulty</span><span class="v" id="statDiff">—</span></div>
+        <div class="s score"><span class="k">Score</span><span class="v" id="statScore">—</span></div>
       </div>
-      <button class="playbtn" id="btnPlayAgain">Fight Again</button>
+      <div class="endbtns">
+        <button class="playbtn" id="btnPlayAgain">Fight Again</button>
+        <button class="minibtn" id="btnBoardEnd">🏆 Leaderboard</button>
+        <button class="minibtn" id="btnMainMenu">Main Menu</button>
+      </div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD SCREEN -->
+    <div class="screen hidden" id="boardScreen">
+      <div class="card board-card">
+      <div class="kicker">Worldwide · Top 100</div>
+      <h1 class="boardtitle">Leaderboard</h1>
+      <div id="boardList"></div>
+      <button class="playbtn" id="btnBoardBack">Back</button>
+      </div>
     </div>
   </div>
 
@@ -367,7 +429,7 @@ const CONFIG = {
   splashRadius:45,                   // px radius for splash damage
   projectileSpeed:9,                 // px/frame@60 for normal ranged shots
 
-  ageXp:{ 1:0, 2:3200, 3:14000, 4:45000, 5:120000 },   // cumulative XP to REACH each age
+  ageXp:{ 1:0, 2:2000, 3:14000, 4:45000, 5:120000 },   // cumulative XP to REACH each age
   ageNames:{ 1:'Stone Age', 2:'Castle Age', 3:'Renaissance', 4:'Modern Age', 5:'The Future' },
   turretSlotCosts:{ 2:1000, 3:5000 },// cost to unlock slot #2 and #3
 
@@ -1748,7 +1810,8 @@ const el = {};
  'btnEvolve','evolveLabel','btnSpecial','specialLabel','specialOverlay','specialCd',
  'startScreen','btnStart','endScreen','btnPlayAgain','endTitle','endMsg','endKicker',
  'statAge','statTime','statXp','statDiff','timeline',
- 'icoMelee','icoRanged','icoHeavy','icoSlot','icoTurret','icoEvolve','icoSpecial'].forEach(id=> el[id]=document.getElementById(id));
+ 'icoMelee','icoRanged','icoHeavy','icoSlot','icoTurret','icoEvolve','icoSpecial',
+ 'nameInput','btnBoard','boardScreen','boardList','btnBoardBack','btnBoardEnd','btnMainMenu','btnMenu','statScore'].forEach(id=> el[id]=document.getElementById(id));
 const eras = Array.from(el.timeline.querySelectorAll('.era'));
 
 function setUnitBtn(btn, spec, capped, playing){
@@ -1761,6 +1824,7 @@ function updateUI(){
   const playing = gameState.phase==='playing';
   const a = gameState.currentAge;
   if(a!==lastIconAge){ lastIconAge=a; renderButtonIcons(); }   // refresh portraits when the era changes
+  if(el.btnMenu) el.btnMenu.style.display = playing ? 'flex' : 'none';   // in-game menu only while playing
   el.goldVal.textContent = Math.floor(gameState.gold);
   el.xpVal.textContent   = Math.floor(gameState.xp);
   el.ageName.textContent = CONFIG.ageNames[a];
@@ -1804,6 +1868,62 @@ function updateUI(){
   [el.btnMelee,el.btnRanged,el.btnHeavy,el.btnSlot,el.btnTurret,el.btnSpecial].forEach(b=> b && b.classList.toggle('afford', !b.disabled));
 }
 
+/* ---------------- per-device name + local leaderboard ---------------- */
+const LS={ mem:{},
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return (k in this.mem)?this.mem[k]:null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){ this.mem[k]=v; } } };
+function getPlayerName(){ return LS.get('aow_player') || ''; }
+function setPlayerName(n){ LS.set('aow_player', n); }
+function loadBoard(){ try{ const a=JSON.parse(LS.get('aow_board')||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function saveBoard(a){ LS.set('aow_board', JSON.stringify(a.slice(0,50))); }
+function addScore(entry){ const b=loadBoard(); b.push(entry); b.sort((x,y)=>y.score-x.score); saveBoard(b); return b; }
+function scoreFor(win){ const xp=Math.floor(gameState.xp), age=gameState.currentAge;
+  const dm = selectedDifficulty==='impossible'?2.2 : selectedDifficulty==='hard'?1.5 : 1.0;
+  return Math.max(0, Math.round((xp + age*800 + (win?8000:0)) * dm)); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+/* ---- global leaderboard (Supabase REST) ---- */
+const SUPA = { url:'https://urwnupvbelsdurzrrbco.supabase.co', key:'sb_publishable_rM1cLT6e3BULgW3Rha-OnQ_sIKKC5tY' };
+async function submitScore(e){
+  try{
+    await fetch(SUPA.url+'/rest/v1/scores', { method:'POST',
+      headers:{ 'apikey':SUPA.key, 'Authorization':'Bearer '+SUPA.key, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
+      body: JSON.stringify({ name:e.name, score:e.score, era:e.age, difficulty:e.diff, won:e.win, time_sec:e.time }) });
+  }catch(err){ /* offline → the per-device board still has it */ }
+}
+async function fetchTopScores(limit){
+  const r = await fetch(SUPA.url+'/rest/v1/scores?select=name,score,era,difficulty,won,time_sec&order=score.desc&limit='+(limit||10),
+    { headers:{ 'apikey':SUPA.key, 'Authorization':'Bearer '+SUPA.key } });
+  if(!r.ok) throw new Error('http '+r.status);
+  return await r.json();
+}
+function renderRows(list, isGlobal){
+  if(!list || !list.length){ el.boardList.innerHTML='<div class="bempty">'+(isGlobal?'No scores worldwide yet — be the first to set one!':'No battles recorded on this device yet — play a round!')+'</div>'; return; }
+  const myName=getPlayerName(); let html = isGlobal ? '' : '<div class="bnote">Offline — showing this device only</div>';
+  html += list.slice(0,100).map((e,i)=>{
+    const era=(e.era!=null?e.era:e.age), diff=(e.difficulty!=null?e.difficulty:e.diff), won=(e.won!=null?e.won:e.win), t=(e.time_sec!=null?e.time_sec:(e.time||0));
+    const ts=Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
+    const me = myName && e.name===myName ? ' me' : '';
+    const rank = i===0?'🥇':i===1?'🥈':i===2?'🥉':('#'+(i+1));
+    const eraName = (CONFIG.ageNames[era]||('Age '+era));
+    return '<div class="brow'+me+'"><span class="brank">'+rank+'</span><span class="bname">'+escapeHtml(e.name||'Player')+'</span><span class="bmeta">'+(won?'WON':'lost')+' · '+escapeHtml(diff||'')+' · '+escapeHtml(eraName)+' · '+ts+'</span><span class="bscore">'+Number(e.score||0).toLocaleString()+'</span></div>';
+  }).join('');
+  el.boardList.innerHTML = html;
+}
+function renderBoard(){ renderRows(loadBoard().slice(0,100), false); }   // local-only (offline fallback)
+async function loadAndRenderBoard(){
+  el.boardList.innerHTML='<div class="bempty">Loading global leaderboard…</div>';
+  try{ renderRows(await fetchTopScores(100), true); }
+  catch(e){ renderRows(loadBoard().slice(0,100), false); }
+  const me=el.boardList.querySelector && el.boardList.querySelector('.brow.me'); if(me && me.scrollIntoView) me.scrollIntoView({block:'center'});
+}
+let boardFrom='start';
+function openBoard(from){ boardFrom=from||'start';
+  el.startScreen.classList.add('hidden'); el.endScreen.classList.add('hidden'); el.boardScreen.classList.remove('hidden');
+  loadAndRenderBoard(); }
+function closeBoard(){ el.boardScreen.classList.add('hidden'); (boardFrom==='end'?el.endScreen:el.startScreen).classList.remove('hidden'); }
+function backToMenu(){ initGame(); if(el.nameInput) el.nameInput.value=getPlayerName();
+  el.endScreen.classList.add('hidden'); el.boardScreen.classList.add('hidden'); el.startScreen.classList.remove('hidden'); }
+
 function showEndScreen(result){
   const win = result==='won';
   el.endKicker.textContent = win ? 'Enemy Base Destroyed' : 'Your Base Has Fallen';
@@ -1815,10 +1935,20 @@ function showEndScreen(result){
   const s=Math.floor(gameState.elapsed); el.statTime.textContent = Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
   el.statXp.textContent = Math.floor(gameState.xp).toLocaleString();
   if(el.statDiff) el.statDiff.textContent = DIFF.label;
+  const win2 = win;
+  const score = scoreFor(win2);
+  const entry = { name:getPlayerName()||'Player', score, age:gameState.currentAge, diff:DIFF.label, win:win2, time:Math.floor(gameState.elapsed), date:Date.now() };
+  const board = addScore(entry);
+  if(el.statScore) el.statScore.textContent = score.toLocaleString();
+  submitScore(entry);                       // push to the global leaderboard (local copy kept as fallback)
   el.endScreen.classList.remove('hidden');
 }
-function startPlaying(){ DIFF = DIFFICULTY[selectedDifficulty] || DIFFICULTY.hard; initGame(); gameState.phase='playing';
-  el.startScreen.classList.add('hidden'); el.endScreen.classList.add('hidden'); }
+function startPlaying(){
+  const nm=((el.nameInput&&el.nameInput.value)||'').trim().slice(0,14);
+  if(nm) setPlayerName(nm);
+  DIFF = DIFFICULTY[selectedDifficulty] || DIFFICULTY.hard; initGame(); gameState.phase='playing';
+  el.startScreen.classList.add('hidden'); el.endScreen.classList.add('hidden'); if(el.boardScreen) el.boardScreen.classList.add('hidden');
+}
 
 // ---- event wiring ----
 el.btnStart.addEventListener('click', startPlaying);
@@ -1828,6 +1958,12 @@ document.querySelectorAll('#diffRow .diffbtn').forEach(b=>{
     document.querySelectorAll('#diffRow .diffbtn').forEach(x=> x.classList.toggle('selected', x===b)); });
 });
 el.btnPlayAgain.addEventListener('click', startPlaying);
+if(el.btnBoard) el.btnBoard.addEventListener('click', ()=>openBoard('start'));
+if(el.btnBoardEnd) el.btnBoardEnd.addEventListener('click', ()=>openBoard('end'));
+if(el.btnBoardBack) el.btnBoardBack.addEventListener('click', closeBoard);
+if(el.btnMainMenu) el.btnMainMenu.addEventListener('click', backToMenu);
+if(el.btnMenu) el.btnMenu.addEventListener('click', backToMenu);
+if(el.nameInput) el.nameInput.value = getPlayerName();
 el.btnMelee.addEventListener('click', ()=>playerSpawn('melee'));
 el.btnRanged.addEventListener('click', ()=>playerSpawn('ranged'));
 el.btnHeavy.addEventListener('click', ()=>playerSpawn('heavy'));
