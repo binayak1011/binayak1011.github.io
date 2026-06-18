@@ -127,6 +127,12 @@
   .ubtn .u-cost::before{ content:''; display:inline-block; width:10px;height:10px;border-radius:50%;
     background:radial-gradient(circle at 35% 30%,#fff0b0,#ffd24a 55%,#b9851f); border:1px solid #6e4a14; margin-right:4px; vertical-align:-1px; }
   #btnMelee{ --accent:var(--melee); } #btnRanged{ --accent:var(--ranged); } #btnHeavy{ --accent:var(--heavy); }
+  .ubtn .u-abil{ display:inline-block; margin-top:5px; font-family:var(--display); text-transform:uppercase;
+    letter-spacing:.05em; font-size:8px; font-weight:700; color:#5c3a13; line-height:1;
+    padding:3px 6px; border-radius:6px; background:linear-gradient(180deg,#f1cd7e,#d9a94e);
+    border:1px solid #a9772f; box-shadow:inset 0 1px 0 rgba(255,255,255,.5); }
+  .ubtn .u-abil:empty{ display:none; }
+  @media (max-width:600px){ .ubtn .u-abil{ font-size:7.5px; padding:2px 5px; } }
 
   .ctl{ padding:8px 11px; font-size:12px; font-weight:700; line-height:1.2; color:var(--ink); text-shadow:0 1px 0 rgba(255,240,210,.35); }
   .ctl small{ display:block; font-family:var(--mono); font-weight:600; font-size:10px; color:#6b4a26; margin-top:2px; }
@@ -369,9 +375,9 @@
     <div class="group" id="unitGroup">
       <div class="gh"><span>Deploy Units</span><span class="cnt" id="capLabel">0 / 15</span></div>
       <div class="row">
-        <button class="ubtn" id="btnMelee"><canvas class="ico" id="icoMelee" width="84" height="84"></canvas><span class="txt"><span class="u-type">Melee</span><span class="u-name">Clubman</span><span class="u-cost">15g</span></span></button>
-        <button class="ubtn" id="btnRanged"><canvas class="ico" id="icoRanged" width="84" height="84"></canvas><span class="txt"><span class="u-type">Ranged</span><span class="u-name">Rock Thrower</span><span class="u-cost">25g</span></span></button>
-        <button class="ubtn" id="btnHeavy"><canvas class="ico" id="icoHeavy" width="84" height="84"></canvas><span class="txt"><span class="u-type">Heavy</span><span class="u-name">Dino Rider</span><span class="u-cost">100g</span></span></button>
+        <button class="ubtn" id="btnMelee"><canvas class="ico" id="icoMelee" width="84" height="84"></canvas><span class="txt"><span class="u-type">Melee</span><span class="u-name">Clubman</span><span class="u-cost">15g</span><span class="u-abil"></span></span></button>
+        <button class="ubtn" id="btnRanged"><canvas class="ico" id="icoRanged" width="84" height="84"></canvas><span class="txt"><span class="u-type">Ranged</span><span class="u-name">Rock Thrower</span><span class="u-cost">25g</span><span class="u-abil"></span></span></button>
+        <button class="ubtn" id="btnHeavy"><canvas class="ico" id="icoHeavy" width="84" height="84"></canvas><span class="txt"><span class="u-type">Heavy</span><span class="u-name">Dino Rider</span><span class="u-cost">100g</span><span class="u-abil"></span></span></button>
       </div>
     </div>
 
@@ -417,8 +423,8 @@ const CONFIG = {
   base:{ w:100, topY:250, maxHp:4000 },
 
   economy:{
-    playerPassive:5,                 // gold / second (player baseline)
-    enemyPassiveBase:6,              // gold / second for enemy at Age 1  ← difficulty knob
+    playerPassive:6.5,               // gold / second (player baseline) — raised for a faster tempo
+    enemyPassiveBase:6.5,            // gold / second for enemy at Age 1  ← difficulty knob
     enemyGoldAgeMult:1.2,            // enemy passive ×1.2 compounding per age ← difficulty knob
     startGoldPlayer:200,
     startGoldEnemy:120,
@@ -429,7 +435,15 @@ const CONFIG = {
   splashRadius:45,                   // px radius for splash damage
   projectileSpeed:9,                 // px/frame@60 for normal ranged shots
 
-  ageXp:{ 1:0, 2:2000, 3:14000, 4:45000, 5:120000 },   // cumulative XP to REACH each age
+  ageXp:{ 1:0, 2:1500, 3:3000, 4:4500, 5:6000 },   // cumulative XP to REACH each age
+  // per-era pacing scalars (the 10-minute design): later eras = explosive economy + faster, deadlier units
+  ageScale:{
+    1:{ gold:1.0, xp:1.0, speed:1.0, dmg:1.0 },
+    2:{ gold:1.5, xp:1.3, speed:1.1, dmg:1.2 },
+    3:{ gold:2.5, xp:2.0, speed:1.3, dmg:1.6 },
+    4:{ gold:4.0, xp:3.5, speed:1.5, dmg:2.2 },
+    5:{ gold:7.0, xp:5.0, speed:1.8, dmg:3.5 },
+  },
   ageNames:{ 1:'Stone Age', 2:'Castle Age', 3:'Renaissance', 4:'Modern Age', 5:'The Future' },
   turretSlotCosts:{ 2:1000, 3:5000 },// cost to unlock slot #2 and #3
 
@@ -450,29 +464,29 @@ const CONFIG = {
   // stats: cost(gold) hp dmg speed(px/frame@60) range(px) cd(ms) gold(bounty) xp(reward)
   units:{
     1:{
-      melee:  {name:'Clubman',      type:'melee',  cost:15,  hp:30,    dmg:8,    speed:1.5, range:5,   cd:800,  gold:12,   xp:15},
-      ranged: {name:'Rock Thrower', type:'ranged', cost:25,  hp:15,    dmg:12,   speed:1.2, range:150, cd:1200, gold:20,   xp:25},
-      heavy:  {name:'Dino Rider',   type:'heavy',  cost:100, hp:150,   dmg:25,   speed:0.8, range:10,  cd:1500, gold:80,   xp:100, splash:true},
+      melee:  {name:'Flint-Fang Berserker',   type:'melee',  cost:15,  hp:28,    dmg:11,   speed:2.1,  range:6,   cd:650,  gold:12,   xp:15},
+      ranged: {name:'Charcoal Slinger',        type:'ranged', cost:25,  hp:15,    dmg:12,   speed:1.6,  range:155, cd:1000, gold:20,   xp:25},
+      heavy:  {name:'Megafauna Chieftain',     type:'heavy',  cost:100, hp:170,   dmg:22,   speed:0.95, range:12,  cd:1300, gold:80,   xp:100, splash:true},
     },
     2:{
-      melee:  {name:'Swordsman',    type:'melee',  cost:50,  hp:80,    dmg:18,   speed:1.5, range:5,   cd:800,  gold:40,   xp:50},
-      ranged: {name:'Archer',       type:'ranged', cost:75,  hp:40,    dmg:25,   speed:1.2, range:180, cd:1000, gold:60,   xp:75},
-      heavy:  {name:'Knight',       type:'heavy',  cost:250, hp:300,   dmg:45,   speed:2.0, range:15,  cd:1200, gold:200,  xp:250},
+      melee:  {name:'Highland Greatswordsman', type:'melee',  cost:50,  hp:80,    dmg:18,   speed:1.95, range:8,   cd:750,  gold:40,   xp:50},
+      ranged: {name:'Heavy Arbalestier',       type:'ranged', cost:75,  hp:38,    dmg:34,   speed:1.4,  range:185, cd:1150, gold:60,   xp:75},
+      heavy:  {name:'Iron Wall Paladin',       type:'heavy',  cost:250, hp:320,   dmg:40,   speed:1.25, range:14,  cd:1100, gold:200,  xp:250},
     },
     3:{
-      melee:  {name:'Duellist',     type:'melee',  cost:200, hp:200,   dmg:40,   speed:1.6, range:5,   cd:600,  gold:160,  xp:200},
-      ranged: {name:'Musketeer',    type:'ranged', cost:300, hp:100,   dmg:80,   speed:1.0, range:220, cd:1800, gold:240,  xp:300},
-      heavy:  {name:'Cannon',       type:'heavy',  cost:800, hp:500,   dmg:150,  speed:0.6, range:250, cd:2500, gold:600,  xp:800, splash:true},
+      melee:  {name:'Duelist Musketeer',       type:'melee',  cost:200, hp:200,   dmg:42,   speed:2.15, range:8,   cd:600,  gold:160,  xp:200},
+      ranged: {name:'Imperial Matchlock',      type:'ranged', cost:300, hp:95,    dmg:62,   speed:1.6,  range:220, cd:1050, gold:240,  xp:300},
+      heavy:  {name:'Boiler Guard',            type:'heavy',  cost:800, hp:560,   dmg:120,  speed:1.05, range:14,  cd:1300, gold:600,  xp:800},
     },
     4:{
-      melee:  {name:'Infantry',     type:'melee',  cost:1000,  hp:800,   dmg:120,  speed:1.8, range:50,  cd:700,  gold:700,   xp:1000},
-      ranged: {name:'Sniper',       type:'ranged', cost:1500,  hp:400,   dmg:300,  speed:1.0, range:400, cd:2000, gold:1100,  xp:1500},
-      heavy:  {name:'Battle Tank',  type:'heavy',  cost:4000,  hp:3000,  dmg:400,  speed:1.2, range:200, cd:2200, gold:3000,  xp:4000, splash:true},
+      melee:  {name:'Trench Raider',           type:'melee',  cost:1000,  hp:780,   dmg:140,  speed:2.4,  range:40,  cd:650,  gold:700,   xp:1000},
+      ranged: {name:'Spec-Ops Operative',      type:'ranged', cost:1500,  hp:380,   dmg:95,   speed:1.7,  range:360, cd:950,  gold:1100,  xp:1500},
+      heavy:  {name:'EOD Juggernaut',          type:'heavy',  cost:4000,  hp:3200,  dmg:360,  speed:1.05, range:210, cd:1700, gold:3000,  xp:4000, splash:true},
     },
     5:{
-      melee:  {name:'Mecha-Blade',  type:'melee',  cost:5000,  hp:4000,  dmg:600,  speed:2.0, range:10,  cd:600,  gold:3500,  xp:5000},
-      ranged: {name:'Laser Trooper',type:'ranged', cost:7500,  hp:2000,  dmg:1000, speed:1.5, range:350, cd:1500, gold:5500,  xp:7500, pierce:true},
-      heavy:  {name:'Hover Tank',   type:'heavy',  cost:20000, hp:15000, dmg:2500, speed:1.0, range:300, cd:2500, gold:15000, xp:20000, splash:true},
+      melee:  {name:'Nano-Blade Infiltrator',  type:'melee',  cost:5000,  hp:3600,  dmg:700,  speed:2.6,  range:10,  cd:550,  gold:3500,  xp:5000},
+      ranged: {name:'Plasma Railgunner',       type:'ranged', cost:7500,  hp:1900,  dmg:1000, speed:1.7,  range:380, cd:1300, gold:5500,  xp:7500, pierce:true},
+      heavy:  {name:'Aegis Exo-Colossus',      type:'heavy',  cost:20000, hp:14000, dmg:2200, speed:1.1,  range:300, cd:1700, gold:15000, xp:20000},
     },
   },
 
@@ -484,8 +498,8 @@ const CONFIG = {
     5:{name:'Plasma Railgun',   dmg:1500, range:450, cd:2500, cost:10000},
   },
 
-  specials:{ 1:{name:'Meteor Shower'}, 2:{name:'Arrow Rain'}, 3:{name:'Artillery Strike'},
-             4:{name:'B-2 Bomber Raid'}, 5:{name:'Orbital Ion Cannon'} },
+  specials:{ 1:{name:'Megafauna Stampede'}, 2:{name:'Rain of Boiling Pitch'}, 3:{name:'Grand Bombard Volley'},
+             4:{name:'Rolling Thunder'}, 5:{name:'Zero-Point Singularity'} },
 
   colors:{
     melee:'#3b74d6', ranged:'#37a85a', heavy:'#cc3b34',
@@ -499,6 +513,7 @@ const TAU = Math.PI*2;
 const STAGGER = [0,-5,4,-3,5,-2,2,-4,3,-1];   // small y-offsets so stacked units read as a crowd
 function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
 function map(v,a,b,c,d){ if(v<=a)return c; if(v>=b)return d; return c+(d-c)*((v-a)/(b-a)); }
+function eScale(age){ return CONFIG.ageScale[age] || CONFIG.ageScale[1]; }   // per-era gold/xp/speed/dmg multipliers
 function rand(a,b){ return a+Math.random()*(b-a); }
 function hexToRgb(h){ h=h.replace('#',''); if(h.length===3)h=h.split('').map(c=>c+c).join('');
   const n=parseInt(h,16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}; }
@@ -525,8 +540,8 @@ let playerBase, enemyBase, gameState, aiState, UID;
 /* ---- difficulty presets (multipliers applied to the enemy AI + player economy) ----
    spawn is an interval, so <1 = faster (harder). xpReq <1 = enemy evolves sooner. */
 const DIFFICULTY = {
-  easy:       { key:'easy',       label:'Easy',       enemyGold:0.65, enemySpawn:1.40, enemyXpReq:1.40, enemyTurrets:1, enemySpecialCd:1.60, enemyHp:0.90, enemyBaseHp:0.85, playerGold:1.30 },
-  hard:       { key:'hard',       label:'Hard',       enemyGold:1.20, enemySpawn:0.78, enemyXpReq:0.80, enemyTurrets:2, enemySpecialCd:0.85, enemyHp:1.12, enemyBaseHp:1.10, playerGold:1.00 },
+  easy:       { key:'easy',       label:'Easy',       enemyGold:0.88, enemySpawn:1.15, enemyXpReq:1.15, enemyTurrets:1, enemySpecialCd:1.25, enemyHp:1.00, enemyBaseHp:0.95, playerGold:1.15 },
+  hard:       { key:'hard',       label:'Hard',       enemyGold:1.32, enemySpawn:0.72, enemyXpReq:0.74, enemyTurrets:2, enemySpecialCd:0.78, enemyHp:1.18, enemyBaseHp:1.12, playerGold:0.97 },
   impossible: { key:'impossible', label:'Impossible', enemyGold:1.70, enemySpawn:0.55, enemyXpReq:0.58, enemyTurrets:3, enemySpecialCd:0.60, enemyHp:1.35, enemyBaseHp:1.35, playerGold:0.85 },
 };
 let selectedDifficulty='hard';
@@ -536,6 +551,31 @@ let shakeAmt = 0;   // camera-shake magnitude in px (decays each frame)
 let hitStop = 0;    // seconds of micro-pause after impactful hits (game-feel "juice")
 function addShake(mag){ shakeAmt = Math.min(16, Math.max(shakeAmt, mag)); }
 function addHitStop(sec){ hitStop = Math.max(hitStop, sec); }
+
+/* ---- per-unit passive mini-abilities (small flavor, deliberately not game-changing) ----
+   keyed '<age>_<type>'. Each unit gets one. label shows on its deploy button; desc is the tooltip. */
+const ABIL = {
+  // Stone Age
+  '1_melee':  { key:'frenzy',      label:'Frenzy',          desc:'Attacks faster the more wounded it is (up to +60%).' },
+  '1_ranged': { key:'stun',        label:'Blinded',         chance:0.12, dur:0.6,       desc:'12% chance to briefly stun the target on hit.' },
+  '1_heavy':  { key:'rangedArmor', label:'Thick Hide',      amt:0.25,                   desc:'Takes 25% less damage from projectiles.' },
+  // Castle Age
+  '2_melee':  { key:'cleave',      label:'Cleave',          every:3, frac:0.5, radius:58, desc:'Every 3rd strike cleaves nearby foes for 50%.' },
+  '2_ranged': { key:'truedmg',     label:'Shield Splinter', desc:'Bolts bypass armor entirely — true damage.' },
+  '2_heavy':  { key:'aura',        label:'Phalanx',         amt:0.15, range:95,          desc:'Allies behind it take 15% less damage.' },
+  // Renaissance
+  '3_melee':  { key:'riposte',     label:'Riposte',         chance:0.20, mult:2.0,       desc:'20% to evade a melee hit and counter for 2× damage.' },
+  '3_ranged': { key:'smoke',       label:'Smoke Screen',    dur:2.5, dodge:0.35,         desc:'After firing, enemy ranged often miss it.' },
+  '3_heavy':  { key:'lowhpburst',  label:'Pressure Vent',   radius:80, dmg:60, push:26,  desc:'Below 30% HP, erupts in scalding steam (AoE + knockback).' },
+  // Modern Age
+  '4_melee':  { key:'charger',     label:'Suppress Charge', amt:0.40,                    desc:'Takes 40% less damage while advancing.' },
+  '4_ranged': { key:'burst',       label:'Burst Fire',      shots:3,                     desc:'Fires a rapid 3-round burst each attack.' },
+  '4_heavy':  { key:'blastarmor',  label:'Blast Resistant', amt:0.75,                    desc:'Takes 75% less splash / artillery damage.' },
+  // The Future
+  '5_melee':  { key:'phase',       label:'Phase Dash',      interval:6, dist:120,        desc:'Teleports forward every 6s, past the front line.' },
+  '5_ranged': { key:'pierce',      label:'Hyper-Beam',      desc:'Beam pierces every enemy in line, weakening as it travels.' },
+  '5_heavy':  { key:'shield',      label:'Hard-Light',      frac:0.55, regen:0.16, delay:3, desc:'A separate energy shield soaks incoming ranged fire.' },
+};
 
 /* ============================ 3. UNIT CLASS ============================= */
 class Unit{
@@ -574,8 +614,25 @@ class Unit{
     this.lunge = 0;                   // px lunge offset (attack animation)
     this.walkPhase = Math.random()*TAU; // desync stride between units
     this.attackAnim = 0;              // 0..1, set to 1 on attack, decays (drives weapon motion)
+
+    // mini-ability + its transient status fields
+    this.abil = ABIL[age+'_'+spec.type] || null;
+    if(this.abil && this.abil.key==='swift') this.cd = Math.round(this.cd*(1-this.abil.amt)); // faster attacks
+    this.slowUntil = 0; this.slowAmt = 0;   // movement slow
+    this.stunUntil = 0;                     // Blinded / ultimate stuns
+    this.dot = null; this.dotTick = 0;      // bleed / burn over time
+    this.lastCombat = 0;                    // last time it dealt/took damage (regen)
+    this.hitCount = 0;                      // strike counter (Cleave)
+    this.smokeUntil = 0;                    // Smoke Screen self-buff
+    this.vented = false;                    // Pressure Vent (one-time)
+    this.auraDef = 0;                       // Phalanx buff applied by a nearby Paladin
+    this.lastPhase = 0;                     // Phase Dash timer
+    this.shieldMax = (this.abil && this.abil.key==='shield') ? Math.round(this.maxHp*this.abil.frac) : 0;  // Hard-Light shield pool
+    this.shieldHp = this.shieldMax; this.shieldHit = -99;
+    this.weakUntil = 0; this.weakAmt = 0;   // damage debuff (Rolling Thunder concussion)
   }
   get cx(){ return this.x + this.w/2; }
+  get atk(){ let d=this.dmg*eScale(this.age).dmg; if(CLOCK<this.weakUntil) d*=(1-this.weakAmt); return d; }   // outgoing damage (era scalar + debuffs)
   get feetY(){ return CONFIG.groundY + this.yOff; }
   get topY(){ return this.feetY - this.h; }
 
@@ -586,6 +643,31 @@ class Unit{
     if(this.attackAnim>0) this.attackAnim = Math.max(0, this.attackAnim - dt*4); // ~0.25s swing
     if(this.atkTimer>0) this.atkTimer -= dt*1000;
 
+    // ---- mini-ability status effects ----
+    if(this.dot){                                            // bleed / burn damage-over-time
+      if(CLOCK < this.dot.until){
+        this.hp -= this.dot.dps*dt; this.dotTick -= dt;
+        if(this.dotTick<=0){ this.dotTick=0.22; spawnPuff(this.cx, this.topY+this.h*0.3, this.dot.color, 1); }
+        if(this.hp<=0 && !this.dead){ this.die(this.dot.owner); return; }
+      } else this.dot=null;
+    }
+    // shield regen (Hard-Light): refills when it hasn't been hit recently
+    if(this.shieldMax && this.shieldHp<this.shieldMax && (CLOCK-this.shieldHit)>this.abil.delay)
+      this.shieldHp = Math.min(this.shieldMax, this.shieldHp + this.abil.regen*this.shieldMax*dt);
+    // Phase Dash (Nano-Blade): blink forward on a timer
+    if(this.abil && this.abil.key==='phase' && (CLOCK-this.lastPhase)>=this.abil.interval && CLOCK>=this.stunUntil){
+      this.lastPhase = CLOCK;
+      const nx = clamp(this.x + this.dir*this.abil.dist, CONFIG.base.w, W-CONFIG.base.w-this.w);
+      if(nx!==this.x){ spawnPuff(this.cx, this.topY+this.h*0.5, '#bff0ff', 4); this.x=nx; spawnPuff(this.cx, this.topY+this.h*0.5, '#bff0ff', 4); }
+    }
+    const slowF = (CLOCK<this.slowUntil) ? (1-this.slowAmt) : 1;
+
+    if(CLOCK < this.stunUntil){                 // stunned → frozen (no move, no attack)
+      this.state = 'walk';
+      if(Math.random()<0.05){ const p=mkParticle(this.cx, this.topY-2, '#ffe27a',1,2,0.4,false,'spark'); p.vy=-0.6; p.grav=-0.02; particles.push(p); }
+      return;
+    }
+
     const {target, gap} = findTarget(this);
     this.target = target;
 
@@ -593,47 +675,120 @@ class Unit{
       this.state = 'attack';
       if(this.atkTimer <= 0){
         this.performAttack(target);
-        this.atkTimer = this.cd;
+        this.atkTimer = this.effCd();
         this.lunge = 6; this.attackAnim = 1;
       }
     } else {                                  // nothing in range → WALK forward
       this.state = 'walk';
-      this.x += this.dir * this.speed * (dt*60);
+      this.x += this.dir * this.speed * eScale(this.age).speed * slowF * (dt*60);
       this.walkPhase += dt * (4 + this.speed*2.2); // stride speed tracks move speed
       this.dustT = (this.dustT||0) - dt;          // localized dust kicks behind the feet
       if(this.dustT<=0){ this.dustT = 0.18 + Math.random()*0.08; spawnDust(this.cx - this.dir*this.w*0.3, this.feetY); }
     }
   }
+  effCd(){   // attack interval, sped up by Frenzy as HP drops
+    let cd = this.cd;
+    if(this.abil && this.abil.key==='frenzy'){
+      const missing = 1 - this.hp/this.maxHp;
+      cd *= (1 - Math.min(0.6, Math.floor(missing/0.2)*0.15));
+    }
+    return cd;
+  }
 
   performAttack(target){
+    this.lastCombat = CLOCK;
     const mx = this.dir>0 ? this.x+this.w : this.x;   // muzzle / fist position
     const my = this.topY + this.h*0.45;
+    const out = this.atk;                                            // outgoing damage after any debuff
+    const pierceArmor = !!(this.abil && this.abil.key==='truedmg');   // Shield Splinter → true damage
     if(this.isMelee){
-      applyHit(this.owner, target, this.dmg, this.splash, mx, my);
+      applyHit(this.owner, target, out, this.splash, mx, my, this, {isRanged:false, pierceArmor});
       spawnPuff(mx + this.dir*5, my, '#ffffff', 3);
+      if(this.abil && this.abil.key==='cleave'){          // Cleave: every Nth strike arcs into nearby foes
+        if((++this.hitCount) % this.abil.every === 0){
+          const r2=this.abil.radius*this.abil.radius, cd=Math.round(out*this.abil.frac);
+          for(const t of units){ if(t.dead||t.owner===this.owner||t===target) continue;
+            const dx=t.cx-mx, dy=(t.topY+t.h/2)-my; if(dx*dx+dy*dy<=r2) t.takeDamage(cd, this.owner, this, {isRanged:false}); }
+          spawnPuff(mx+this.dir*8, my, '#fff0c0', 3); addShake(3);
+        }
+      }
     } else if(this.pierce){
-      fireBeam(this, mx, my);                          // instant piercing beam
+      fireBeam(this, mx, my);                          // instant piercing beam (handles its own on-hit)
     } else {
-      projectiles.push(new Projectile(this.owner, mx, my, target, this.dmg,
-        {splash:this.splash, kind:this.type, art:projArt(this.age, this.type)}));
+      const shots = (this.abil && this.abil.key==='burst') ? this.abil.shots : 1;   // Burst Fire → 3-round burst
+      for(let i=0;i<shots;i++){
+        const opts = {splash:this.splash, kind:this.type, art:projArt(this.age,this.type), src:this, isRanged:true, pierceArmor};
+        projectiles.push(new Projectile(this.owner, mx, my + (i? rand(-5,5):0), target, out, opts));
+      }
+      if(this.abil && this.abil.key==='smoke') this.smokeUntil = CLOCK + this.abil.dur;  // Smoke Screen self-buff
       spawnPuff(mx, my, '#fff2b0', 2);
     }
   }
 
-  takeDamage(amt, attackerOwner){
+  takeDamage(amt, attackerOwner, attacker, opts){
     if(this.dead) return;
-    this.hp -= amt;
+    opts = opts || {};
+    const isRanged=!!opts.isRanged, isSplash=!!opts.isSplash, isCrit=!!opts.isCrit, pierceArmor=!!opts.pierceArmor;
+    this.lastCombat = CLOCK;
+    const da = this.abil;
+
+    // Hard-Light shield: ranged fire drains the shield pool first
+    if(this.shieldMax && this.shieldHp>0 && isRanged && !pierceArmor){
+      const absorb = Math.min(this.shieldHp, amt); this.shieldHp -= absorb; amt -= absorb; this.shieldHit = CLOCK;
+      spawnPuff(this.cx + this.dir*this.w*0.5, this.topY+this.h*0.4, '#7fdcff', 2);
+      if(amt<=0.5){ spawnTextFloater('Shield', this.cx, this.topY-4, '#bff0ff'); return; }
+    }
+    // Riposte / dodge: evade a MELEE hit (and Riposte counters)
+    if(da && (da.key==='riposte') && !isRanged && Math.random()<da.chance){
+      spawnTextFloater('Riposte', this.cx, this.topY-4, '#ffd7e0');
+      spawnPuff(this.cx, this.topY+this.h*0.4, '#ffd7e0', 2);
+      if(attacker && !attacker.dead) attacker.takeDamage(Math.round(this.dmg*da.mult), this.owner, this, {isRanged:false});
+      return;
+    }
+    // Smoke Screen: ranged shots frequently miss while the cloud lingers
+    if(da && da.key==='smoke' && isRanged && CLOCK<this.smokeUntil && Math.random()<da.dodge){
+      spawnTextFloater('Smoke', this.cx, this.topY-4, '#d2d8de'); return;
+    }
+
+    // layered damage reduction (skipped entirely by true damage)
+    let dmg = amt;
+    if(!pierceArmor){
+      if(da && da.key==='rangedArmor' && isRanged) dmg *= (1-da.amt);    // Thick Hide
+      if(da && da.key==='blastarmor'  && isSplash) dmg *= (1-da.amt);    // Blast Resistant
+      if(da && da.key==='charger' && this.state==='walk') dmg *= (1-da.amt); // Suppressing Charge (while advancing)
+      if(this.auraDef) dmg *= (1-this.auraDef);                          // Phalanx aura from a nearby Paladin
+    }
+    dmg = Math.max(1, dmg);
+    this.hp -= dmg;
     this.hitFlash = 90;
-    spawnFloater(Math.round(amt), this.cx, this.topY-4, this.owner);
-    spawnPuff(this.cx, this.topY+this.h*0.4, '#ffd24a', 3);
+    spawnFloater(Math.round(dmg), this.cx, this.topY-4, this.owner, isCrit);
+    spawnPuff(this.cx, this.topY+this.h*0.4, isCrit?'#ffe27a':'#ffd24a', isCrit?5:3);
+
+    // Pressure Vent (Boiler Guard): one-time steam burst under 30% HP
+    if(da && da.key==='lowhpburst' && !this.vented && this.hp>0 && this.hp/this.maxHp<0.30){ this.vented=true; ventBurst(this); }
+
+    if(attacker && attacker.abil && !this.dead){                        // attacker's on-hit effects
+      const oa = attacker.abil;
+      if(oa.key==='lifesteal') attacker.heal(dmg*oa.amt);
+      else if(oa.key==='slow'){ this.slowUntil = CLOCK+oa.dur; this.slowAmt = oa.amt; }
+      else if(oa.key==='stun' && Math.random()<oa.chance){ this.stunUntil = Math.max(this.stunUntil, CLOCK+oa.dur); spawnTextFloater('Stun', this.cx, this.topY-4, '#ffe27a'); }
+      else if(oa.key==='knockback') this.x = clamp(this.x + attacker.dir*oa.px, CONFIG.base.w, W-CONFIG.base.w-this.w);
+      else if(oa.key==='bleed' || oa.key==='burn'){ this.dot = {dps:oa.dps, until:CLOCK+oa.dur, owner:attackerOwner, color:oa.color}; this.dotTick = 0.22; }
+    }
     if(this.hp <= 0) this.die(attackerOwner);
+  }
+  heal(n){
+    if(this.dead || n<=0) return;
+    const before = this.hp; this.hp = Math.min(this.maxHp, this.hp+n);
+    if(this.hp>before && Math.random()<0.35){ const p=mkParticle(this.cx, this.topY+this.h*0.3, '#7be06a',1,2,0.4,false,'spark'); p.vy=-0.8; p.grav=-0.02; particles.push(p); }
   }
   die(attackerOwner){
     if(this.dead) return;
     this.dead = true; this.state='dead';
     // kill bounty + xp go to the killer's side
-    if(attackerOwner==='player'){ gameState.gold += this.gold; gameState.xp += this.xp; }
-    else { aiState.gold += this.gold; aiState.xp += this.xp; }
+    const xpMul = (attackerOwner==='player') ? eScale(gameState.currentAge).xp : eScale(aiState.age).xp;   // era XP scalar
+    if(attackerOwner==='player'){ gameState.gold += this.gold; gameState.xp += this.xp*xpMul; }
+    else { aiState.gold += this.gold; aiState.xp += this.xp*xpMul; }
     spawnDeath(this.cx, this.topY+this.h/2, this.color);
   }
 }
@@ -643,6 +798,7 @@ class Projectile{
   constructor(owner, x, y, target, dmg, opts={}){
     this.owner = owner; this.x=x; this.y=y; this.dmg=dmg;
     this.splash = !!opts.splash; this.kind = opts.kind || 'ranged';
+    this.src = opts.src || null; this.isRanged = opts.isRanged!==false; this.pierceArmor = !!opts.pierceArmor;
     this.art = opts.art || 'ball';
     this.spin = Math.random()*TAU;
     this.dead = false; this.life = 0; this.maxLife = 2500;
@@ -663,14 +819,14 @@ class Projectile{
       for(const t of units){                          // hostile unit collision
         if(t.dead || t.owner===this.owner) continue;
         if(this.x>=t.x && this.x<=t.x+t.w && this.y>=t.topY-2 && this.y<=t.feetY+2){
-          applyHit(this.owner, t, this.dmg, this.splash, this.x, this.y);
+          applyHit(this.owner, t, this.dmg, this.splash, this.x, this.y, this.src, {isRanged:this.isRanged, pierceArmor:this.pierceArmor});
           this.dead=true; break;
         }
       }
       if(this.dead) break;
       const base = this.owner==='player'?enemyBase:playerBase;   // hostile base collision
       if(this.x>=base.x && this.x<=base.x+base.w && this.y<=CONFIG.groundY){
-        applyHit(this.owner, base, this.dmg, this.splash, this.x, this.y);
+        applyHit(this.owner, base, this.dmg, this.splash, this.x, this.y, this.src, {isRanged:this.isRanged, pierceArmor:this.pierceArmor});
         this.dead=true; break;
       }
     }
@@ -707,7 +863,7 @@ class Turret{
       if(d<=this.range && d<bd){ bd=d; best=u; }
     }
     if(best && this.atkTimer<=0){
-      projectiles.push(new Projectile(this.owner, this.x, this.y, best, this.dmg,
+      projectiles.push(new Projectile(this.owner, this.x, this.y, best, this.dmg*eScale(this.age).dmg,
         {splash:this.splash, kind:'turret', art:({1:'rock',2:'bolt',3:'cannonball',4:'bullet',5:'plasma'})[this.age]}));
       this.atkTimer=this.cd; this.muzzle=80;
     }
@@ -752,17 +908,19 @@ function findTarget(u){
 }
 
 // apply a single hit (direct melee or projectile impact). Handles splash.
-function applyHit(attackerOwner, primary, dmg, splash, hx, hy){
+function applyHit(attackerOwner, primary, dmg, splash, hx, hy, attacker, opts){
+  opts = opts || {};
   if(primary){
     if(primary.isBase) primary.takeDamage(dmg);
-    else primary.takeDamage(dmg, attackerOwner);
+    else primary.takeDamage(dmg, attackerOwner, attacker, opts);
   }
   if(splash){
     const r2 = CONFIG.splashRadius*CONFIG.splashRadius;
+    const sopts = {isRanged:opts.isRanged, pierceArmor:opts.pierceArmor, isSplash:true};
     for(const t of units){
       if(t.dead || t.owner===attackerOwner || t===primary) continue;
       const dx=t.cx-hx, dy=(t.topY+t.h/2)-hy;
-      if(dx*dx+dy*dy<=r2) t.takeDamage(dmg, attackerOwner);
+      if(dx*dx+dy*dy<=r2) t.takeDamage(dmg, attackerOwner, attacker, sopts);
     }
     spawnExplosion(hx,hy);
     addShake(6); addHitStop(0.045);              // heavy splash = weighty impact
@@ -773,17 +931,20 @@ function applyHit(attackerOwner, primary, dmg, splash, hx, hy){
 function fireBeam(u, mx, my){
   const dir=u.dir, endX = mx + dir*u.range;
   let drawEnd = endX;
+  const hits=[];
   for(const t of units){
     if(t.dead || t.owner===u.owner) continue;
     const ahead = dir>0 ? t.cx>=mx : t.cx<=mx;
     if(!ahead) continue;
     const within = dir>0 ? (t.x<=endX) : (t.x+t.w>=endX);
     if(!within) continue;
-    if(my>=t.topY-6 && my<=t.feetY+6) t.takeDamage(u.dmg, u.owner);
+    if(my>=t.topY-6 && my<=t.feetY+6) hits.push(t);
   }
+  hits.sort((a,b)=> dir>0 ? a.cx-b.cx : b.cx-a.cx);   // nearest first
+  hits.forEach((t,i)=> t.takeDamage(u.atk*Math.pow(0.85,i), u.owner, u, {isRanged:true}));  // weakens as it pierces
   const base = u.owner==='player'?enemyBase:playerBase;
   const baseHit = dir>0 ? (base.x<=endX) : (base.x+base.w>=endX);
-  if(baseHit){ base.takeDamage(u.dmg); drawEnd = dir>0?base.x:base.x+base.w; }
+  if(baseHit){ base.takeDamage(u.atk*Math.pow(0.85,hits.length)); drawEnd = dir>0?base.x:base.x+base.w; }
   effects.push(makeBeamShot(mx,my,drawEnd));
 }
 
@@ -815,9 +976,12 @@ function spawnRing(x,y,color,maxR,dur){ let t=0; effects.push({
   draw(ctx){ const p=t/dur; ctx.globalAlpha=Math.max(0,1-p)*0.8; ctx.strokeStyle=color;
     ctx.lineWidth=Math.max(1,3*(1-p)); ctx.beginPath(); ctx.arc(x,y,8+maxR*p,0,TAU); ctx.stroke(); ctx.globalAlpha=1; }
 }); }
-function spawnFloater(val,x,y,victimOwner){
-  floaters.push({text:'-'+val, x:x+rand(-5,5), y, vy:-0.65, life:0.8, maxLife:0.8,
-    color: victimOwner==='enemy' ? '#fff2a8' : '#ffc9c9'});
+function spawnFloater(val,x,y,victimOwner,isCrit){
+  floaters.push({text:(isCrit?'-'+val+'!':'-'+val), x:x+rand(-5,5), y, vy:isCrit?-0.85:-0.65, life:isCrit?1.0:0.8, maxLife:isCrit?1.0:0.8,
+    color: isCrit ? '#ffdf57' : (victimOwner==='enemy' ? '#fff2a8' : '#ffc9c9'), big:!!isCrit});
+}
+function spawnTextFloater(text,x,y,color){   // ability cue (e.g. "Shielded")
+  floaters.push({text, x:x+rand(-4,4), y, vy:-0.5, life:0.85, maxLife:0.85, color, big:false});
 }
 function addFlash(color,dur){ let t=0; effects.push({
   update(dt){ t+=dt; return t<dur; },
@@ -842,9 +1006,27 @@ function hostilesOf(owner){ return units.filter(u=>!u.dead && u.owner!==owner); 
 // splash explosion against a point, crediting `owner`
 function explodeAt(owner,x,y,dmg,radius){
   const r2=radius*radius;
-  for(const u of hostilesOf(owner)){ const dx=u.cx-x, dy=(u.topY+u.h/2)-y; if(dx*dx+dy*dy<=r2) u.takeDamage(dmg,owner); }
+  for(const u of hostilesOf(owner)){ const dx=u.cx-x, dy=(u.topY+u.h/2)-y; if(dx*dx+dy*dy<=r2) u.takeDamage(dmg,owner,null,{isSplash:true}); }
   spawnExplosion(x,y); spawnExplosion(x+8,y-6);
   addShake(10); addHitStop(0.05);
+}
+
+// ---- ultimate status helpers (applied to the caster's hostiles) ----
+function applyStunAll(owner,dur){ for(const u of hostilesOf(owner)) u.stunUntil=Math.max(u.stunUntil,CLOCK+dur); }
+function applySlowAll(owner,amt,dur){ for(const u of hostilesOf(owner)){ u.slowUntil=Math.max(u.slowUntil,CLOCK+dur); u.slowAmt=Math.max(u.slowAmt,amt); } }
+function applyWeakenAll(owner,amt,dur){ for(const u of hostilesOf(owner)){ u.weakUntil=Math.max(u.weakUntil,CLOCK+dur); u.weakAmt=Math.max(u.weakAmt,amt); } }
+function applyKnockAll(owner,px){ const away = owner==='player'?1:-1; for(const u of hostilesOf(owner)) u.x=clamp(u.x+away*px, CONFIG.base.w, W-CONFIG.base.w-u.w); }
+function applyDotAll(owner,dps,dur,color){ for(const u of hostilesOf(owner)){ u.dot={dps,until:CLOCK+dur,owner,color}; u.dotTick=0.22; } }
+function breakShieldsAll(owner){ for(const u of hostilesOf(owner)) if(u.shieldMax){ u.shieldHp=0; u.shieldHit=CLOCK; } }
+function executeAll(owner,frac){ for(const u of hostilesOf(owner)) if(!u.dead && u.hp>0 && u.hp/u.maxHp<frac){ spawnDeath(u.cx,u.topY+u.h/2,'#c98bff'); u.die(owner); } }
+// Pressure Vent: one-time steam burst when a Boiler Guard drops below 30%
+function ventBurst(u){
+  const a=u.abil, r2=a.radius*a.radius;
+  for(const t of hostilesOf(u.owner)){ const dx=t.cx-u.cx, dy=(t.topY+t.h/2)-(u.topY+u.h/2); if(dx*dx+dy*dy<=r2){
+    t.takeDamage(a.dmg, u.owner, null, {isSplash:true});
+    if(!t.dead) t.x = clamp(t.x + (t.cx<u.cx?-1:1)*a.push, CONFIG.base.w, W-CONFIG.base.w-t.w);
+  }}
+  spawnExplosion(u.cx, u.topY+u.h*0.4); spawnRing(u.cx,u.topY+u.h*0.4,'#ffe2b0',60,0.4); addShake(7);
 }
 
 /* ============================ 9. SPECIAL ABILITIES ===================== */
@@ -859,9 +1041,10 @@ function fireSpecialFor(owner, age){
 }
 function hostileHalf(owner){ return owner==='player' ? [CONFIG.base.w,W] : [0,W-CONFIG.base.w]; }
 
-// 1 — Meteor Shower: ~80 to ALL hostile units + falling streaks
+// 1 — Megafauna Stampede: trample damage, mass knockback, and a stun
 function meteorShower(owner){
   for(const u of hostilesOf(owner)) u.takeDamage(80, owner);
+  applyKnockAll(owner, 60); applyStunAll(owner, 2.0);     // flung back + stunned as they scramble up
   addShake(9); addHitStop(0.05);
   const [a,b]=hostileHalf(owner);
   for(let i=0;i<14;i++){ const tx=rand(a+10,b-10); let t=0; const dur=rand(0.4,0.6); let boom=false;
@@ -873,8 +1056,9 @@ function meteorShower(owner){
   }
   addFlash('#ff7b1a',0.4);
 }
-// 2 — Arrow Rain: three waves of ~50 to all hostile units
+// 2 — Rain of Boiling Pitch: damage waves + crippling slow + burning tar (DoT)
 function arrowRain(owner){
+  applySlowAll(owner, 0.6, 6); applyDotAll(owner, 18, 5, '#ff7b2a');   // trudge through burning sludge
   const [a,b]=hostileHalf(owner);
   [0,0.4,0.8].forEach(delay=>{ let t=0,applied=false; const dur=delay+0.5;
     const arrows=[]; for(let i=0;i<24;i++) arrows.push({x:rand(a,b), y:rand(-70,-10), s:rand(6,10)});
@@ -884,8 +1068,9 @@ function arrowRain(owner){
   });
   addFlash('#cfe8ff',0.3);
 }
-// 3 — Artillery Strike: 5 shells at random x, ~200 splash each
+// 3 — Grand Bombard Volley: splash shells that knock back and shatter shields
 function artilleryStrike(owner){
+  applyKnockAll(owner, 45); breakShieldsAll(owner);    // cannonballs bowl them over and smash shields
   const lo = owner==='player'?CONFIG.base.w+60:20, hi = owner==='player'?W-20:W-CONFIG.base.w-60;
   const sx = owner==='player'?CONFIG.base.w*0.5:W-CONFIG.base.w*0.5, sy=CONFIG.base.topY-30;
   for(let i=0;i<5;i++){ const tx=rand(lo,hi), delay=i*0.15, flight=0.55; let t=0,boom=false; const dur=delay+flight+0.3;
@@ -896,8 +1081,9 @@ function artilleryStrike(owner){
   }
   addFlash('#ffe0a0',0.25);
 }
-// 4 — B-2 Bomber Raid: plane crosses, dropping a row of ~400 bombs
+// 4 — Rolling Thunder: carpet bombing + cratered slow + concussion (weakened damage)
 function bomberRaid(owner){
+  applySlowAll(owner, 0.4, 6); applyWeakenAll(owner, 0.5, 5);   // shell-shocked: slowed and hitting at half power
   const dir = owner==='player'?1:-1, y=70, speed=7;
   let x = owner==='player'?-60:W+60;
   let nextDrop = owner==='player'?CONFIG.base.w+40:W-CONFIG.base.w-40;
@@ -919,10 +1105,11 @@ function bomberRaid(owner){
   });
   addFlash('#dfe7ee',0.2);
 }
-// 5 — Orbital Ion Cannon: ~5000 to everything in the center band
+// 5 — Zero-Point Singularity: center burst, traps + crushes enemies, then executes the weak
 function ionCannon(owner){
   const cx=W/2, bw=150;
   for(const u of hostilesOf(owner)){ if(Math.abs(u.cx-cx)<=bw/2) u.takeDamage(5000, owner); }
+  applyStunAll(owner, 2.5); applyDotAll(owner, 400, 2.5, '#c98bff'); executeAll(owner, 0.2);  // trapped, crushed, weak units disintegrate
   for(let i=0;i<8;i++) spawnExplosion(cx+rand(-bw/2,bw/2), CONFIG.groundY-rand(0,40));
   addShake(14); addHitStop(0.07);
   let t=0; const dur=0.7;
@@ -944,7 +1131,7 @@ function tryFireSpecial(){
 // optional turrets and ultimates. Pressure escalates as spawn interval shrinks.
 function aiUpdate(dt){
   // passive gold (×1.2 compounding per age)
-  aiState.gold += CONFIG.economy.enemyPassiveBase * Math.pow(CONFIG.economy.enemyGoldAgeMult, aiState.age-1) * DIFF.enemyGold * dt;
+  aiState.gold += CONFIG.economy.enemyPassiveBase * Math.pow(CONFIG.economy.enemyGoldAgeMult, aiState.age-1) * DIFF.enemyGold * eScale(aiState.age).gold * dt;
 
   // auto-evolve the instant xp crosses the threshold
   if(aiState.age<5 && aiState.xp >= CONFIG.ageXp[aiState.age+1] * DIFF.enemyXpReq){
@@ -1043,9 +1230,17 @@ function endGame(result){            // 'won' | 'lost'
 /* ============================ 12. UPDATE (math) ======================== */
 function update(dt){
   gameState.elapsed += dt;
-  gameState.gold += CONFIG.economy.playerPassive*DIFF.playerGold*dt;             // passive income
+  gameState.gold += CONFIG.economy.playerPassive*DIFF.playerGold*eScale(gameState.currentAge).gold*dt;   // passive income (era-scaled)
   gameState.specialCd = Math.max(0, gameState.specialCd-dt*1000);
 
+  // Phalanx aura: allies positioned behind an Iron Wall Paladin take reduced damage
+  for(const u of units) u.auraDef=0;
+  for(const p of units){ if(p.dead||!p.abil||p.abil.key!=='aura') continue;
+    for(const al of units){ if(al===p||al.dead||al.owner!==p.owner) continue;
+      const behind = p.owner==='player' ? (al.cx<p.cx) : (al.cx>p.cx);
+      if(behind && Math.abs(al.cx-p.cx)<=p.abil.range) al.auraDef=Math.max(al.auraDef, p.abil.amt);
+    }
+  }
   for(const u of units) u.update(dt);
   for(const p of projectiles) p.update(dt);
   for(const t of turrets) t.update(dt);
@@ -1070,26 +1265,26 @@ function update(dt){
    → overcast Modern dusk → neon Future night. Colors blend smoothly and
    background structures cross-fade when the lead era changes. */
 const ERA_THEME = {
-  1:{ skyTop:'#53b2e8', skyMid:'#8fd2f0', skyBot:'#c4e9f7', hillFar:'#9ccf80', hillMid:'#63b04e',
-      treeFill:'#4e9e3e', treeHi:'#67b850', treeOl:'#27591f', trunk:'#6e4a28', pineFill:'#3f8f4a', pineHi:'#52a25c', pineOl:'#214f2c',
-      dirt:'#b07c41', dirtLow:'#9a6630', grass:'#5aa83f', grassOl:'#3f7e2c',
-      sunHex:'#fff6e0', sunY:72, sunR:30, sunA:0.9, hazeHex:'#ffe6a0', hazeA:0.0, darkA:0.0, cloudMul:1.0, mtnHex:'#9fb0c8' },
-  2:{ skyTop:'#6f93c8', skyMid:'#bcc4c2', skyBot:'#f2d9a4', hillFar:'#92ba78', hillMid:'#5a9a46',
-      treeFill:'#4a923a', treeHi:'#61ad48', treeOl:'#244f1d', trunk:'#684628', pineFill:'#3b8746', pineHi:'#4e9a56', pineOl:'#1f4a2a',
-      dirt:'#a9763e', dirtLow:'#915f2c', grass:'#56a13c', grassOl:'#3c7a2a',
-      sunHex:'#ffe7b0', sunY:120, sunR:36, sunA:0.85, hazeHex:'#ffce8c', hazeA:0.10, darkA:0.05, cloudMul:1.0, mtnHex:'#a6aab0' },
-  3:{ skyTop:'#5f6fa8', skyMid:'#e0a878', skyBot:'#ffd58c', hillFar:'#9fae74', hillMid:'#7a9446',
-      treeFill:'#5a8f3a', treeHi:'#8aae4e', treeOl:'#2e5520', trunk:'#6e4a26', pineFill:'#4e8f44', pineHi:'#6aa356', pineOl:'#244f28',
-      dirt:'#b07838', dirtLow:'#915e28', grass:'#6a9a3c', grassOl:'#4a7a2a',
-      sunHex:'#ffd98a', sunY:158, sunR:44, sunA:0.95, hazeHex:'#ffb070', hazeA:0.16, darkA:0.06, cloudMul:0.9, mtnHex:'#c0a890' },
-  4:{ skyTop:'#4a566a', skyMid:'#7a8696', skyBot:'#aab2bc', hillFar:'#7e9070', hillMid:'#5d7050',
-      treeFill:'#3f6e3a', treeHi:'#527e46', treeOl:'#1f3f22', trunk:'#5a4632', pineFill:'#356e40', pineHi:'#477e50', pineOl:'#1c3a24',
-      dirt:'#8f7656', dirtLow:'#6f5a40', grass:'#4e7040', grassOl:'#34521f',
-      sunHex:'#cfd6de', sunY:110, sunR:30, sunA:0.4, hazeHex:'#8a96aa', hazeA:0.14, darkA:0.14, cloudMul:0.85, mtnHex:'#7e8794' },
-  5:{ skyTop:'#0e1430', skyMid:'#1d2a4d', skyBot:'#2a3d63', hillFar:'#2e3d4a', hillMid:'#283440',
-      treeFill:'#2a5e4a', treeHi:'#3f8f6a', treeOl:'#163026', trunk:'#33323a', pineFill:'#27604a', pineHi:'#3a8a64', pineOl:'#143028',
-      dirt:'#3a3340', dirtLow:'#2a2530', grass:'#2e6e54', grassOl:'#1a3f30',
-      sunHex:'#dfe7ff', sunY:80, sunR:24, sunA:0.5, hazeHex:'#28c8dc', hazeA:0.08, darkA:0.30, cloudMul:0.35, mtnHex:'#3a4a64' },
+  1:{ skyTop:'#6db8e0', skyMid:'#a9d8c0', skyBot:'#ffcaa0', hillFar:'#7fbf6a', hillMid:'#4f9e3e',
+      treeFill:'#3f9a34', treeHi:'#5fb84a', treeOl:'#1f5018', trunk:'#5a3a1f', pineFill:'#358a44', pineHi:'#4aa05a', pineOl:'#1c4a28',
+      dirt:'#7a5230', dirtLow:'#4A3525', grass:'#52a83c', grassOl:'#356b24',
+      sunHex:'#ff6a1a', sunY:70, sunR:46, sunA:0.95, hazeHex:'#ff7b2a', hazeA:0.05, darkA:0.0, cloudMul:1.0, mtnHex:'#9a8a6a' },
+  2:{ skyTop:'#5c6878', skyMid:'#7e8a96', skyBot:'#9aa4ac', hillFar:'#7e8a6e', hillMid:'#5a6e4c',
+      treeFill:'#3f7a36', treeHi:'#508a44', treeOl:'#1f3f1c', trunk:'#4a3420', pineFill:'#357040', pineHi:'#48854e', pineOl:'#1c3a24',
+      dirt:'#6e5a44', dirtLow:'#4e3f2e', grass:'#4a6e38', grassOl:'#33501f',
+      sunHex:'#cfd6dc', sunY:90, sunR:30, sunA:0.25, hazeHex:'#8a96a2', hazeA:0.16, darkA:0.10, cloudMul:1.3, mtnHex:'#8a929c' },
+  3:{ skyTop:'#46508a', skyMid:'#b06a7a', skyBot:'#ffcf8a', hillFar:'#8a8470', hillMid:'#6e6a4e',
+      treeFill:'#4e7a3a', treeHi:'#6a9a4e', treeOl:'#2a4f20', trunk:'#5a3f24', pineFill:'#467a44', pineHi:'#609056', pineOl:'#244a28',
+      dirt:'#9a7a52', dirtLow:'#6e5436', grass:'#5e7a3a', grassOl:'#3f5424',
+      sunHex:'#ffcf6a', sunY:150, sunR:42, sunA:0.9, hazeHex:'#e0846a', hazeA:0.14, darkA:0.10, cloudMul:0.8, mtnHex:'#9a8a8a' },
+  4:{ skyTop:'#3a4048', skyMid:'#586068', skyBot:'#7a828a', hillFar:'#6e7558', hillMid:'#525a40',
+      treeFill:'#3a5e34', treeHi:'#4c6e40', treeOl:'#1c3420', trunk:'#4a3e30', pineFill:'#345e3c', pineHi:'#46704a', pineOl:'#19321e',
+      dirt:'#6a6450', dirtLow:'#4a4638', grass:'#4a5e38', grassOl:'#33401f',
+      sunHex:'#c0c8d0', sunY:100, sunR:26, sunA:0.25, hazeHex:'#5a626c', hazeA:0.18, darkA:0.20, cloudMul:1.4, mtnHex:'#6e7682' },
+  5:{ skyTop:'#0b0b18', skyMid:'#1a1840', skyBot:'#241a4a', hillFar:'#1e2438', hillMid:'#181e2e',
+      treeFill:'#1f5e4a', treeHi:'#2f8f6a', treeOl:'#0e2620', trunk:'#26242e', pineFill:'#1d5e48', pineHi:'#308a64', pineOl:'#0e2824',
+      dirt:'#1f1d2a', dirtLow:'#14121c', grass:'#1e6e54', grassOl:'#103f30',
+      sunHex:'#00ffff', sunY:74, sunR:22, sunA:0.45, hazeHex:'#00d8e0', hazeA:0.06, darkA:0.34, cloudMul:0.25, mtnHex:'#2a2a52' },
 };
 let sceneEraShown=1, sceneEraPrev=1, themeT=1, _lastThemeClock=0;
 function sceneEra(){ const p=(typeof gameState!=='undefined'&&gameState)?gameState.currentAge:1; const e=(typeof aiState!=='undefined'&&aiState)?aiState.age:1; return Math.max(p,e); }
@@ -1160,12 +1355,98 @@ function drawStars(ctx,alpha){
   for(const [sx,sy] of S){ const r=((sx+sy)%3)?0.9:1.4; ctx.beginPath(); ctx.arc(sx,sy,r,0,TAU); ctx.fill(); }
   ctx.restore();
 }
+/* ---- signature era backdrop + base-accent helpers (per the visual style guide) ---- */
+function volcano(ctx,x,b,s){                                       // erupting volcano on the horizon
+  const w=120*s, h=92*s, gy=b-h;
+  ctx.fillStyle='#5b4636'; ctx.beginPath(); ctx.moveTo(x-w/2,b); ctx.lineTo(x-16*s,gy); ctx.lineTo(x+16*s,gy); ctx.lineTo(x+w/2,b); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#6e5644'; ctx.beginPath(); ctx.moveTo(x-w/2,b); ctx.lineTo(x-16*s,gy); ctx.lineTo(x-2*s,gy); ctx.lineTo(x-w*0.16,b); ctx.closePath(); ctx.fill();
+  const gl=ctx.createRadialGradient(x,gy,1,x,gy,28*s); gl.addColorStop(0,'rgba(255,150,40,.95)'); gl.addColorStop(1,'rgba(255,69,0,0)');
+  ctx.fillStyle=gl; ctx.beginPath(); ctx.arc(x,gy,28*s,0,TAU); ctx.fill();
+  ctx.strokeStyle='rgba(255,90,20,.85)'; ctx.lineWidth=2*s; ctx.beginPath(); ctx.moveTo(x-6*s,gy); ctx.lineTo(x-12*s,gy+30*s); ctx.moveTo(x+5*s,gy); ctx.lineTo(x+11*s,gy+26*s); ctx.stroke();
+  ctx.fillStyle='rgba(60,50,46,.5)'; for(let i=0;i<3;i++){ const t=(CLOCK*0.3+i*0.45)%1; ctx.beginPath(); ctx.arc(x+Math.sin(CLOCK*0.4+i)*8*s, gy-18*s-t*42*s, (9+i*5+t*9)*s,0,TAU); ctx.fill(); }
+}
+function pterodactyl(ctx,x,y,s){                                   // gliding silhouette
+  const flap=Math.sin(CLOCK*4+x*0.05)*0.5;
+  ctx.strokeStyle='rgba(40,32,28,.7)'; ctx.lineWidth=3*s; ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.beginPath(); ctx.moveTo(x-16*s,y-flap*8*s); ctx.quadraticCurveTo(x-6*s,y+4*s,x,y); ctx.quadraticCurveTo(x+6*s,y+4*s,x+16*s,y-flap*8*s); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+6*s,y+2*s); ctx.stroke(); ctx.lineCap='butt';
+}
+function siegeTower(ctx,x,b,s){                                    // distant wooden siege engine
+  const w=22*s,h=52*s; fillR(ctx,x-w/2,b-h,w,h,1,'#5a4326'); ctx.strokeStyle='#3a2a16'; ctx.lineWidth=2*s;
+  for(let yy=b-h+10*s; yy<b; yy+=13*s){ ctx.beginPath(); ctx.moveTo(x-w/2,yy); ctx.lineTo(x+w/2,yy); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(x-w/2,b-h); ctx.lineTo(x+w/2,b); ctx.moveTo(x+w/2,b-h); ctx.lineTo(x-w/2,b); ctx.stroke();
+  fillR(ctx,x-w/2-2*s,b-h-5*s,w+4*s,6*s,1,'#6e5436'); disc(ctx,x-w/2+4*s,b,4*s,'#3a2a16'); disc(ctx,x+w/2-4*s,b,4*s,'#3a2a16');
+}
+function cog(ctx,x,y,r,rot,col){
+  ctx.save(); ctx.translate(x,y); ctx.rotate(rot); ctx.fillStyle=col;
+  for(let i=0;i<8;i++){ ctx.rotate(TAU/8); ctx.fillRect(-1.6,-r-2,3.2,4); }
+  ctx.beginPath(); ctx.arc(0,0,r,0,TAU); ctx.fill(); ctx.fillStyle=shade(col,-34); ctx.beginPath(); ctx.arc(0,0,r*0.4,0,TAU); ctx.fill(); ctx.restore();
+}
+function clockTower(ctx,x,b,s){                                    // Renaissance clockwork tower
+  const w=30*s,h=80*s; fillR(ctx,x-w/2,b-h,w,h,1,'#ece6d8'); ctx.strokeStyle='#b0a890'; ctx.lineWidth=1.5*s; roundRect(ctx,x-w/2,b-h,w,h,1); ctx.stroke();
+  fillR(ctx,x-w/2,b-22*s,w,22*s,0,'#8b3a2e');
+  ctx.fillStyle='#7a2e26'; ctx.beginPath(); ctx.moveTo(x-w/2-3*s,b-h); ctx.lineTo(x,b-h-18*s); ctx.lineTo(x+w/2+3*s,b-h); ctx.closePath(); ctx.fill();
+  const cy=b-h+24*s; disc(ctx,x,cy,10*s,'#f5f0e4'); ctx.strokeStyle='#5a4a2a'; ctx.lineWidth=1.5*s; ctx.beginPath(); ctx.arc(x,cy,10*s,0,TAU); ctx.stroke();
+  const a=CLOCK*0.5; ctx.strokeStyle='#2a2218'; ctx.lineWidth=1.8*s; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x,cy); ctx.lineTo(x+Math.cos(a)*5*s,cy+Math.sin(a)*5*s); ctx.moveTo(x,cy); ctx.lineTo(x+Math.cos(a*0.5-1.2)*7*s,cy+Math.sin(a*0.5-1.2)*7*s); ctx.stroke(); ctx.lineCap='butt';
+  cog(ctx,x+w/2+7*s,b-32*s,7*s,CLOCK*1.2,'#daa520');
+  ctx.fillStyle='rgba(220,222,228,.4)'; for(let i=0;i<3;i++){ const t=(CLOCK*0.25+i*0.4)%1; ctx.beginPath(); ctx.arc(x-w/2-6*s,b-42*s-t*30*s,(4+i*2)*s,0,TAU); ctx.fill(); }
+}
+function searchlight(ctx,x,b,phase,col){                          // sweeping beam into the storm
+  const ang=-Math.PI/2+Math.sin(CLOCK*0.5+phase)*0.55, len=240, spread=0.05;
+  const x1=x+Math.cos(ang-spread)*len, y1=b+Math.sin(ang-spread)*len, x2=x+Math.cos(ang+spread)*len, y2=b+Math.sin(ang+spread)*len;
+  const g=ctx.createLinearGradient(x,b,(x1+x2)/2,(y1+y2)/2); g.addColorStop(0,col); g.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(x,b); ctx.lineTo(x1,y1); ctx.lineTo(x2,y2); ctx.closePath(); ctx.fill();
+  disc(ctx,x,b,3,'#ffe9a0');
+}
+function nebula(ctx,cx,cy,r){                                     // purple cyberpunk nebula
+  let g=ctx.createRadialGradient(cx,cy,2,cx,cy,r); g.addColorStop(0,'rgba(150,70,200,.5)'); g.addColorStop(0.5,'rgba(75,0,130,.3)'); g.addColorStop(1,'rgba(75,0,130,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(cx,cy,r,r*0.6,0,0,TAU); ctx.fill();
+  g=ctx.createRadialGradient(cx+r*0.3,cy-r*0.2,1,cx+r*0.3,cy-r*0.2,r*0.5); g.addColorStop(0,'rgba(0,220,230,.22)'); g.addColorStop(1,'rgba(0,220,230,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx+r*0.3,cy-r*0.2,r*0.5,0,TAU); ctx.fill();
+}
+function neonVehicle(ctx,x,y,col){                                // flying neon car + light trail
+  ctx.save(); ctx.shadowColor=col; ctx.shadowBlur=8; ctx.fillStyle=col; fillR(ctx,x-7,y-2,14,4,2,col); ctx.shadowBlur=0;
+  ctx.globalAlpha*=0.5; ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(x-7,y); ctx.lineTo(x-24,y); ctx.stroke(); ctx.restore();
+}
+function rainOverlay(ctx,intensity,col){                          // diagonal driving rain
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=1.4; ctx.lineCap='round'; const N=Math.floor(70*intensity);
+  for(let i=0;i<N;i++){ const x=((i*97.3+CLOCK*900)%(W+60))-30, y=((i*53.7+CLOCK*900)%(CONFIG.groundY+40))-20;
+    ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-3,y+12); ctx.stroke(); }
+  ctx.restore(); ctx.lineCap='butt';
+}
+function bonfire(ctx,x,y,s){                                      // base bonfire with live flame
+  ctx.strokeStyle='#5a3a1f'; ctx.lineWidth=4*s; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x-9*s,y); ctx.lineTo(x+9*s,y-3*s); ctx.moveTo(x-9*s,y-3*s); ctx.lineTo(x+9*s,y); ctx.stroke(); ctx.lineCap='butt';
+  const fl=1+Math.sin(CLOCK*8+x)*0.12;
+  const g=ctx.createRadialGradient(x,y-10*s,1,x,y-10*s,18*s*fl); g.addColorStop(0,'rgba(255,232,120,.95)'); g.addColorStop(0.5,'rgba(255,120,20,.8)'); g.addColorStop(1,'rgba(255,60,0,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(x-8*s,y); ctx.quadraticCurveTo(x-6*s,y-14*s*fl,x,y-22*s*fl); ctx.quadraticCurveTo(x+6*s,y-14*s*fl,x+8*s,y); ctx.closePath(); ctx.fill();
+  disc(ctx,x,y-6*s,5*s,'rgba(255,240,160,.9)');
+}
+function tusk(ctx,x,y,s,dir){                                     // mammoth tusk (frames the cave)
+  ctx.strokeStyle='#efe6cf'; ctx.lineWidth=6*s; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.quadraticCurveTo(x+dir*4*s,y-26*s,x+dir*22*s,y-34*s); ctx.stroke();
+  ctx.strokeStyle='#cdbfa0'; ctx.lineWidth=2*s; ctx.beginPath(); ctx.moveTo(x,y); ctx.quadraticCurveTo(x+dir*4*s,y-26*s,x+dir*22*s,y-34*s); ctx.stroke(); ctx.lineCap='butt';
+}
+function banner(ctx,x,y,w,h,col,trim){                            // hanging faction banner
+  ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+w,y); ctx.lineTo(x+w,y+h); ctx.lineTo(x+w/2,y+h-5); ctx.lineTo(x,y+h); ctx.closePath(); ctx.fill();
+  ctx.fillStyle=trim; ctx.fillRect(x,y,w,2.5); disc(ctx,x+w/2,y+h*0.42,2.3,trim);
+}
 function drawEraProps(ctx, era, alpha){
   if(alpha<=0) return; const G=CONFIG.groundY, b=G-16; ctx.save(); ctx.globalAlpha*=alpha; ctx.lineJoin='round';
-  if(era===2){ castle(ctx,150,b,0.95,'#9a9488','#857f72'); castle(ctx,520,b,0.7,'#8f897d','#7a7468'); castle(ctx,850,b,1.0,'#9a9488','#857f72'); }
-  else if(era===3){ eraHouse(ctx,110,b,0.9,'#c2a878','#8a4a32'); eraChurch(ctx,235,b,0.85,'#ccb98f','#7a4128'); eraWindmill(ctx,430,b,0.95,'#cdb98c'); eraHouse(ctx,560,b,0.8,'#bfa06e','#7e4228'); eraHouse(ctx,720,b,1.0,'#c8ad7c','#8a4a30'); eraChurch(ctx,880,b,0.95,'#ccb98f','#7a4128'); }
-  else if(era===4){ const c='#4e5664', win='#ffd98a'; eraTower(ctx,110,b,0.95,c,win); eraTower(ctx,205,b,1.15,'#454c59',win); eraTower(ctx,300,b,0.85,c,win); eraStack(ctx,460,b,1.0); eraTower(ctx,600,b,1.1,'#454c59',win); eraTower(ctx,700,b,0.9,c,win); eraStack(ctx,800,b,0.85); eraTower(ctx,900,b,1.2,c,win); }
-  else if(era===5){ const c='#1d2740', neon='#3fe6e0'; eraFuture(ctx,140,b,1.0,c,neon); eraFuture(ctx,270,b,1.25,'#16203a','#7f8cff'); eraFuture(ctx,520,b,0.9,c,neon); eraFuture(ctx,690,b,1.15,c,'#ff5fa0'); eraFuture(ctx,860,b,1.05,c,neon); }
+  if(era===1){
+    volcano(ctx,250,b,1.15); volcano(ctx,770,b,0.8);
+    for(const [bxF,by] of [[0.2,96],[0.55,128],[0.82,80]]){ const x=(bxF*W+CLOCK*16)%(W+60)-30; pterodactyl(ctx,x,by+Math.sin(CLOCK*0.6+bxF*9)*6,1.0); }
+  }
+  else if(era===2){ castle(ctx,150,b,0.95,'#9a9488','#857f72'); siegeTower(ctx,360,b,1.0); castle(ctx,520,b,0.7,'#8f897d','#7a7468'); siegeTower(ctx,660,b,0.85); castle(ctx,850,b,1.0,'#9a9488','#857f72');
+    rainOverlay(ctx,0.8,'rgba(182,200,220,.35)'); }
+  else if(era===3){ eraHouse(ctx,110,b,0.9,'#c2a878','#8a4a32'); eraChurch(ctx,235,b,0.85,'#ccb98f','#7a4128'); clockTower(ctx,470,b,1.0); eraHouse(ctx,600,b,0.8,'#bfa06e','#7e4228'); eraHouse(ctx,720,b,1.0,'#c8ad7c','#8a4a30'); eraChurch(ctx,880,b,0.95,'#ccb98f','#7a4128'); }
+  else if(era===4){ const c='#4e5664', win='#ffd98a'; eraTower(ctx,110,b,0.95,c,win); eraTower(ctx,205,b,1.15,'#454c59',win); eraTower(ctx,300,b,0.85,c,win); eraStack(ctx,460,b,1.0); eraTower(ctx,600,b,1.1,'#454c59',win); eraTower(ctx,700,b,0.9,c,win); eraStack(ctx,800,b,0.85); eraTower(ctx,900,b,1.2,c,win);
+    searchlight(ctx,160,b-40,0,'rgba(255,240,180,.22)'); searchlight(ctx,520,b-40,2.1,'rgba(255,240,180,.22)'); searchlight(ctx,840,b-40,4.0,'rgba(255,90,90,.18)');
+    rainOverlay(ctx,1.0,'rgba(150,170,195,.3)'); }
+  else if(era===5){ nebula(ctx,330,108,180);
+    const c='#1d2740', neon='#3fe6e0'; eraFuture(ctx,140,b,1.0,c,neon); eraFuture(ctx,270,b,1.25,'#16203a','#7f8cff'); eraFuture(ctx,520,b,0.9,c,neon); eraFuture(ctx,690,b,1.15,c,'#ff5fa0'); eraFuture(ctx,860,b,1.05,c,neon);
+    for(const [bxF,by,col] of [[0.1,82,'#00ffff'],[0.5,120,'#ff5fa0'],[0.82,62,'#7f8cff']]){ const x=(bxF*W+CLOCK*60)%(W+80)-40; neonVehicle(ctx,x,by,col); } }
   ctx.restore();
 }
 
@@ -1195,8 +1476,9 @@ function render(){
     ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,TAU); ctx.fill(); }
   ctx.globalAlpha=1;
   // floating damage numbers
-  ctx.font='bold 13px ui-monospace,Consolas,monospace'; ctx.textAlign='center';
-  for(const f of floaters){ ctx.globalAlpha=clamp(f.life/f.maxLife,0,1); ctx.fillStyle=f.color; ctx.fillText(f.text,f.x,f.y); }
+  ctx.textAlign='center';
+  for(const f of floaters){ ctx.globalAlpha=clamp(f.life/f.maxLife,0,1); ctx.fillStyle=f.color;
+    ctx.font=(f.big?'bold 19px ':'bold 13px ')+'ui-monospace,Consolas,monospace'; ctx.fillText(f.text,f.x,f.y); }
   ctx.globalAlpha=1; ctx.textAlign='left';
   // special effect overlays
   for(const e of effects) e.draw(ctx);
@@ -1430,6 +1712,8 @@ function drawBase(ctx, base){
   ctx.fillStyle='rgba(0,0,0,.20)'; ctx.beginPath(); ctx.ellipse(mid, bot+3, w*0.52, 6, 0,0,TAU); ctx.fill();   // ground contact shadow
   if(age===1){
     drawBoulderBase(ctx, base, x, w, top, bot, mid);
+    tusk(ctx, mid-18, bot-6, 1.0, -1); tusk(ctx, mid+18, bot-6, 1.0, 1);     // mammoth tusks framing the cave
+    bonfire(ctx, mid+(base.owner==='player'?22:-22), bot-2, 1.0);            // roaring bonfire
   } else {
     fillR(ctx,x+4,top,w-8,bot-top,4,main);                 // keep / body
     ctx.strokeStyle='#3a2a18'; ctx.lineWidth=2.5; roundRect(ctx,x+4,top,w-8,bot-top,4); ctx.stroke();
@@ -1440,19 +1724,33 @@ function drawBase(ctx, base){
       for(let i=0;i<5;i++) fillR(ctx, x+6+i*((w-12)/5), top-16, (w-12)/5-4, 18, 1, lt);
       fillR(ctx,x+2,top-26,14,30,2,main); fillR(ctx,x+w-16,top-26,14,30,2,main);
       fillR(ctx,x+2,top-32,14,8,1,lt); fillR(ctx,x+w-16,top-32,14,8,1,lt);
+      banner(ctx,x+16,top-2,13,28,'#4682B4','#FFD700'); banner(ctx,x+w-29,top-2,13,28,'#4682B4','#FFD700');   // faction banners
+      const gx=base.owner==='player'? x+w-26 : x+8;                                                          // drawbridge over spike pit
+      fillR(ctx,gx-2,bot-6,22,6,1,'#7a5230'); ctx.strokeStyle='#4a3420'; ctx.lineWidth=1; roundRect(ctx,gx-2,bot-6,22,6,1); ctx.stroke();
+      ctx.fillStyle='#241a12'; for(let i=0;i<3;i++){ ctx.beginPath(); ctx.moveTo(gx+i*7,bot); ctx.lineTo(gx+3.5+i*7,bot-5); ctx.lineTo(gx+7+i*7,bot); ctx.closePath(); ctx.fill(); }
     } else if(age===3){                                     // manor roof + flag
       ctx.fillStyle=shade(main,-12); ctx.beginPath(); ctx.moveTo(x,top); ctx.lineTo(mid,top-30); ctx.lineTo(x+w,top); ctx.closePath(); ctx.fill();
       ctx.strokeStyle='#8a6a26'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(mid,top-30); ctx.lineTo(mid,top-46); ctx.stroke();
       ctx.fillStyle='#c0392b'; ctx.beginPath(); ctx.moveTo(mid,top-46); ctx.lineTo(mid+(base.owner==='player'?16:-16),top-42); ctx.lineTo(mid,top-38); ctx.closePath(); ctx.fill();
+      const ccx=mid, ccy=top+22; disc(ctx,ccx,ccy,9,'#f5f0e4'); ctx.strokeStyle='#8a6a26'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(ccx,ccy,9,0,TAU); ctx.stroke();  // clock face
+      const ca=CLOCK*0.6; ctx.strokeStyle='#2a2218'; ctx.lineWidth=1.6; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(ccx,ccy); ctx.lineTo(ccx+Math.cos(ca)*4,ccy+Math.sin(ca)*4); ctx.moveTo(ccx,ccy); ctx.lineTo(ccx+Math.cos(ca*0.5)*6,ccy+Math.sin(ca*0.5)*6); ctx.stroke(); ctx.lineCap='butt';
+      cog(ctx, base.owner==='player'? x+13 : x+w-13, top+16, 6, CLOCK*1.4, '#daa520');                                              // brass cog
     } else if(age===4){                                     // bunker HQ + window strip + antenna
       fillR(ctx,x+8,top-14,w-16,16,2,shade(main,8));
       ctx.fillStyle='#1c2330'; for(let i=0;i<3;i++) fillR(ctx,x+16+i*((w-32)/3),top-10,(w-32)/3-6,6,1,'#1c2330');
       ctx.strokeStyle='#9aa2ad'; ctx.lineWidth=2; const ax=base.owner==='player'?x+w-14:x+14;
       ctx.beginPath(); ctx.moveTo(ax,top-14); ctx.lineTo(ax,top-34); ctx.stroke(); disc(ctx,ax,top-34,3,'#d9534f');
+      const aaA=-0.9+Math.sin(CLOCK*0.8)*0.3; ctx.strokeStyle='#6e7682'; ctx.lineWidth=4; ctx.lineCap='round';                       // rotating AA gun
+      ctx.beginPath(); ctx.moveTo(mid,top-12); ctx.lineTo(mid+Math.cos(aaA)*16,top-12+Math.sin(aaA)*16); ctx.stroke(); ctx.lineCap='butt'; disc(ctx,mid,top-12,4,'#556B2F');
+      const pulse=0.35+0.55*(0.5+0.5*Math.sin(CLOCK*6)); ctx.fillStyle='rgba(255,0,0,'+pulse+')'; ctx.beginPath(); ctx.arc(base.owner==='player'?x+13:x+w-13,top-12,3.6,0,TAU); ctx.fill();  // alarm light
     } else {                                                // future spire + energy core
       fillR(ctx,mid-6,top-40,12,42,3,shade(main,10));
       ctx.shadowColor='#36d6e0'; ctx.shadowBlur=12; disc(ctx,mid,top-44,8,'#7fe6ff'); ctx.shadowBlur=0;
       fillR(ctx,x+10,top-6,w-20,8,2,mix(main,'#36d6e0',0.3));
+      const gx=base.owner==='player'? x+w-26 : x+8, sh=0.5+0.5*Math.sin(CLOCK*4);                               // hard-light forcefield gate
+      ctx.save(); ctx.globalAlpha=0.32+0.26*sh; const fg=ctx.createLinearGradient(gx,bot-40,gx,bot); fg.addColorStop(0,'rgba(0,255,255,.7)'); fg.addColorStop(1,'rgba(0,150,255,.2)');
+      ctx.fillStyle=fg; fillR(ctx,gx,bot-40,18,40,3,'#00ffff'); ctx.restore();
+      ctx.strokeStyle='rgba(127,230,255,.55)'; ctx.lineWidth=1; const off=(CLOCK*30)%6; for(let yy=bot-38;yy<bot-2;yy+=6){ ctx.beginPath(); ctx.moveTo(gx,yy+off); ctx.lineTo(gx+18,yy+off); ctx.stroke(); }
     }
   }
   drawBaseHP(ctx, base);
@@ -1817,6 +2115,10 @@ const eras = Array.from(el.timeline.querySelectorAll('.era'));
 function setUnitBtn(btn, spec, capped, playing){
   btn.querySelector('.u-name').textContent = spec.name;
   btn.querySelector('.u-cost').textContent = spec.cost+'g';
+  const ab = ABIL[gameState.currentAge+'_'+spec.type];
+  const as = btn.querySelector('.u-abil');
+  if(as) as.textContent = ab ? ab.label : '';
+  btn.title = ab ? (spec.name+' — '+ab.label+': '+ab.desc) : spec.name;
   btn.disabled = !playing || capped || gameState.gold<spec.cost;
 }
 let lastIconAge=-1;
