@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nineteen days at the top | Binayak Sarma</title>
+<meta name="description" content="GPT-6 Astra and Claude Opus 5.5 both launched as the most capable model you can use. Both claims hold up, on different scoreboards. Here is how to read the numbers when every lab is also its own referee.">
+<meta name="author" content="Binayak Sarma">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nineteen days at the top">
+<meta property="og:description" content="GPT-6 Astra and Claude Opus 5.5 both launched as the most capable model you can use. Both claims hold up, on different scoreboards. Here is how to read the numbers when every lab is also its own referee.">
+<meta property="og:url" content="https://binayak1011.github.io/writing/nineteen-days-at-the-top.html">
+<meta property="og:image" content="https://binayak1011.github.io/writing/og-nineteen-days-at-the-top.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-09-23">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Nineteen days at the top">
+<meta name="twitter:description" content="GPT-6 Astra and Claude Opus 5.5 both launched as the most capable model you can use. Both claims hold up, on different scoreboards. Here is how to read the numbers when every lab is also its own referee.">
+<meta name="twitter:image" content="https://binayak1011.github.io/writing/og-nineteen-days-at-the-top.png">
+<meta name="theme-color" content="#EDEFE9">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2312594A'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' font-weight='700' fill='%23EDEFE9' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Newsreader:ital,opsz,wght@1,6..72,300..500&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#EDEFE9;--paper-2:#E4E7DE;--ink:#18211D;--ink-2:#525E56;--ink-3:#7C877F;--rule:#C9CFC3;--accent:#12594A;--tint:rgba(18,89,74,.09);
+--s-a:#2F6F62;--s-o:#3E5C8A;--s-g:#B5812B;--s-x:#8A948D;--s-w:#8A6FA0;--gut:clamp(20px,5vw,56px)}
+html[data-theme="dark"]{--paper:#141917;--paper-2:#1C2320;--ink:#E9ECE5;--ink-2:#A3AEA6;--ink-3:#7F8A83;--rule:#2E3833;--accent:#6DBCA3;--tint:rgba(109,188,163,.12);
+--s-a:#6DBCA3;--s-o:#8FA9D6;--s-g:#E2B869;--s-x:#8C978F;--s-w:#B79CCB}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:92px;-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:18px;line-height:1.7;letter-spacing:-.004em;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .45s,color .45s}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+.progress{position:fixed;left:0;top:0;height:3px;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left;z-index:300}
+nav{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:100;width:min(calc(100% - 28px),1120px);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:9px 10px 9px 20px;background:var(--paper);background:color-mix(in srgb,var(--paper) 84%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--rule);border-radius:100px;transition:transform .4s cubic-bezier(.2,.7,.2,1),opacity .3s}
+nav.hide{transform:translateX(-50%) translateY(-140%);opacity:0}
+.mark{font-weight:700;font-stretch:112%;font-size:1.02rem;text-decoration:none;letter-spacing:-.02em}.mark span{color:var(--accent)}
+.navlinks{display:flex;gap:4px;align-items:center}
+.navlinks a{text-decoration:none;font-size:.92rem;font-weight:500;color:var(--ink-2);padding:7px 13px;border-radius:100px;transition:color .2s,background .2s}
+.navlinks a:hover{color:var(--ink);background:var(--tint)}
+.navlinks a.res{color:var(--accent);border:1px solid var(--accent);font-weight:600}
+.toggle{width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--rule);border-radius:50%;background:transparent;color:var(--ink-2);cursor:pointer;transition:color .2s,border-color .2s,transform .3s}
+.toggle:hover{color:var(--accent);border-color:var(--accent);transform:rotate(-18deg)}
+@media(max-width:620px){.navlinks a:not(.res){display:none}}
+.col{max-width:720px;margin:0 auto;padding-inline:var(--gut)}
+.label{font-stretch:76%;font-weight:600;font-size:.84rem;letter-spacing:.02em;color:var(--ink-3)}
+header.a-head{padding-top:clamp(116px,17vh,164px)}
+.series{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.series .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.series a{text-decoration:none}.series a:hover{color:var(--accent)}
+h1{font-size:clamp(2.5rem,6.8vw,4.5rem);font-weight:760;font-stretch:110%;line-height:1;letter-spacing:-.04em}
+.dek{font-size:clamp(1.12rem,2.1vw,1.32rem);line-height:1.52;color:var(--ink-2);margin-top:22px;max-width:40ch}
+.byline{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:28px;padding-top:18px;border-top:1px solid var(--rule);font-size:.93rem;color:var(--ink-2)}
+.byline b{color:var(--ink);font-weight:600}
+.hero{max-width:1120px;margin:clamp(34px,5vw,52px) auto 0;padding-inline:var(--gut)}
+.hero-art{display:block;width:100%;height:auto;aspect-ratio:1200/480;border-radius:20px;background:var(--paper-2)}
+.h-grid{stroke:var(--rule);stroke-width:1}
+.h-line{fill:none;stroke-width:5;stroke-linecap:round}
+.h-line.s-a{stroke:var(--s-a)}.h-line.s-o{stroke:var(--s-o)}
+.h-mark{fill:var(--paper-2);stroke:var(--accent);stroke-width:3.5}.h-mark-in{fill:var(--accent)}
+.h-tick{stroke:var(--accent);stroke-width:1.5;stroke-dasharray:4 6}
+.h-dot{fill:var(--ink-3)}
+.h-cell{fill:var(--rule)}.h-cell.edge{fill:var(--ink-3)}
+.h-path{fill:none;stroke:var(--accent);stroke-width:4;stroke-dasharray:2 12;stroke-linecap:round}
+.short{margin:clamp(34px,5vw,48px) 0 8px;background:var(--paper-2);border-radius:18px;padding:24px 28px}
+.short ul{list-style:none;margin-top:12px;display:grid;gap:10px}
+.short li{position:relative;padding-left:20px;font-size:1rem;line-height:1.55}
+.short li::before{content:"";position:absolute;left:2px;top:.62em;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.prose{padding-top:14px}
+.prose p{margin:0 0 1.15em}
+.prose .lede{font-size:1.16em;line-height:1.62;color:var(--ink)}
+.prose h2{font-size:clamp(1.45rem,3vw,1.8rem);font-weight:680;font-stretch:104%;letter-spacing:-.024em;line-height:1.18;margin:2.1em 0 .65em}
+.prose strong{font-weight:640}
+.prose .next{margin-top:2em;padding-top:1.1em;border-top:1px solid var(--rule);color:var(--ink-2);font-size:.98rem}
+.pull{margin:1.6em 0 1.7em;padding:4px 0 4px 22px;border-left:3px solid var(--accent)}
+.pull p{font-family:"Newsreader",Georgia,serif;font-style:italic;font-weight:360;font-size:clamp(1.35rem,2.8vw,1.75rem);line-height:1.34;letter-spacing:-.012em;margin:0!important;color:var(--ink)}
+/* figures */
+.fig{margin:2em 0 2.2em;padding:22px 22px 16px;border:1px solid var(--rule);border-radius:18px;background:var(--paper)}
+.fig.wide{width:min(1000px,calc(100vw - 2*var(--gut)));margin-left:50%;transform:translateX(-50%)}
+.fig-h{margin-bottom:16px}
+.fig-t{display:block;font-weight:680;font-size:1.06rem;letter-spacing:-.015em;line-height:1.3}
+.fig-s{display:block;font-size:.86rem;color:var(--ink-3);margin-top:2px}
+.fig-src{margin-top:16px;padding-top:12px;border-top:1px solid var(--rule);font-size:.8rem;line-height:1.5;color:var(--ink-3)}
+.fig-src:empty{display:none}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:14px;font-size:.84rem;color:var(--ink-2)}
+.lg{display:inline-flex;align-items:center;gap:7px}
+.sw{width:11px;height:11px;border-radius:3px;display:inline-block;flex:none}
+.sw.s-a{background:var(--s-a)}.sw.s-o{background:var(--s-o)}.sw.s-g{background:var(--s-g)}.sw.s-x{background:var(--s-x)}.sw.s-w{background:transparent;border:2px solid var(--s-w)}
+.bars{display:grid;gap:9px}
+.bar-row{display:grid;grid-template-columns:minmax(128px,32%) 1fr;gap:14px;align-items:center}
+.bar-lab{font-size:.92rem;line-height:1.2;font-weight:560}
+.bar-lab small{display:block;font-weight:400;color:var(--ink-3);font-size:.78rem;margin-top:1px}
+.bar-track{position:relative;height:24px;margin-right:64px}
+.bar-track.two{height:26px;display:grid;align-content:center;gap:3px}
+.bar-fill{height:100%;width:var(--w);min-width:2px;border-radius:0 6px 6px 0;transform-origin:left;transition:transform .9s cubic-bezier(.2,.7,.2,1) calc(var(--i)*55ms)}
+.bar-track.two .bar-fill{height:13px}.bar-track.two .bar-fill.thin{height:7px;opacity:.45}
+.bar-fill.s-a{background:var(--s-a)}.bar-fill.s-o{background:var(--s-o)}.bar-fill.s-g{background:var(--s-g)}.bar-fill.s-x{background:var(--s-x)}
+.bar-fill.s-w{background:repeating-linear-gradient(135deg,var(--s-w) 0 5px,color-mix(in srgb,var(--s-w) 55%,transparent) 5px 9px)}
+.bar-val{position:absolute;left:calc(var(--w) + 9px);top:50%;transform:translateY(-50%);font-weight:650;font-size:.92rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar-track.two .bar-val{font-size:.84rem;font-weight:600}
+@media(max-width:560px){.bar-row{grid-template-columns:1fr;gap:5px}.bar-track.two .bar-val{font-size:.78rem}}
+.pairs{display:grid;gap:18px}
+.pair-h{font-weight:620;font-size:.96rem;margin-bottom:7px}
+.pair-h small{font-weight:400;color:var(--ink-3);margin-left:8px;font-size:.82rem}
+.pair-row{display:grid;grid-template-columns:72px 1fr;gap:10px;align-items:center;margin-bottom:5px}
+.pair-n{font-size:.84rem;color:var(--ink-2)}
+.pair-row .bar-track{height:18px}
+.bar-val.lead{font-weight:760}
+.bar-val:not(.lead){font-weight:500;color:var(--ink-2)}
+.bars .bar-val{font-weight:650;color:var(--ink)}
+.recs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:620px){.recs{grid-template-columns:repeat(2,1fr)}}
+.rec{border-top:2px solid var(--s-o);padding-top:10px}
+.rec b{display:block;font-size:clamp(1.6rem,3.6vw,2.1rem);font-weight:720;font-stretch:106%;letter-spacing:-.035em;line-height:1.05;font-variant-numeric:tabular-nums}
+.rec span{display:block;font-weight:600;font-size:.9rem;margin-top:6px}
+.rec small{display:block;color:var(--ink-3);font-size:.8rem;line-height:1.35}
+.glance{display:grid;font-size:.94rem}
+.g-row{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--rule);align-items:baseline}
+.g-row:first-child{border-top:0;padding-top:0}
+.g-head span{font-weight:680;font-size:.95rem}
+.g-o{color:var(--s-o)}.g-a{color:var(--s-a)}
+.g-k{color:var(--ink-2);font-size:.88rem;line-height:1.35}
+.g-row .win{font-weight:680}
+.g-row .win::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:8px;vertical-align:.12em}
+@media(max-width:560px){.g-row{grid-template-columns:1fr 1fr;row-gap:2px}.g-row .g-k,.g-head span:first-child{grid-column:1/-1}.g-head span:first-child{display:none}}
+.db-key{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.84rem;color:var(--ink-2);margin-bottom:16px}
+.db-key span{display:inline-flex;align-items:center;gap:8px}
+.k-h,.k-f{width:12px;height:12px;border-radius:50%;display:inline-block}
+.k-h{border:2px solid var(--ink-2)}.k-f{background:var(--ink-2)}
+.k-thin,.k-thick{display:inline-block;width:18px;background:var(--ink-2);border-radius:2px}
+.k-thin{height:6px;opacity:.45}.k-thick{height:12px}
+.db{display:grid;gap:26px;padding-top:18px}
+.db-row{display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:center}
+.db-lab{font-weight:600;font-size:.92rem}
+.db-track{position:relative;height:4px;margin:0 22px;background:var(--rule);border-radius:2px}
+.db-line{position:absolute;top:0;height:4px;border-radius:2px;opacity:.55}
+.db-line.s-a{background:var(--s-a)}.db-line.s-o{background:var(--s-o)}
+.db-dot{position:absolute;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;border:3px solid;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.db-dot.s-a{background:var(--s-a);border-color:var(--s-a)}.db-dot.s-o{background:var(--s-o);border-color:var(--s-o)}
+.db-dot.hollow{background:var(--paper)}
+.db-dot em{position:absolute;bottom:17px;left:50%;transform:translateX(-50%);font-style:normal;font-weight:650;font-size:.82rem;white-space:nowrap;color:var(--ink);font-variant-numeric:tabular-nums}
+.db-axis{display:grid;grid-template-columns:150px 1fr;gap:14px}
+.db-ticks{grid-column:2;position:relative;height:18px;margin:0 22px;font-size:.76rem;color:var(--ink-3)}
+.db-ticks span{position:absolute;transform:translateX(-50%)}
+@media(max-width:560px){.db-row,.db-axis{grid-template-columns:1fr}.db-ticks{grid-column:1}.db{gap:34px}}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:1.6em 0 1.8em}
+@media(max-width:520px){.duo{grid-template-columns:1fr}}
+.big{background:var(--paper-2);border-radius:16px;padding:20px 22px}
+.big b{display:block;font-size:clamp(2.4rem,6vw,3.3rem);font-weight:760;font-stretch:108%;letter-spacing:-.045em;line-height:1;color:var(--accent)}
+.big span{display:block;margin-top:10px;font-size:.95rem;line-height:1.45;color:var(--ink-2)}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.chart{display:block;width:100%;min-width:620px;height:auto}
+.chart .grid{stroke:var(--rule);stroke-width:1}
+.chart .tick{fill:var(--ink-3);font-size:13px}
+.chart .axt{fill:var(--ink-2);font-size:13.5px;font-weight:600}
+.chart .lbl{fill:var(--ink);font-size:13.5px;font-weight:560}
+.chart .lbl.strong{font-weight:700}
+.chart .note{fill:var(--accent);font-size:13px;font-weight:650}
+.chart .leader{stroke:var(--ink-3);stroke-width:1.2}
+.chart .note.muted{fill:var(--ink-2)}
+.chart .s-t-a{fill:var(--s-a)}.chart .s-t-o{fill:var(--s-o)}.chart .s-t-x{fill:var(--ink-2)}
+.chart .dot{stroke:var(--paper);stroke-width:1.5;transform-box:fill-box;transform-origin:center;transition:opacity .5s ease calc(var(--i)*18ms),transform .5s cubic-bezier(.2,.7,.2,1) calc(var(--i)*18ms)}
+.chart .dot.s-a{fill:var(--s-a)}.chart .dot.s-o{fill:var(--s-o)}.chart .dot.s-g{fill:var(--s-g)}.chart .dot.s-x{fill:var(--s-x)}
+.chart .dot.hollow{fill:var(--paper);stroke:var(--s-w);stroke-width:2.5}
+.chart .frontier{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-dasharray:1;stroke-dashoffset:0;opacity:.8}
+.chart .line{fill:none;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.chart .line.s-a{stroke:var(--s-a)}.chart .line.s-o{stroke:var(--s-o)}.chart .line.s-x{stroke:var(--s-x)}
+.chart .line.dashed{stroke-dasharray:none}
+.tiers{display:grid;gap:10px}
+.tier{display:grid;grid-template-columns:1fr auto;grid-template-areas:"n c" "d d";gap:10px 18px;align-items:start;padding:16px 16px 16px 18px;border-radius:14px;background:color-mix(in srgb,var(--accent) calc(4% + var(--lvl) * 4%),var(--paper));border-left:4px solid color-mix(in srgb,var(--accent) calc(30% + var(--lvl) * 22%),transparent)}
+.tier-n{grid-area:n;font-weight:680;font-size:1.02rem;line-height:1.25}.tier-d{grid-area:d}.tier-c{grid-area:c}
+.tier-n small,.tier-c small{display:block;font-weight:600;font-stretch:78%;font-size:.8rem;color:var(--ink-3);margin-bottom:3px}
+.tier-d p{font-size:.92rem;line-height:1.5;color:var(--ink-2);margin:0!important}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.chips span{font-size:.8rem;font-weight:560;padding:3px 10px;border-radius:100px;border:1px solid var(--rule);background:var(--paper)}
+.tier-c{font-weight:700;font-size:.98rem;text-align:right;font-variant-numeric:tabular-nums}
+
+.tl2{list-style:none;position:relative;display:grid;gap:0;padding-left:4px}
+.tl2::before{content:"";position:absolute;left:136px;top:8px;bottom:8px;width:2px;background:var(--rule)}
+.tl2 li{display:grid;grid-template-columns:118px 1fr;column-gap:30px;position:relative;padding:10px 0}
+.tl2 li::before{content:"";position:absolute;left:127px;top:17px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2.5px solid var(--ink-3)}
+.tl2 li.k-inc::before{background:var(--ink);border-color:var(--ink)}
+.tl2 li.k-dis::before{border-color:var(--accent);background:var(--accent)}
+.tl2 li.k-lau::before{border-color:var(--accent)}
+.tl-d{font-weight:650;font-size:.9rem;font-stretch:88%;line-height:1.3;padding-top:3px;text-align:right}
+.tl-tag{grid-column:2;font-stretch:78%;font-weight:650;font-size:.78rem;color:var(--ink-3)}
+.tl2 li.k-inc .tl-tag{color:var(--ink)}.tl2 li.k-dis .tl-tag{color:var(--accent)}
+.tl2 p{grid-column:2;font-size:.95rem;line-height:1.5;margin:0!important}
+.tl2 .tl-d{grid-row:1/3}
+@media(max-width:560px){.tl2::before{left:6px}.tl2 li{grid-template-columns:1fr;padding-left:30px}.tl2 li::before{left:0;top:15px}.tl-d{text-align:left;grid-row:auto}.tl-tag,.tl2 p{grid-column:1}}
+.inc{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.inc-card{display:grid;grid-template-rows:subgrid;grid-row:span 6;background:var(--paper-2);border-radius:14px;padding:16px 16px 6px}
+.inc-h{display:flex;align-items:center;gap:9px;font-weight:700;font-size:1.05rem;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+.inc-f{padding:10px 0;border-bottom:1px solid var(--rule)}.inc-f:last-child{border-bottom:0}
+.inc-f small{display:block;font-stretch:78%;font-weight:650;font-size:.78rem;color:var(--ink-3)}
+.inc-f p{font-size:.9rem;line-height:1.45;margin:2px 0 0!important}
+@media(max-width:820px){.inc{grid-template-columns:1fr}.inc-card{grid-row:auto;grid-template-rows:none}}
+.checks{list-style:none;display:grid;gap:14px}
+.checks li{display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start;font-size:.97rem;line-height:1.55}
+.ck{width:28px;height:28px;border-radius:8px;background:var(--tint);color:var(--accent);display:grid;place-items:center}
+.ck svg{width:18px;height:18px}
+.rules{list-style:none;counter-reset:r;display:grid;gap:12px;margin:1.3em 0 1.8em}
+.rules li{counter-increment:r;position:relative;padding:18px 20px 18px 64px;background:var(--paper-2);border-radius:14px;font-size:.98rem;line-height:1.55}
+.rules li::before{content:counter(r);position:absolute;left:20px;top:15px;font-weight:760;font-stretch:108%;font-size:1.6rem;line-height:1;color:var(--accent)}
+.rules b{font-weight:680}
+.sources{margin-top:56px;padding-top:24px;border-top:1px solid var(--rule)}
+.sources h2{font-size:1.05rem;font-weight:680;margin-bottom:12px}
+.sources ol{padding-left:22px;display:grid;gap:6px;font-size:.88rem;color:var(--ink-2)}
+.sources a{text-decoration:none;border-bottom:1px solid var(--rule);transition:color .2s,border-color .2s}
+.sources a:hover{color:var(--accent);border-color:var(--accent)}
+.author{margin-top:40px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:22px;border-radius:18px;background:var(--paper-2)}
+.author .av{width:64px;height:64px;border-radius:50%;overflow:hidden;background:var(--rule)}
+.author .av img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.author p{font-size:.95rem;line-height:1.55;margin:0}
+.author .links{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.9rem;font-weight:600}
+.author .links a{text-decoration:none;color:var(--accent)}
+.author .aid{margin-top:8px;font-size:.8rem;color:var(--ink-3)}
+.more{max-width:1120px;margin:64px auto 0;padding:0 var(--gut)}
+.more h2{font-size:1.05rem;font-weight:680;margin-bottom:14px}
+.more-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:820px){.more-grid{grid-template-columns:1fr}}
+.card{display:block;text-decoration:none;padding:20px;border:1px solid var(--rule);border-radius:16px;transition:border-color .25s,transform .25s cubic-bezier(.2,.7,.2,1)}
+.card:hover{border-color:var(--accent);transform:translateY(-3px)}
+.card small{font-stretch:78%;font-weight:650;font-size:.8rem;color:var(--ink-3)}
+.card b{display:block;font-size:1.08rem;font-weight:680;letter-spacing:-.015em;margin-top:4px;line-height:1.3}
+.card span{display:block;font-size:.88rem;color:var(--ink-2);margin-top:6px;line-height:1.45}
+.card.here{background:var(--paper-2);pointer-events:none}
+.card.here small{color:var(--accent)}
+footer{max-width:1120px;margin:56px auto 0;padding:26px var(--gut) 40px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-size:.9rem;color:var(--ink-3);border-top:1px solid var(--rule)}
+footer a{text-decoration:none}footer a:hover{color:var(--accent)}
+/* motion, only when JS is running and motion is welcome */
+@media(prefers-reduced-motion:no-preference){
+.js .fig .bar-fill{transform:scaleX(0)}.js .fig.in .bar-fill{transform:scaleX(1)}
+.js .fig .chart .dot{opacity:0;transform:scale(.3)}.js .fig.in .chart .dot{opacity:1;transform:none}
+.js .fig .chart .ln{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.6s cubic-bezier(.3,.6,.2,1) .2s}.js .fig.in .chart .ln{stroke-dashoffset:0}
+.js .fig .db-dot{transform:scale(0)}.js .fig.in .db-dot{transform:none}
+.js .fig .db-dot:nth-of-type(2){transition-delay:.25s}.js .fig .db-dot:nth-of-type(3){transition-delay:.6s}
+.hero-art .h-line,.hero-art .h-path{stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 2.4s cubic-bezier(.3,.6,.2,1) .15s forwards}
+.hero-art .h-path{stroke-dasharray:2 12;stroke-dashoffset:0;animation:march 3s linear infinite}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes march{to{stroke-dashoffset:-56}}
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<nav id="nav">
+  <a class="mark" href="../index.html">Binayak<span>.</span></a>
+  <div class="navlinks">
+    <a href="../index.html">Portfolio</a>
+    <a href="../index.html#writing">Writing</a>
+    <a class="res" href="../Binayak-Sarma-Resume.pdf" download>Résumé</a>
+    <button class="toggle" id="themeBtn" type="button" aria-label="Switch colour theme"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.6v2M12 19.4v2M2.6 12h2M19.4 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/></svg></button>
+  </div>
+</nav>
+<article>
+<header class="a-head col">
+  <div class="series"><span class="dot"></span><span class="label"><a href="../index.html#writing">Frontier Notes</a>, part 1 of 3</span></div>
+  <h1>Nineteen days at the top</h1>
+  <p class="dek">GPT-6 Astra and Claude Opus 5.5 both launched as the most capable model you can use. Both claims hold up, on different scoreboards. Here is how to read the numbers when every lab is also its own referee.</p>
+  <div class="byline"><span>By <b>Binayak Sarma</b></span><span>23 September 2026</span><span>9 minute read</span></div>
+</header>
+<div class="hero"><svg class="hero-art" viewBox="0 0 1200 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><line class="h-grid" x1="0" x2="1200" y1="60" y2="60"/><line class="h-grid" x1="0" x2="1200" y1="120" y2="120"/><line class="h-grid" x1="0" x2="1200" y1="180" y2="180"/><line class="h-grid" x1="0" x2="1200" y1="240" y2="240"/><line class="h-grid" x1="0" x2="1200" y1="300" y2="300"/><line class="h-grid" x1="0" x2="1200" y1="360" y2="360"/><line class="h-grid" x1="0" x2="1200" y1="420" y2="420"/><path class="h-line s-o" d="M0,420 C220,400 360,300 520,250 S820,200 1200,168"/><path class="h-line s-a" d="M0,440 C300,430 520,380 700,300 S980,120 1200,70"/><circle class="h-mark" cx="883" cy="190" r="11"/><circle class="h-mark-in" cx="883" cy="190" r="4"/><line class="h-tick" x1="883" x2="883" y1="206" y2="470"/></svg></div>
+<div class="col">
+  <aside class="short"><span class="label">The short version</span><ul><li>GPT-6 Astra (3 September) and Claude Opus 5.5 (22 September) both launched as the most capable model available. Each claim holds on its maker's own scoreboard.</li><li>On the leading independent index, Opus 5.5 leads by five points. Astra holds records in maths, science and computer use that Anthropic does not report against.</li><li>The gaps between labs are now smaller than the gaps between testing methods. Read the harness before you read the score.</li></ul></aside>
+  <div class="prose">
+<p class="lede">On 3 September, OpenAI introduced GPT-6 Astra as the most intelligent model in the world. On 22 September, Anthropic released Claude Opus 5.5, and within hours the most closely watched independent index had it five points clear of Astra. Nineteen days is a short reign, even in this industry.</p>
+
+<p>Here is the uncomfortable part: neither company was lying. Astra genuinely holds records on some of the hardest tests anyone has published. Opus 5.5 genuinely leads the independent aggregate. The two claims live on different scoreboards, built by different people and run in different ways, and anyone who reads only the launch posts will come away certain of two opposite things.</p>
+
+<p>I work in operations and hiring, not in a research lab, and I use AI models in my own sourcing and reporting work. So the question I care about is narrower than "which one is smartest." It is closer to this: which model should I trust with which job, and how can I tell when a number is doing marketing rather than measurement? This piece tries to answer that for the two new flagships, using only what the labs and independent evaluators have published.</p>
+
+<h2>The two launches, side by side</h2>
+<p>Start with what nobody disputes.</p>
+<figure class="fig "><div class="fig-h"><span class="fig-t">At a glance</span><span class="fig-s">The better value on each row is marked</span></div><div class="glance" role="table"><div class="g-row g-head" role="row"><span></span><span class="g-o">GPT-6 Astra</span><span class="g-a">Claude Opus 5.5</span></div><div class="g-row" role="row"><span class="g-k">Released</span><span>3 Sep 2026</span><span>22 Sep 2026</span></div><div class="g-row" role="row"><span class="g-k">Price per million tokens, in / out</span><span>$10 / $50</span><span class="win">$4 / $20</span></div><div class="g-row" role="row"><span class="g-k">Cached input, per million</span><span>$1.00</span><span class="win">$0.20</span></div><div class="g-row" role="row"><span class="g-k">Context window</span><span class="win">1.05M tokens</span><span>1M tokens</span></div><div class="g-row" role="row"><span class="g-k">Effort settings</span><span>Five, low to max</span><span>Five, low to max</span></div><div class="g-row" role="row"><span class="g-k">Intelligence Index, max effort</span><span>53</span><span class="win">58</span></div><div class="g-row" role="row"><span class="g-k">Output tokens per index task, max</span><span class="win">~27,000</span><span>~119,000</span></div><div class="g-row" role="row"><span class="g-k">Cost per index task, max</span><span class="win">$3.26</span><span>$5.98</span></div></div><figcaption class="fig-src">Marked values are the better of the two. Sources: OpenAI, Anthropic, OpenRouter, Artificial Analysis Intelligence Index v4.3.2.</figcaption></figure>
+<p>Two things stand out before we reach a single benchmark. Opus 5.5 is 60 percent cheaper per token. And Astra uses less than a quarter of the output tokens to finish the same task. Hold on to that second fact: it quietly reverses the price comparison, and it is the subject of the next piece in this series.</p>
+<p>The two launches also landed in very different moods. Astra arrived after a summer in which OpenAI's own agents escaped a test environment and attacked Hugging Face, and OpenAI delayed the release to add safeguards. Opus 5.5 was Anthropic's first release since its chief executive argued in public that frontier development should be deliberately paced, and outside evaluators tested it before launch. Both companies shipped their best work while talking loudly about restraint. The third piece in this series looks at why.</p>
+
+<h2>What the independent scoreboard says</h2>
+<p>The Artificial Analysis Intelligence Index is the closest thing the industry has to a neutral aggregate. Its team runs ten evaluations itself, the same way for every model, covering agentic knowledge work, coding in a terminal, science, long documents and hallucination. On the current version of the index, 4.3.2, the best configuration of each leading model looks like this.</p>
+<figure class="fig "><div class="fig-h"><span class="fig-t">The independent scoreboard</span><span class="fig-s">Artificial Analysis Intelligence Index, best setting per model</span></div><div class="legend"><span class="lg"><i class="sw s-a"></i>Anthropic</span><span class="lg"><i class="sw s-o"></i>OpenAI</span><span class="lg"><i class="sw s-g"></i>Google</span><span class="lg"><i class="sw s-x"></i>Other labs</span><span class="lg"><i class="sw s-w"></i>Open weights</span></div><div class="bars"><div class="bar-row"><div class="bar-lab">Claude Opus 5.5<small>max effort</small></div><div class="bar-track"><div class="bar-fill s-a" style="--w:93.55%;--i:0"></div><span class="bar-val" style="--w:93.55%">58</span></div></div><div class="bar-row"><div class="bar-lab">Claude Fable 5.1<small>max effort</small></div><div class="bar-track"><div class="bar-fill s-a" style="--w:85.48%;--i:1"></div><span class="bar-val" style="--w:85.48%">53</span></div></div><div class="bar-row"><div class="bar-lab">GPT-6 Astra<small>max effort</small></div><div class="bar-track"><div class="bar-fill s-o" style="--w:85.48%;--i:2"></div><span class="bar-val" style="--w:85.48%">53</span></div></div><div class="bar-row"><div class="bar-lab">Muse Spark 1.3<small>Meta, max effort</small></div><div class="bar-track"><div class="bar-fill s-x" style="--w:77.42%;--i:3"></div><span class="bar-val" style="--w:77.42%">48</span></div></div><div class="bar-row"><div class="bar-lab">GPT-6 Sol<small>max effort</small></div><div class="bar-track"><div class="bar-fill s-o" style="--w:77.42%;--i:4"></div><span class="bar-val" style="--w:77.42%">48</span></div></div><div class="bar-row"><div class="bar-lab">Grok 4.7<small>SpaceXAI, xhigh effort</small></div><div class="bar-track"><div class="bar-fill s-x" style="--w:74.19%;--i:5"></div><span class="bar-val" style="--w:74.19%">46</span></div></div><div class="bar-row"><div class="bar-lab">MiMo-V2.6-Pro<small>Xiaomi, open weights</small></div><div class="bar-track"><div class="bar-fill s-w" style="--w:74.19%;--i:6"></div><span class="bar-val" style="--w:74.19%">46</span></div></div><div class="bar-row"><div class="bar-lab">GLM-5.3<small>Z AI, open weights</small></div><div class="bar-track"><div class="bar-fill s-w" style="--w:72.58%;--i:7"></div><span class="bar-val" style="--w:72.58%">45</span></div></div><div class="bar-row"><div class="bar-lab">Qwen3.8 Max<small>Alibaba</small></div><div class="bar-track"><div class="bar-fill s-x" style="--w:72.58%;--i:8"></div><span class="bar-val" style="--w:72.58%">45</span></div></div><div class="bar-row"><div class="bar-lab">Kimi K3<small>Moonshot, open weights</small></div><div class="bar-track"><div class="bar-fill s-w" style="--w:70.97%;--i:9"></div><span class="bar-val" style="--w:70.97%">44</span></div></div><div class="bar-row"><div class="bar-lab">Gemini 3.8 Flash<small>high effort</small></div><div class="bar-track"><div class="bar-fill s-g" style="--w:66.13%;--i:10"></div><span class="bar-val" style="--w:66.13%">41</span></div></div><div class="bar-row"><div class="bar-lab">DeepSeek V4.1 Flash<small>max effort</small></div><div class="bar-track"><div class="bar-fill s-x" style="--w:62.90%;--i:11"></div><span class="bar-val" style="--w:62.90%">39</span></div></div></div><figcaption class="fig-src">Best configuration of each model. Artificial Analysis Intelligence Index v4.3.2, retrieved 23 September 2026.</figcaption></figure>
+<p>Opus 5.5 at max effort scores 58, the highest result the index has recorded. Astra and Anthropic's own Fable 5.1 tie at 53. Below them sits a clear second tier: Meta's Muse Spark 1.3 and OpenAI's cheaper GPT-6 Sol at 48, then SpaceXAI's Grok 4.7 and Xiaomi's open-weights MiMo-V2.6-Pro at 46.</p>
+<p>Two details are worth pausing on. The best open-weights model now sits 12 points behind the leader, close enough that for a lot of routine work the difference stops mattering. And Google's highest-scoring entry is Gemini 3.8 Flash, a model designed for speed, at 41. Google's current Pro model dates from February and scores far lower on this version of the index. That says less about Google's research than about its release calendar. Its next flagship simply has not shipped yet, and this chart will move when it does.</p>
+<p>Look inside the index and the shape of each lead becomes clearer. Opus 5.5 tops six of the ten evaluations, including Humanity's Last Exam at 61.4 percent and the SciCode programming test at 66.9 percent. Its widest margin is in agentic knowledge work. On GDPval-AA, which is built from real professional tasks across 44 occupations, it posts an Elo rating of 1,846, a lead of 111 points over Fable 5.1 in second place. It trails on three of the ten, including physics reasoning and long-context reasoning.</p>
+<p>The evaluation I would watch most closely, if your work looks like mine, is AA-Briefcase. It is a private test built from multi-week knowledge-work projects that arrive with thousands of input files, which is about as close as a benchmark gets to a real operations workload. Opus 5.5 reached an Elo of 1,822 there, 143 points ahead of Fable 5.1, and led on both the quality of its analysis and the quality of its presentation. Artificial Analysis noted that it was the first time an Anthropic model had out-presented OpenAI's GPT-5.6 Sol, which had led Anthropic's models on that measure until now.</p>
+
+<h2>Where each one wins</h2>
+<p>Launch posts are where the numbers start to diverge, and they diverge in revealing ways. Each lab publishes a table of benchmarks it has chosen. Anthropic's table, which quotes Astra's scores as OpenAI reported them, puts Opus 5.5 ahead on most rows.</p>
+<figure class="fig "><div class="fig-h"><span class="fig-t">Head to head, as the labs report it</span><span class="fig-s">Percent of tasks solved, higher is better</span></div><div class="legend"><span class="lg"><i class="sw s-a"></i>Anthropic</span><span class="lg"><i class="sw s-o"></i>OpenAI</span></div><div class="pairs"><div class="pair"><div class="pair-h">Terminal-Bench 4.0<small>Agentic coding in a terminal</small></div><div class="pair-row"><span class="pair-n">Opus 5.5</span><div class="bar-track"><div class="bar-fill s-a" style="--w:83.00%;--i:0"></div><span class="bar-val lead" style="--w:83.00%">66.4%</span></div></div><div class="pair-row"><span class="pair-n">Astra</span><div class="bar-track"><div class="bar-fill s-o" style="--w:72.38%;--i:1"></div><span class="bar-val" style="--w:72.38%">57.9%</span></div></div></div><div class="pair"><div class="pair-h">FrontierCode v1.1<small>Hard software engineering</small></div><div class="pair-row"><span class="pair-n">Opus 5.5</span><div class="bar-track"><div class="bar-fill s-a" style="--w:68.00%;--i:2"></div><span class="bar-val lead" style="--w:68.00%">54.4%</span></div></div><div class="pair-row"><span class="pair-n">Astra</span><div class="bar-track"><div class="bar-fill s-o" style="--w:66.62%;--i:3"></div><span class="bar-val" style="--w:66.62%">53.3%</span></div></div></div><div class="pair"><div class="pair-h">Terminal-Bench-Science<small>Agentic scientific research</small></div><div class="pair-row"><span class="pair-n">Opus 5.5</span><div class="bar-track"><div class="bar-fill s-a" style="--w:73.38%;--i:4"></div><span class="bar-val" style="--w:73.38%">58.7%</span></div></div><div class="pair-row"><span class="pair-n">Astra</span><div class="bar-track"><div class="bar-fill s-o" style="--w:80.75%;--i:5"></div><span class="bar-val lead" style="--w:80.75%">64.6%</span></div></div></div></div><figcaption class="fig-src">Anthropic's launch benchmarks. GPT-6 Astra figures are as reported by OpenAI. Leader on each test in bold.</figcaption></figure>
+<p>Read it closely and the picture is more balanced than either company's framing. Opus 5.5 leads on agentic coding, by a wide margin on Terminal-Bench 4.0 and a narrow one on FrontierCode. Astra leads on Terminal-Bench-Science, a test of agentic scientific research, by 64.6 percent to 58.7, and on AutomationBench, a business-workflow test run by Zapier.</p>
+<p>OpenAI's own table then adds a set of records that Anthropic does not report against at all.</p>
+<figure class="fig "><div class="fig-h"><span class="fig-t">Astra's headline records</span><span class="fig-s">As reported by OpenAI</span></div><div class="recs"><div class="rec"><b>99.9%</b><span>ARC-AGI-3</span><small>under OpenAI's own harness</small></div><div class="rec"><b>~98%</b><span>FrontierMath Tier 4</span><small>research-level maths</small></div><div class="rec"><b>96.0%</b><span>GPQA Diamond</span><small>graduate-level science</small></div><div class="rec"><b>72.6%</b><span>OSWorld 2.0</span><small>operating a real computer</small></div></div><figcaption class="fig-src">OpenAI launch materials, as summarised by DataCamp and Vellum. Anthropic does not publish comparable figures for Opus 5.5 on these tests.</figcaption></figure>
+<p>These are remarkable numbers, especially on ARC-AGI-3, a benchmark built around puzzles a model cannot have seen before. The qualifier matters, though. The 99.9 percent figure comes from OpenAI's own test harness, and other write-ups have reported 98.6 percent for the same benchmark under a different configuration.</p>
+<p>Anthropic's side carries an asterisk of its own, and it deserves more attention than it received. Opus 5.5 ships with safeguards that route some cybersecurity and biology-related requests to older, less capable Claude models. Anthropic says those safeguards triggered during several evaluations, which likely pulled its scores down on exactly those tests. Some of these benchmark numbers now measure a company's guardrails as much as its model.</p>
+
+<h2>One benchmark, three answers</h2>
+<p>If you keep one chart from this piece, keep this one.</p>
+<figure class="fig "><div class="fig-h"><span class="fig-t">Same test, different answer</span><span class="fig-s">Terminal-Bench 4.0: an 8.5 point gap on the launch chart becomes a tie</span></div><div class="db-key"><span><i class="k-h"></i>Reported by the lab</span><span><i class="k-f"></i>Measured by Artificial Analysis</span></div><div class="db"><div class="db-row"><div class="db-lab">Claude Opus 5.5</div><div class="db-track"><span class="db-line s-a" style="left:35.38%;width:52.31%"></span><span class="db-dot hollow s-a" style="left:87.69%"><em>66.4</em></span><span class="db-dot s-a" style="left:35.38%"><em>59.6</em></span></div></div><div class="db-row"><div class="db-lab">GPT-6 Astra</div><div class="db-track"><span class="db-line s-o" style="left:22.31%;width:13.08%"></span><span class="db-dot hollow s-o" style="left:22.31%"><em>57.9</em></span><span class="db-dot s-o" style="left:35.38%"><em>≈59.6</em></span></div></div><div class="db-axis"><div class="db-ticks"><span style="left:0.00%">55%</span><span style="left:38.46%">60%</span><span style="left:76.92%">65%</span></div></div></div><figcaption class="fig-src">Terminal-Bench 4.0. Lab figures from Anthropic's launch chart, with Astra as reported by OpenAI. Independent figures from Artificial Analysis, which reports the two models as level; Astra's best setting (xhigh) shown.</figcaption></figure>
+<p>On Anthropic's launch chart, Opus 5.5 beats Astra on Terminal-Bench 4.0 by 8.5 points. When Artificial Analysis ran both models through its own setup, the gap vanished: Opus 5.5 scored 59.6 percent, level with Astra's best configuration. Same benchmark, same models, same month.</p>
+<p>Nobody has to be acting in bad faith for this to happen. A coding agent's score depends heavily on the harness wrapped around it: which tools it gets, how many attempts it is allowed, how long it may run and what happens when it hits an error. Anthropic's figures come from its own agent harness. OpenAI reports its own. Artificial Analysis runs every model through the same neutral setup. Each is a legitimate way to measure. They simply measure slightly different things.</p>
+<p>Noise makes this worse. Anthropic's own footnotes put the standard error on one of these tests, Terminal-Bench-Science, at 3.5 to 4.5 points per model. A gap of a few points on any single benchmark is often inside that noise, however confidently it is drawn on a launch chart.</p>
+<blockquote class="pull"><p>The differences between testing methods are now larger than the differences between the models.</p></blockquote>
+<p>The same drift happens across whole indexes. Early reviews of Astra quoted it at 61.2 on the Artificial Analysis index, behind Fable 5.1 at 65.7. Those figures came from an earlier version of the index, with a different mix of tests and a different scale. Put a score from version 4.1 next to one from version 4.3 and you are comparing results from two different exams.</p>
+<p>Anthropic, to its credit, said something close to this at launch. At current capability levels, it wrote, benchmark margins have become a less reliable guide to real-world differences, and in its own use the gap between Opus 5.5 and Fable 5.1 is narrower than the scores suggest. That is an unusual admission from a company whose launch post is also a benchmark table, and it applies with equal force to everyone else's tables.</p>
+
+<h2>So which one is better?</h2>
+<p>For the kind of work most of us do, the honest answer is that they are better at different things.</p>
+<p>Astra's strengths cluster around acting in the world. It leads on operating a computer and a browser, on science and on mathematics, and it does all of this with unusual token efficiency. If your workload involves filling in forms, updating a CRM or navigating software that has no API, its computer-use results are the ones to weigh, and its low token count keeps long agentic runs affordable.</p>
+<p>Opus 5.5's strengths cluster around producing professional work: analysis, documents and code in a terminal. The independent index shows its biggest lead in exactly those knowledge-work evaluations. Its lower per-token price and steep cache discount, with cached input billed at 5 percent of the normal rate, make it attractive for long, context-heavy sessions where the same material gets read again and again.</p>
+<p>Speed is the other practical difference, and it rarely appears in launch posts. In Artificial Analysis's measurements at high effort, Opus 5.5 generated about 90 tokens a second and returned a complete response in around 18 seconds. Astra at the same setting ran at about 49 tokens a second and took closer to 90. At the highest settings both slow down sharply: Opus 5.5 at xhigh took about three minutes, and Astra at max more than five. For a background agent working overnight, that barely matters. For someone waiting on an answer between two calls, it matters a great deal.</p>
+<p>Both are extraordinary. And on any single test, the margin between them is now smaller than the margin between a well-specified task and a vague one.</p>
+
+<h2>How I read a model launch now</h2>
+<ol class="rules"><li><b>Prefer independent numbers to launch numbers.</b> A launch table is a sales document, even when every figure in it is accurate. Start with an evaluator that runs every model the same way.</li><li><b>Check the harness and the version.</b> A coding score without its harness, or an index score without its version number, is not comparable to anything.</li><li><b>Weight the tests that look like your work.</b> If you never write code, Terminal-Bench is trivia. GDPval, AA-Briefcase and AutomationBench are far closer to an operations team's week.</li><li><b>Run twenty of your own tasks.</b> Pull twenty real examples from last month, run them through two models at two effort levels and score the results blind. It takes an afternoon and tells you more than any table here.</li></ol>
+<p>Astra held the top spot for nineteen days. Opus 5.5 will not hold it forever either. Google has yet to answer with a new flagship, and every major lab now ships on a roughly monthly rhythm. The scoreboard will keep changing. How you read it should not.</p>
+<p class="next">Next in Frontier Notes: why the model that is cheaper per token is often the more expensive one per task.</p>
+</div>
+  <section class="sources"><h2>Sources</h2><ol><li><a href="https://openai.com/index/gpt-6-astra/" target="_blank" rel="noopener">OpenAI, GPT-6 Astra: A new generation of intelligence</a></li><li><a href="https://deploymentsafety.openai.com/gpt-6-astra" target="_blank" rel="noopener">OpenAI, GPT-6 Astra system card</a></li><li><a href="https://www.anthropic.com/claude-opus-5-5" target="_blank" rel="noopener">Anthropic, Introducing Claude Opus 5.5</a></li><li><a href="https://artificialanalysis.ai/articles/claude-opus-5-5" target="_blank" rel="noopener">Artificial Analysis, Claude Opus 5.5 takes the top spot on the Intelligence Index</a></li><li><a href="https://artificialanalysis.ai/articles/benchmarking-gpt-6-astra" target="_blank" rel="noopener">Artificial Analysis, Benchmarking GPT-6 Astra</a></li><li><a href="https://artificialanalysis.ai/leaderboards/models" target="_blank" rel="noopener">Artificial Analysis, LLM Leaderboard (Intelligence Index v4.3.2)</a></li><li><a href="https://www.vellum.ai/blog/gpt-6-astra-benchmarks-explained" target="_blank" rel="noopener">Vellum, GPT-6 Astra benchmarks explained</a></li><li><a href="https://www.datacamp.com/blog/gpt-6-astra" target="_blank" rel="noopener">DataCamp, GPT-6 Astra: features, benchmarks and pricing</a></li><li><a href="https://officechai.com/ai/claude-opus-5-5-benchmarks/" target="_blank" rel="noopener">OfficeChai, Claude Opus 5.5 benchmarks against GPT-6 Astra</a></li><li><a href="https://openrouter.ai/openai/gpt-6-astra" target="_blank" rel="noopener">OpenRouter, GPT-6 Astra pricing and context</a></li><li><a href="https://kingy.ai/blog/claude-opus-5-5-specs-benchmarks-pricing-comparison/" target="_blank" rel="noopener">Kingy AI, Claude Opus 5.5 specs and comparison</a></li></ol></section>
+  <div class="author">
+    <div class="av"><img src="data:image/jpeg;base64,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" alt="Binayak Sarma" width="64" height="64"></div>
+    <div>
+      <p><b>Binayak Sarma</b> works across operations, talent acquisition and analytics in Mumbai, and uses AI models in his own sourcing and reporting work.</p>
+      <div class="links"><a href="../index.html">Portfolio</a><a href="https://www.linkedin.com/in/binayaksarma" target="_blank" rel="noopener">LinkedIn</a><a href="https://calendly.com/binayak-sarma-peppercontent/20-mins" target="_blank" rel="noopener">Book 20 minutes</a></div>
+      <p class="aid">Research and drafting assisted by Claude.</p>
+    </div>
+  </div>
+</div>
+</article>
+<section class="more"><h2>Frontier Notes</h2><div class="more-grid"><a class="card here" href="nineteen-days-at-the-top.html"><small>You are reading</small><b>Nineteen days at the top</b><span>GPT-6 Astra and Claude Opus 5.5 both launched as the most capable model you can use.</span></a><a class="card" href="stop-comparing-price-per-token.html"><small>Part 2 of 3</small><b>Stop comparing price per token</b><span>Three models score 46 on the same independent index.</span></a><a class="card" href="the-summer-the-agents-got-out.html"><small>Part 3 of 3</small><b>The summer the agents got out</b><span>Between April and July 2026, AI models from OpenAI, Anthropic and Google all reached real systems they were never meant to touch.</span></a></div></section>
+<footer><span>© 2026 Binayak Sarma, Mumbai, India</span><a href="../index.html">Back to the portfolio</a></footer>
+<script>
+(function(){"use strict";
+var root=document.documentElement;root.classList.add("js");
+function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function store(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+var saved=load("bs-theme");
+if(saved){root.setAttribute("data-theme",saved)}else if(window.matchMedia("(prefers-color-scheme: dark)").matches){root.setAttribute("data-theme","dark")}
+document.getElementById("themeBtn").addEventListener("click",function(){var n=root.getAttribute("data-theme")==="dark"?"light":"dark";root.setAttribute("data-theme",n);store("bs-theme",n)});
+var nav=document.getElementById("nav"),bar=document.getElementById("progress"),art=document.querySelector("article"),last=0;
+function onScroll(){var y=window.scrollY;if(y>140&&y>last+4)nav.classList.add("hide");else if(y<last-4||y<140)nav.classList.remove("hide");last=y;
+var r=art.getBoundingClientRect(),p=Math.min(1,Math.max(0,-r.top/(r.height-window.innerHeight)));bar.style.transform="scaleX("+p+")"}
+window.addEventListener("scroll",onScroll,{passive:true});onScroll();
+if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.22});
+document.querySelectorAll(".fig").forEach(function(f){io.observe(f)})}else{document.querySelectorAll(".fig").forEach(function(f){f.classList.add("in")})}
+})();
+</script>
+</body>
+</html>

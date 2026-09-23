@@ -24,7 +24,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Newsreader:ital,opsz,wght@1,6..72,300..500&display=swap" rel="stylesheet">
 <style>
 /* ─────────────────────────────────────────────────────────────
-   Binayak Sarma — personal site
+   Binayak Sarma, personal site
    One typeface (Archivo variable), width axis carries hierarchy.
    Newsreader italic appears exactly once, on the pull quote.
    ───────────────────────────────────────────────────────────── */
@@ -42,6 +42,8 @@
   --accent-ink:#0C3E33;
   --tint:rgba(18,89,74,.09);
   --shadow:rgba(24,33,29,.10);
+  --s-a:#2F6F62;
+  --s-o:#3E5C8A;
   --max:1120px;
   --gut:clamp(20px,5vw,64px);
 }
@@ -56,6 +58,8 @@ html[data-theme="dark"]{
   --accent-ink:#8FD3BC;
   --tint:rgba(109,188,163,.12);
   --shadow:rgba(0,0,0,.4);
+  --s-a:#6DBCA3;
+  --s-o:#8FA9D6;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -269,7 +273,7 @@ a.nm:hover{color:var(--accent)}
 /* ── built ─────────────────────────────────────────────────── */
 .builds{display:grid;gap:0}
 .build{
-  display:grid;grid-template-columns:.34fr 1fr auto;gap:clamp(14px,3vw,40px);align-items:baseline;
+  display:grid;grid-template-columns:180px minmax(0,1fr) 120px;gap:clamp(14px,3vw,40px);align-items:baseline;
   padding:clamp(20px,3vw,30px) 0;border-top:1px solid var(--rule);text-decoration:none;
   transition:padding-left .3s cubic-bezier(.2,.7,.2,1);
 }
@@ -278,9 +282,48 @@ a.build:hover{padding-left:12px}
 .build h3{font-size:1.14rem;font-weight:620;letter-spacing:-.018em}
 .build p{color:var(--ink-2);font-size:.99rem;max-width:56ch;margin-top:4px}
 .build .kind{font-stretch:80%;font-weight:600;font-size:.9rem;color:var(--ink-3)}
-.build .go{color:var(--ink-3);font-size:.9rem;white-space:nowrap;transition:color .25s}
+.build .go{color:var(--ink-3);font-size:.9rem;white-space:nowrap;text-align:right;transition:color .25s}
 .build:hover .go{color:var(--accent)}
 @media(max-width:760px){.build{grid-template-columns:1fr;gap:6px}.build .go{display:none}}
+
+
+/* ── built: grouped tools + writing ───────────────────────── */
+.bgroup{margin-top:clamp(48px,7vw,72px)}
+.bgroup.first{margin-top:0}
+.bgroup-h{display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:6px 22px;margin-bottom:16px}
+.bgroup-n{display:inline-flex;align-items:center;gap:10px;font-size:1.22rem;font-weight:680;font-stretch:104%;letter-spacing:-.02em}
+.bgroup-c{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 7px;border-radius:100px;background:var(--tint);color:var(--accent);font-size:.8rem;font-weight:700;font-variant-numeric:tabular-nums}
+.bgroup-d{color:var(--ink-2);font-size:.97rem;max-width:86ch}
+@media(max-width:700px){.bgroup-h{grid-template-columns:1fr}}
+.build h4{font-size:1.14rem;font-weight:620;letter-spacing:-.018em}
+.fn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:940px){.fn-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.fn-grid{grid-template-columns:1fr}}
+.fn-card{display:flex;flex-direction:column;text-decoration:none;border:1px solid var(--rule);border-radius:18px;overflow:hidden;background:var(--paper);transition:border-color .25s,transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.fn-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 14px 34px -18px var(--shadow)}
+.fn-art{overflow:hidden;border-bottom:1px solid var(--rule);background:var(--paper-2)}
+.fn-svg{display:block;width:100%;height:auto;aspect-ratio:1200/520;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.fn-card:hover .fn-svg{transform:scale(1.04)}
+.fn-b{display:flex;flex-direction:column;gap:7px;padding:18px 20px 20px;flex:1}
+.fn-k{font-stretch:78%;font-weight:650;font-size:.84rem;color:var(--accent)}
+.fn-b h4{font-size:1.2rem;font-weight:670;letter-spacing:-.022em;line-height:1.24}
+.fn-b p{font-size:.95rem;line-height:1.52;color:var(--ink-2)}
+.fn-m{margin-top:auto;padding-top:10px;font-size:.86rem;color:var(--ink-3);display:flex;justify-content:space-between}
+.fn-m::after{content:"Read";color:var(--ink-2);font-weight:600;transition:color .25s}
+.fn-card:hover .fn-m::after{color:var(--accent)}
+.fn-art .h-grid{stroke:var(--rule);stroke-width:1}
+.fn-art .h-line{fill:none;stroke-width:6;stroke-linecap:round}
+.fn-art .h-line.s-a{stroke:var(--s-a)}.fn-art .h-line.s-o{stroke:var(--s-o)}
+.fn-art .h-mark{fill:var(--paper-2);stroke:var(--accent);stroke-width:4}
+.fn-art .h-mark-in{fill:var(--accent)}
+.fn-art .h-tick{stroke:var(--accent);stroke-width:2;stroke-dasharray:5 7}
+.fn-art .h-dot{fill:var(--ink-3)}
+.fn-art .h-cell{fill:var(--rule)}.fn-art .h-cell.edge{fill:var(--ink-3)}
+.fn-art .h-path{fill:none;stroke:var(--accent);stroke-width:5;stroke-dasharray:2 13;stroke-linecap:round}
+@media(prefers-reduced-motion:no-preference){
+  .fn-card:hover .h-path{animation:fnmarch 1.6s linear infinite}
+  @keyframes fnmarch{to{stroke-dashoffset:-60}}
+}
 
 /* ── beyond ────────────────────────────────────────────────── */
 .beyond{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(28px,5vw,64px);align-items:start}
@@ -541,13 +584,19 @@ footer a:hover{color:var(--accent)}
     <div class="shead rv">
       <span class="label">Built</span>
       <h2>When a process is slow enough to annoy me, I build the thing.</h2>
-      <p>Nothing here was assigned. Each one started as a job that took too long by hand.</p>
+      <p>Nothing here was assigned. The tools started as jobs that took too long by hand. The writing started as questions I needed answered before trusting an AI model with real work.</p>
     </div>
-    <div class="builds">
+
+    <div class="bgroup first">
+      <div class="bgroup-h rv">
+        <h3 class="bgroup-n">Tools<span class="bgroup-c">3</span></h3>
+        <p class="bgroup-d">Small apps and experiments, each one replacing something I used to do by hand.</p>
+      </div>
+      <div class="builds">
       <div class="build rv">
         <span class="kind">Web app</span>
         <div>
-          <h3>Creator Deck Studio</h3>
+          <h4>Creator Deck Studio</h4>
           <p>A single-file web app that turns raw creator profile data into client-ready slide decks, replacing an afternoon of manual formatting with a few minutes. Built with PptxGenJS and used internally.</p>
         </div>
         <span class="go">Internal</span>
@@ -555,7 +604,7 @@ footer a:hover{color:var(--accent)}
       <a class="build rv" href="https://binayak1011.github.io/age-of-war/" target="_blank" rel="noopener">
         <span class="kind">Browser game</span>
         <div>
-          <h3>Age of War</h3>
+          <h4>Age of War</h4>
           <p>A playable remake of the lane-battle classic, written from scratch to learn game loops, state and collision handling.</p>
         </div>
         <span class="go">Play ↗</span>
@@ -563,11 +612,48 @@ footer a:hover{color:var(--accent)}
       <a class="build rv" href="https://binayak1011.github.io/" target="_blank" rel="noopener">
         <span class="kind">This site</span>
         <div>
-          <h3>Hand-written portfolio</h3>
+          <h4>Hand-written portfolio</h4>
           <p>HTML, CSS and vanilla JavaScript, no framework and no builder, deployed on GitHub Pages. Every animation on this page is about forty lines of code.</p>
         </div>
         <span class="go">You are here</span>
       </a>
+    </div>
+    </div>
+
+    <div class="bgroup" id="writing">
+      <div class="bgroup-h rv">
+        <h3 class="bgroup-n">Writing<span class="bgroup-c">3</span></h3>
+        <p class="bgroup-d">Frontier Notes, a three-part series on choosing AI models for real work. Published September 2026.</p>
+      </div>
+      <div class="fn-grid">
+        <a class="fn-card rv" href="writing/nineteen-days-at-the-top.html">
+          <div class="fn-art"><svg class="fn-svg" viewBox="0 0 1200 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><line class="h-grid" x1="0" x2="1200" y1="60" y2="60"/><line class="h-grid" x1="0" x2="1200" y1="120" y2="120"/><line class="h-grid" x1="0" x2="1200" y1="180" y2="180"/><line class="h-grid" x1="0" x2="1200" y1="240" y2="240"/><line class="h-grid" x1="0" x2="1200" y1="300" y2="300"/><line class="h-grid" x1="0" x2="1200" y1="360" y2="360"/><line class="h-grid" x1="0" x2="1200" y1="420" y2="420"/><path class="h-line s-o" d="M0,420 C220,400 360,300 520,250 S820,200 1200,168"/><path class="h-line s-a" d="M0,440 C300,430 520,380 700,300 S980,120 1200,70"/><circle class="h-mark" cx="883" cy="190" r="11"/><circle class="h-mark-in" cx="883" cy="190" r="4"/><line class="h-tick" x1="883" x2="883" y1="206" y2="470"/></svg></div>
+          <div class="fn-b">
+            <span class="fn-k">Part 1, capability</span>
+            <h4>Nineteen days at the top</h4>
+            <p>GPT-6 Astra and Claude Opus 5.5 both launched as the most capable model you can use. Both claims hold up, on different scoreboards.</p>
+            <span class="fn-m">9 minute read</span>
+          </div>
+        </a>
+        <a class="fn-card rv rv-d1" href="writing/stop-comparing-price-per-token.html">
+          <div class="fn-art"><svg class="fn-svg" viewBox="0 0 1200 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><line class="h-grid" x1="0" x2="1200" y1="60" y2="60"/><line class="h-grid" x1="0" x2="1200" y1="120" y2="120"/><line class="h-grid" x1="0" x2="1200" y1="180" y2="180"/><line class="h-grid" x1="0" x2="1200" y1="240" y2="240"/><line class="h-grid" x1="0" x2="1200" y1="300" y2="300"/><line class="h-grid" x1="0" x2="1200" y1="360" y2="360"/><line class="h-grid" x1="0" x2="1200" y1="420" y2="420"/><circle class="h-dot" cx="399" cy="245" r="5" style="opacity:0.55"/><circle class="h-dot" cx="772" cy="163" r="4" style="opacity:0.28"/><circle class="h-dot" cx="641" cy="267" r="5" style="opacity:0.74"/><circle class="h-dot" cx="96" cy="408" r="6" style="opacity:0.70"/><circle class="h-dot" cx="73" cy="411" r="4" style="opacity:0.54"/><circle class="h-dot" cx="110" cy="355" r="3" style="opacity:0.73"/><circle class="h-dot" cx="514" cy="411" r="4" style="opacity:0.58"/><circle class="h-dot" cx="171" cy="339" r="4" style="opacity:0.34"/><circle class="h-dot" cx="745" cy="443" r="6" style="opacity:0.59"/><circle class="h-dot" cx="688" cy="272" r="3" style="opacity:0.56"/><circle class="h-dot" cx="1143" cy="134" r="5" style="opacity:0.63"/><circle class="h-dot" cx="1009" cy="221" r="6" style="opacity:0.68"/><circle class="h-dot" cx="194" cy="311" r="3" style="opacity:0.74"/><circle class="h-dot" cx="382" cy="414" r="3" style="opacity:0.39"/><circle class="h-dot" cx="236" cy="380" r="5" style="opacity:0.27"/><circle class="h-dot" cx="758" cy="260" r="3" style="opacity:0.53"/><circle class="h-dot" cx="654" cy="173" r="3" style="opacity:0.67"/><circle class="h-dot" cx="98" cy="375" r="3" style="opacity:0.49"/><circle class="h-dot" cx="806" cy="275" r="4" style="opacity:0.63"/><circle class="h-dot" cx="388" cy="356" r="6" style="opacity:0.53"/><circle class="h-dot" cx="547" cy="258" r="6" style="opacity:0.53"/><circle class="h-dot" cx="936" cy="360" r="4" style="opacity:0.63"/><circle class="h-dot" cx="308" cy="365" r="5" style="opacity:0.76"/><circle class="h-dot" cx="629" cy="422" r="4" style="opacity:0.71"/><circle class="h-dot" cx="862" cy="227" r="4" style="opacity:0.48"/><circle class="h-dot" cx="1147" cy="159" r="6" style="opacity:0.49"/><circle class="h-dot" cx="507" cy="392" r="3" style="opacity:0.62"/><circle class="h-dot" cx="203" cy="371" r="6" style="opacity:0.29"/><circle class="h-dot" cx="75" cy="431" r="5" style="opacity:0.68"/><circle class="h-dot" cx="902" cy="319" r="4" style="opacity:0.77"/><circle class="h-dot" cx="1028" cy="228" r="5" style="opacity:0.33"/><circle class="h-dot" cx="823" cy="328" r="4" style="opacity:0.78"/><circle class="h-dot" cx="691" cy="291" r="4" style="opacity:0.66"/><circle class="h-dot" cx="988" cy="441" r="3" style="opacity:0.47"/><circle class="h-dot" cx="570" cy="361" r="6" style="opacity:0.34"/><circle class="h-dot" cx="99" cy="428" r="4" style="opacity:0.34"/><circle class="h-dot" cx="768" cy="458" r="6" style="opacity:0.80"/><circle class="h-dot" cx="967" cy="221" r="6" style="opacity:0.44"/><circle class="h-dot" cx="470" cy="370" r="4" style="opacity:0.45"/><circle class="h-dot" cx="56" cy="421" r="3" style="opacity:0.65"/><circle class="h-dot" cx="222" cy="298" r="3" style="opacity:0.44"/><circle class="h-dot" cx="97" cy="435" r="6" style="opacity:0.49"/><circle class="h-dot" cx="177" cy="340" r="3" style="opacity:0.46"/><circle class="h-dot" cx="476" cy="425" r="5" style="opacity:0.53"/><circle class="h-dot" cx="122" cy="392" r="3" style="opacity:0.31"/><circle class="h-dot" cx="656" cy="424" r="4" style="opacity:0.78"/><circle class="h-dot" cx="964" cy="415" r="3" style="opacity:0.30"/><circle class="h-dot" cx="347" cy="322" r="5" style="opacity:0.27"/><circle class="h-dot" cx="439" cy="429" r="4" style="opacity:0.40"/><circle class="h-dot" cx="1122" cy="170" r="4" style="opacity:0.70"/><circle class="h-dot" cx="231" cy="316" r="5" style="opacity:0.47"/><circle class="h-dot" cx="296" cy="348" r="6" style="opacity:0.64"/><circle class="h-dot" cx="702" cy="230" r="3" style="opacity:0.40"/><circle class="h-dot" cx="35" cy="428" r="4" style="opacity:0.48"/><circle class="h-dot" cx="451" cy="344" r="3" style="opacity:0.40"/><circle class="h-dot" cx="1117" cy="355" r="3" style="opacity:0.60"/><circle class="h-dot" cx="618" cy="345" r="5" style="opacity:0.30"/><circle class="h-dot" cx="801" cy="155" r="4" style="opacity:0.29"/><circle class="h-dot" cx="1055" cy="386" r="3" style="opacity:0.50"/><circle class="h-dot" cx="1027" cy="392" r="5" style="opacity:0.80"/><circle class="h-dot" cx="477" cy="295" r="6" style="opacity:0.76"/><circle class="h-dot" cx="148" cy="408" r="5" style="opacity:0.59"/><circle class="h-dot" cx="101" cy="358" r="3" style="opacity:0.54"/><circle class="h-dot" cx="268" cy="288" r="4" style="opacity:0.77"/><circle class="h-dot" cx="418" cy="215" r="4" style="opacity:0.39"/><circle class="h-dot" cx="30" cy="417" r="4" style="opacity:0.36"/><circle class="h-dot" cx="146" cy="371" r="5" style="opacity:0.60"/><circle class="h-dot" cx="59" cy="450" r="4" style="opacity:0.41"/><circle class="h-dot" cx="730" cy="191" r="4" style="opacity:0.40"/><circle class="h-dot" cx="318" cy="313" r="3" style="opacity:0.80"/><circle class="h-dot" cx="445" cy="226" r="3" style="opacity:0.26"/><circle class="h-dot" cx="998" cy="458" r="4" style="opacity:0.53"/><circle class="h-dot" cx="561" cy="309" r="4" style="opacity:0.76"/><circle class="h-dot" cx="128" cy="345" r="3" style="opacity:0.61"/><circle class="h-dot" cx="421" cy="269" r="6" style="opacity:0.61"/><circle class="h-dot" cx="975" cy="179" r="6" style="opacity:0.78"/><circle class="h-dot" cx="56" cy="456" r="5" style="opacity:0.63"/><circle class="h-dot" cx="632" cy="201" r="4" style="opacity:0.44"/><circle class="h-dot" cx="649" cy="162" r="4" style="opacity:0.47"/><circle class="h-dot" cx="632" cy="453" r="5" style="opacity:0.79"/><circle class="h-dot" cx="1014" cy="358" r="4" style="opacity:0.26"/><circle class="h-dot" cx="328" cy="315" r="5" style="opacity:0.49"/><circle class="h-dot" cx="220" cy="418" r="3" style="opacity:0.30"/><circle class="h-dot" cx="637" cy="393" r="6" style="opacity:0.73"/><circle class="h-dot" cx="406" cy="261" r="5" style="opacity:0.58"/><circle class="h-dot" cx="955" cy="455" r="5" style="opacity:0.27"/><circle class="h-dot" cx="1002" cy="395" r="4" style="opacity:0.34"/><circle class="h-dot" cx="963" cy="373" r="6" style="opacity:0.25"/><circle class="h-dot" cx="288" cy="357" r="5" style="opacity:0.78"/><circle class="h-dot" cx="435" cy="204" r="5" style="opacity:0.38"/><circle class="h-dot" cx="62" cy="404" r="5" style="opacity:0.37"/><circle class="h-dot" cx="325" cy="390" r="4" style="opacity:0.25"/><circle class="h-dot" cx="1120" cy="272" r="6" style="opacity:0.30"/><circle class="h-dot" cx="1098" cy="456" r="5" style="opacity:0.53"/><circle class="h-dot" cx="1119" cy="243" r="4" style="opacity:0.39"/><circle class="h-dot" cx="281" cy="297" r="3" style="opacity:0.30"/><circle class="h-dot" cx="254" cy="301" r="3" style="opacity:0.33"/><circle class="h-dot" cx="741" cy="428" r="3" style="opacity:0.47"/><circle class="h-dot" cx="988" cy="285" r="5" style="opacity:0.42"/><circle class="h-dot" cx="774" cy="396" r="4" style="opacity:0.30"/><circle class="h-dot" cx="127" cy="417" r="4" style="opacity:0.61"/><circle class="h-dot" cx="1067" cy="386" r="6" style="opacity:0.67"/><circle class="h-dot" cx="885" cy="288" r="6" style="opacity:0.33"/><circle class="h-dot" cx="234" cy="420" r="4" style="opacity:0.27"/><circle class="h-dot" cx="409" cy="409" r="6" style="opacity:0.65"/><circle class="h-dot" cx="1138" cy="254" r="4" style="opacity:0.75"/><circle class="h-dot" cx="488" cy="445" r="3" style="opacity:0.70"/><circle class="h-dot" cx="856" cy="188" r="4" style="opacity:0.30"/><circle class="h-dot" cx="175" cy="326" r="3" style="opacity:0.32"/><circle class="h-dot" cx="1062" cy="394" r="5" style="opacity:0.78"/><circle class="h-dot" cx="197" cy="430" r="6" style="opacity:0.71"/><circle class="h-dot" cx="1148" cy="343" r="3" style="opacity:0.60"/><circle class="h-dot" cx="429" cy="342" r="4" style="opacity:0.52"/><circle class="h-dot" cx="179" cy="302" r="3" style="opacity:0.50"/><circle class="h-dot" cx="1137" cy="340" r="3" style="opacity:0.66"/><circle class="h-dot" cx="630" cy="440" r="3" style="opacity:0.61"/><circle class="h-dot" cx="525" cy="423" r="3" style="opacity:0.66"/><circle class="h-dot" cx="972" cy="196" r="6" style="opacity:0.39"/><circle class="h-dot" cx="317" cy="300" r="3" style="opacity:0.72"/><circle class="h-dot" cx="304" cy="369" r="4" style="opacity:0.65"/><path class="h-line s-a" d="M20,418 L40,388 L80,355 L120,325 L160,299 L200,276 L240,255 L280,237 L320,221 L360,207 L400,194 L440,183 L480,173 L520,164 L560,156 L600,150 L640,143 L680,138 L720,133 L760,129 L800,125 L840,122 L880,119 L920,116 L960,114 L1000,112 L1040,110 L1080,109 L1120,107 L1160,106 L1200,105"/><circle class="h-mark" cx="140" cy="312" r="8"/><circle class="h-mark" cx="420" cy="188" r="8"/><circle class="h-mark" cx="760" cy="129" r="8"/><circle class="h-mark" cx="1080" cy="109" r="8"/></svg></div>
+          <div class="fn-b">
+            <span class="fn-k">Part 2, cost</span>
+            <h4>Stop comparing price per token</h4>
+            <p>Three models score 46 on the same index. One costs 13 cents a task, another $3.74. Why cost per task is the number that matters.</p>
+            <span class="fn-m">9 minute read</span>
+          </div>
+        </a>
+        <a class="fn-card rv rv-d2" href="writing/the-summer-the-agents-got-out.html">
+          <div class="fn-art"><svg class="fn-svg" viewBox="0 0 1200 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><line class="h-grid" x1="0" x2="1200" y1="60" y2="60"/><line class="h-grid" x1="0" x2="1200" y1="120" y2="120"/><line class="h-grid" x1="0" x2="1200" y1="180" y2="180"/><line class="h-grid" x1="0" x2="1200" y1="240" y2="240"/><line class="h-grid" x1="0" x2="1200" y1="300" y2="300"/><line class="h-grid" x1="0" x2="1200" y1="360" y2="360"/><line class="h-grid" x1="0" x2="1200" y1="420" y2="420"/><rect class="h-cell edge" x="190" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="232" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="274" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="316" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="358" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="400" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="442" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="484" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="526" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="568" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="610" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="652" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="694" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="736" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="778" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="820" y="70" width="26" height="26" rx="4"/><rect class="h-cell edge" x="190" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="232" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="274" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="316" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="358" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="400" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="442" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="484" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="526" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="568" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="610" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="652" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="694" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="736" y="112" width="26" height="26" rx="4"/><rect class="h-cell" x="778" y="112" width="26" height="26" rx="4"/><rect class="h-cell edge" x="820" y="112" width="26" height="26" rx="4"/><rect class="h-cell edge" x="190" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="232" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="274" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="316" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="358" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="400" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="442" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="484" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="526" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="568" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="610" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="652" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="694" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="736" y="154" width="26" height="26" rx="4"/><rect class="h-cell" x="778" y="154" width="26" height="26" rx="4"/><rect class="h-cell edge" x="820" y="154" width="26" height="26" rx="4"/><rect class="h-cell edge" x="190" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="232" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="274" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="316" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="358" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="400" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="442" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="484" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="526" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="568" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="610" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="652" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="694" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="736" y="196" width="26" height="26" rx="4"/><rect class="h-cell" x="778" y="196" width="26" height="26" rx="4"/><rect class="h-cell edge" x="190" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="232" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="274" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="316" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="358" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="400" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="442" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="484" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="526" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="568" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="610" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="652" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="694" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="736" y="238" width="26" height="26" rx="4"/><rect class="h-cell" x="778" y="238" width="26" height="26" rx="4"/><rect class="h-cell edge" x="190" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="232" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="274" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="316" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="358" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="400" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="442" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="484" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="526" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="568" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="610" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="652" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="694" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="736" y="280" width="26" height="26" rx="4"/><rect class="h-cell" x="778" y="280" width="26" height="26" rx="4"/><rect class="h-cell edge" x="820" y="280" width="26" height="26" rx="4"/><rect class="h-cell edge" x="190" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="232" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="274" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="316" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="358" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="400" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="442" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="484" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="526" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="568" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="610" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="652" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="694" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="736" y="322" width="26" height="26" rx="4"/><rect class="h-cell" x="778" y="322" width="26" height="26" rx="4"/><rect class="h-cell edge" x="820" y="322" width="26" height="26" rx="4"/><rect class="h-cell edge" x="190" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="232" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="274" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="316" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="358" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="400" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="442" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="484" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="526" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="568" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="610" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="652" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="694" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="736" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="778" y="364" width="26" height="26" rx="4"/><rect class="h-cell edge" x="820" y="364" width="26" height="26" rx="4"/><path class="h-path" d="M329,293 C490,370 610,162.0 750,222.0 S890,222.0 880,222.0 S1100,182.0 1180,102.0"/><circle class="h-mark" cx="1180" cy="102" r="10"/></svg></div>
+          <div class="fn-b">
+            <span class="fn-k">Part 3, trust</span>
+            <h4>The summer the agents got out</h4>
+            <p>Models from three labs reached real systems during testing. What happened, and what it means for teams handing work to agents.</p>
+            <span class="fn-m">9 minute read</span>
+          </div>
+        </a>
+      </div>
     </div>
   </div>
 </section>
@@ -613,7 +699,7 @@ footer a:hover{color:var(--accent)}
       <a class="lnk rv rv-d1" href="https://www.linkedin.com/in/binayaksarma" target="_blank" rel="noopener">
         <span><span class="k">LinkedIn</span><span class="v">/in/binayaksarma</span></span><span class="go">↗</span>
       </a>
-      <a class="lnk rv rv-d2" href="https://calendly.com/binayak-sarma-peppercontent/15-mins" target="_blank" rel="noopener">
+      <a class="lnk rv rv-d2" href="https://calendly.com/binayak-sarma-peppercontent/20-mins" target="_blank" rel="noopener">
         <span><span class="k">Calendar</span><span class="v">Book 20 minutes</span></span><span class="go">↗</span>
       </a>
       <a class="lnk rv rv-d3" href="tel:+917715824266">
